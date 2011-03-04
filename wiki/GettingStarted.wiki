@@ -1,0 +1,18 @@
+#summary Welcome
+
+= Welcome =
+
+You may wonder why this site and project exists. 
+CDI is a great technology. 
+
+It provides a standard way to do dependency injection and AOP.
+It is part of JEE 6.
+
+However, the examples that ship with the JEE 6 tutorial are too tied NetBeans and Glassfish.
+Conversly the samples from the Weld project do not build easily and depend on JBoss repositories.
+Also the samples from the Weld project have very complex builds, which are great if you want to run the examples on many environments, but not so good if you just want to get something working.
+
+
+We find that most developers use Eclipse, Ant and Maven.
+
+We want to create a set of examples that just work.
