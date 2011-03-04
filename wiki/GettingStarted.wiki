@@ -28,4 +28,5 @@ If you are spending hours configuring, hunting and pecking than there is somethi
 Whenever possible we want to reuse existing examples and point you to the documentation that is already out there. We just want to improve the builds so that you have some examples to get started with quickly.
 
 == CDI and beyond ==
+
 Also, there are ways to run CDI inside and outside of a container, we are going to highlight those ways as well. 
