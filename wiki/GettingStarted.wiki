@@ -30,3 +30,6 @@ Whenever possible we want to reuse existing examples and point you to the docume
 == CDI and beyond ==
 
 Also, there are ways to run CDI inside and outside of a container, we are going to highlight those ways as well. 
+
+== Here are some instructions to get you started quickly ==
+[http://goo.gl/yS7oD Using Maven or Eclipse Java EE IDE to run the Java EE CDI samples]
