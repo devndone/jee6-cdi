@@ -33,6 +33,10 @@ public class Login implements Serializable
 
       List<User> results = userDatabase.createQuery("select u from User u where u.username=:username and u.password=:password").setParameter("username", credentials.getUsername()).setParameter("password", credentials.getPassword()).getResultList();
 
+      for (User user : results) {
+    	  System.out.println("user" + user.getName());
+      }
+      
       if (!results.isEmpty())
       {
          currentUser = results.get(0);

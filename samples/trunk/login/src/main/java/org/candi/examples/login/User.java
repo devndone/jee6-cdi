@@ -34,7 +34,7 @@ public class User implements Serializable
 
    public String getName()
    {
-      return name;
+      return name == null ? username : name;
    }
 
    public void setPassword(String password)
