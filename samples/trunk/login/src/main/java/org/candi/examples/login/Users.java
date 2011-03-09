@@ -22,24 +22,8 @@ public class Users {
 	@TransactionAttribute (TransactionAttributeType.REQUIRED)
 	public List<User> getUsers() {
 
-		List<User> users = userDatabase.createQuery("select u from User u")
+		return userDatabase.createQuery("select u from User u")
 				.getResultList();
-
-		for (User user : users) {
-			System.out.println("getUsers:" + user.getName());
-		}
-
-		if (users.size() == 0) {
-			
-			User user = new User();
-			user.setUsername("demo");
-			user.setName("demo");
-			user.setPassword("demo");
-			
-			userDatabase.persist(user);
-			
-		}
-		return users;
 	}
 
 }
