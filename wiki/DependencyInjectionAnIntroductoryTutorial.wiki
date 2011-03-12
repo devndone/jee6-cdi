@@ -48,7 +48,7 @@ public interface ATMTransport {
 }
 }}}
 
-Now the *AutomatedTellerMachine* needs a transport to perform its intent, namely withdraw money and deposit money. To carry out these tasks, the *AutomatedTellerMachine* may depend on many objects and collaborates with its dependencies to complete the work. 
+Now the *`AutomatedTellerMachine`* needs a transport to perform its intent, namely withdraw money and deposit money. To carry out these tasks, the *AutomatedTellerMachine* may depend on many objects and collaborates with its dependencies to complete the work. 
 
 An implementation of the *AutomatedTellerMachine* may look like this:
 
