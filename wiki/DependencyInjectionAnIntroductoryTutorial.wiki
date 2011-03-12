@@ -1,7 +1,7 @@
 #summary Dependency Injection - An Introductory Tutorial
 #sidebar TOCArticlesDependencyInjectionAnIntroductoryTutorial
 
-= Introduction =
+<h1> Introduction </h1>
 
 This article discusses dependency injection in a tutorial format. It covers some of the features of CDI such as type safe annotations configuration, alternatives and more. 
 
