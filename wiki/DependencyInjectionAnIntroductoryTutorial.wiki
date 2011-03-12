@@ -1,5 +1,5 @@
 #summary Dependency Injection - An Introductory Tutorial
-
+#sidebar TableOfContents
 
 = Introduction =
 
