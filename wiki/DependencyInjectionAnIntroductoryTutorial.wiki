@@ -73,3 +73,54 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }
 
 }}}
+
+The *`AutomatedTellerMachineImpl`* does not know or care how the transport withdraws and deposits money from the bank. This level of indirection allows us to replace the transport with different implementations such as in the following example:
+
+===Three example transports: `SoapAtmTransport`, `StandardAtmTransport` and `JsonAtmTransport`===
+
+====`StandardAtmTransport`====
+{{{
+package org.cdi.advocacy;
+
+
+public class StandardAtmTransport implements ATMTransport {
+
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via Standard transport");
+                ...
+	}
+
+}
+}}}
+
+====`SoapAtmTransport`====
+{{{
+package org.cdi.advocacy;
+
+public class SoapAtmTransport implements ATMTransport {
+
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via Soap transport");
+                ...
+	}
+
+}
+
+}}}
+
+
+====`JsonRestAtmTransport`====
+{{{
+package org.cdi.advocacy;
+
+public class JsonRestAtmTransport implements ATMTransport {
+
+	@Override 
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via JSON REST transport");
+	}
+
+}
+}}}
+
+Notice the possible implementations of the *`ATMTransport interface`*. The `*AutomatedTellerMachineImpl*` does not know or care which transport it uses. Also, for testing and developing, instead of talking to a real bank, you could easily use Mockito or EasyMock or you could even write a `*SimulationAtmTransport*`.
