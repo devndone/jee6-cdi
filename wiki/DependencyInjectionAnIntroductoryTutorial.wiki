@@ -11,7 +11,7 @@ CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by
 
 It is no accident that this tutorial follows this tutorial [http://java.dzone.com/articles/dependency-injection-an-introd (using Spring "new" DI annotations)] written three years ago. It will be interesting to compare and contrast the examples in this tutorial with the one written three years ago for Spring DI annotations.
 
-= Dependency Injections =
+= Dependency Injection =
 
 Dependency Injection (DI) refers to the process of supplying an external dependency to a software component. DI can help make your code architecturally pure. It aids in design by interface as well as test-driven development by providing a consistent way to inject dependencies. For example, a data access object (DAO) may depend on a database connection. Instead of looking up the database connection with JNDI, you could inject it. 
 
@@ -23,7 +23,7 @@ Let's say that you have an automated teller machine (ATM, also known as an autom
 
 This example could be represented by these two interfaces as follows: 
 
-===AutomatedTellerMachine interface===
+===`AutomatedTellerMachine` interface===
 
 {{{
 package org.cdi.advocacy;
@@ -48,9 +48,9 @@ public interface ATMTransport {
 }
 }}}
 
-Now the *`AutomatedTellerMachine`* needs a transport to perform its intent, namely withdraw money and deposit money. To carry out these tasks, the *AutomatedTellerMachine* may depend on many objects and collaborates with its dependencies to complete the work. 
+Now the *`AutomatedTellerMachine`* needs a transport to perform its intent, namely withdraw money and deposit money. To carry out these tasks, the *`AutomatedTellerMachine`* may depend on many objects and collaborates with its dependencies to complete the work. 
 
-An implementation of the *AutomatedTellerMachine* may look like this:
+An implementation of the *`AutomatedTellerMachine`* may look like this:
 
 {{{
 package org.cdi.advocacy;
