@@ -12,7 +12,7 @@ CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by
 It is no accident that this tutorial follows this tutorial [http://java.dzone.com/articles/dependency-injection-an-introd (using Spring "new" DI annotations)] written three years ago. It will be interesting to compare and contrast the examples in this tutorial with the one written three years ago for Spring DI annotations.
 
 = TOC =
-<wiki:toc max_depth="1" />
+<wiki:toc max_depth="5" />
 
 = Dependency Injection =
 
