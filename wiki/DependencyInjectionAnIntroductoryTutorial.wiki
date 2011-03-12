@@ -123,4 +123,4 @@ public class JsonRestAtmTransport implements ATMTransport {
 }
 }}}
 
-Notice the possible implementations of the *`ATMTransport interface`*. The `*AutomatedTellerMachineImpl*` does not know or care which transport it uses. Also, for testing and developing, instead of talking to a real bank, you could easily use Mockito or EasyMock or you could even write a `*SimulationAtmTransport*`.
+Notice the possible implementations of the *`ATMTransport interface`*. The `*AutomatedTellerMachineImpl*` does not know or care which transport it uses. Also, for testing and developing, instead of talking to a real bank, you could easily use Mockito or EasyMock or you could even write a *`SimulationAtmTransport`*.
