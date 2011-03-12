@@ -155,18 +155,18 @@ ATMTransport transport = new SimulationAtmTransport();
 }}}
 
 
-The above assumes we added a *`setTransport`* method to the *`AutomateTellerMachineImpl`*. Not you could just as easily use constructor arguments instead of a setter method. Thus keeping the interface of your *`AutomateTellerMachineImpl`* clean.
+The above assumes we added a *`setTransport`* method to the *`AutomateTellerMachineImpl`*. Note you could just as easily use constructor arguments instead of a setter method. Thus keeping the interface of your *`AutomateTellerMachineImpl`* clean.
 
 To use CDI to manage the dependencies you could do the following:
- * Create an empty *bean.xml* file under *META-INF* resource folder
- * Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*
- * Use the *@Default* annotation to annotate the *StandardAtmTransport*
- * Use the *@Alternative* to annotate the *SoapAtmTransport*, and *JsonRestAtmTransport*.
- * Use the *@Named* annotation to make the *AutomatedTellerMachineImpl* easy to look up; give it the name "atm"
- * Use the CDI *`beanContainer`* to look the *atm*, makes some deposits and withdraws.
+ # Create an empty *bean.xml* file under *META-INF* resource folder
+ # Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*
+ # Use the *@Default* annotation to annotate the *`StandardAtmTransport`*
+ # Use the *@Alternative* to annotate the *`SoapAtmTransport`*, and *`JsonRestAtmTransport`*.
+ # Use the *@Named* annotation to make the *`AutomatedTellerMachineImpl`* easy to look up; give it the name "atm"
+ # Use the CDI *`beanContainer`* to look the *atm*, makes some deposits and withdraws.
 
 
-===Create an empty *bean.xml* file under *META-INF* resource folder ===
+===Step 1: Create an empty *bean.xml* file under *META-INF* resource folder ===
 ===META-INF/beans.xml===
 {{{
 <beans xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -178,31 +178,67 @@ http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 }}}
 
 
- * Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*
+===Step 2: Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*===
+{{{
+package org.cdi.advocacy;
 
+...
+
+import javax.inject.Inject;
+
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	private ATMTransport transport;
+
+	@Inject
+	public void setTransport(ATMTransport transport) {
+		this.transport = transport;
+	}
+
+       ...
+
+}
+
+}}}
+
+===Step 3: Use the *@Default* annotation to annotate the *`StandardAtmTransport`*===
+{{{
+package org.cdi.advocacy;
+
+import javax.enterprise.inject.Default;
+
+@Default
+public class StandardAtmTransport implements ATMTransport {
+    ...
+
+}}}
+
+=== Step 4: Use the *@Alternative* to annotate the *`SoapAtmTransport`*, and *`JsonRestAtmTransport`*. ===
+{{{
+package org.cdi.advocacy;
+
+import javax.enterprise.inject.Alternative;
+
+@Alternative
+public class JsonRestAtmTransport implements ATMTransport {
+
+...
+}
+
+}}}
 
 {{{
 package org.cdi.advocacy;
 
-import java.math.BigDecimal;
+import javax.enterprise.inject.Alternative;
 
-...
-
-public class AtmMain {
-
-        ...
-        ...
-
-	public static void main(String[] args) throws Exception {
-		AutomatedTellerMachine atm = (AutomatedTellerMachine) beanContainer
-				.getBeanByName("atm");
-
-		atm.deposit(new BigDecimal("1.00"));
-
-	}
-
+@Alternative
+public class SoapAtmTransport implements ATMTransport {
+   ...
 }
+
 }}}
+
 
 
 ===`StandardAtmTransport`===
@@ -251,6 +287,53 @@ public class JsonRestAtmTransport implements ATMTransport {
 	@Override 
 	public void communicateWithBank(byte[] datapacket) {
 		System.out.println("communicating with bank via JSON REST transport");
+	}
+
+}
+}}}
+
+
+ === Step 5: Use the *@Named* annotation to make the *`AutomatedTellerMachineImpl`* easy to look up; give it the name "atm"===
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named("atm")
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+       ...
+
+}
+
+
+}}}
+
+
+
+ === Step 6: Use the CDI *`beanContainer`* to look the *atm*, makes some deposits and withdraws. ===
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+
+...
+
+public class AtmMain {
+
+        ...
+        ...
+
+	public static void main(String[] args) throws Exception {
+		AutomatedTellerMachine atm = (AutomatedTellerMachine) beanContainer
+				.getBeanByName("atm");
+
+		atm.deposit(new BigDecimal("1.00"));
+
 	}
 
 }
