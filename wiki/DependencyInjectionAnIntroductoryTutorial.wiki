@@ -11,9 +11,65 @@ CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by
 
 It is no accident that this tutorial follows this tutorial [http://java.dzone.com/articles/dependency-injection-an-introd (using Spring "new" DI annotations)] written three years ago. It will be interesting to compare and contrast the examples in this tutorial with the one written three years ago for Spring DI annotations.
 
-= Details =
+= Dependency Injections =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Dependency Injection (DI) refers to the process of supplying an external dependency to a software component. DI can help make your code architecturally pure. It aids in design by interface as well as test-driven development by providing a consistent way to inject dependencies. For example, a data access object (DAO) may depend on a database connection. Instead of looking up the database connection with JNDI, you could inject it. 
+
+One way to think about a DI framework like CDI is to think of JNDI turned inside out. Instead of an object looking up other objects that it needs to get its job done (dependencies), a DI container injects those dependent objects. This is the so-called Hollywood Principle, “Don't call us” (lookup objects), “we’ll call you” (inject objects). 
+
+If you have worked with CRC cards you can think of a dependency as a collaborator, i.e., an object that another object needs to perform its role.
+ 
+Let's say that you have an automated teller machine (ATM, also known as an automated banking machine in other countries) and it needs the ability to talk to a bank. It uses what it calls a transport object to do this. In this example, a transport object handles the low-level communication to the bank. 
+
+This example could be represented by these two interfaces as follows: 
+
+===AutomatedTellerMachine interface===
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+
+public interface AutomatedTellerMachine {
+
+	public abstract void deposit(BigDecimal bd);
+
+	public abstract void withdraw(BigDecimal bd);
+
+}
+}}}
+
+===ATMTransport interface===
+{{{
+package org.cdi.advocacy;
+
+public interface ATMTransport {
+	public void communicateWithBank(byte[] datapacket);
+}
+}}}
+
+Now the *AutomatedTellerMachine* needs a transport to perform its intent, namely withdraw money and deposit money. To carry out these tasks, the *AutomatedTellerMachine* may depend on many objects and collaborates with its dependencies to complete the work. 
+
+An implementation of the *AutomatedTellerMachine* may look like this:
+
+{{{
+package org.cdi.advocacy;
+...
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	private ATMTransport transport;
+	
+        ...
+	public void deposit(BigDecimal bd) {
+		System.out.println("deposit called");
+		transport.communicateWithBank(...);
+	}
+
+	public void withdraw(BigDecimal bd) {
+		System.out.println("withdraw called");
+		transport.communicateWithBank(...);
+	}
+
+}
+
+}}}
