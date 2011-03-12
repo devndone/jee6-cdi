@@ -124,3 +124,134 @@ public class JsonRestAtmTransport implements ATMTransport {
 }}}
 
 Notice the possible implementations of the *`ATMTransport interface`*. The `*AutomatedTellerMachineImpl*` does not know or care which transport it uses. Also, for testing and developing, instead of talking to a real bank, you could easily use Mockito or EasyMock or you could even write a *`SimulationAtmTransport`*.
+
+
+The concept of DI transcends CDI, Guice and Spring. Thus, you can accomplish DI without CDI or Spring as follows: 
+
+{{{
+package org.cdi.advocacy;
+
+public class AtmMain {
+        
+        public void main (String[] args) {
+                AutomatedTellerMachine atm = new AutomatedTellerMachineImpl();
+                ATMTransport transport = new SoapAtmTransport();
+                /* Inject the transport. */           
+                ((AutomatedTellerMachineImpl)atm).setTransport(transport);
+                
+                atm.withdraw(new BigDecimal("10.00"));
+                
+                atm.deposit(new BigDecimal("100.00"));
+        }
+
+}
+}}}
+
+Then injecting a different *transport* is a mere matter of calling a different setter method as follows:
+
+{{{
+ATMTransport transport = new SimulationAtmTransport();
+((AutomatedTellerMachineImpl)atm).setTransport(transport);
+}}}
+
+
+The above assumes we added a *`setTransport`* method to the *`AutomateTellerMachineImpl`*. Not you could just as easily use constructor arguments instead of a setter method. Thus keeping the interface of your *`AutomateTellerMachineImpl`* clean.
+
+To use CDI to manage the dependencies you could do the following:
+ * Create an empty *bean.xml* file under *META-INF* resource folder
+ * Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*
+ * Use the *@Default* annotation to annotate the *StandardAtmTransport*
+ * Use the *@Alternative* to annotate the *SoapAtmTransport*, and *JsonRestAtmTransport*.
+ * Use the *@Named* annotation to make the *AutomatedTellerMachineImpl* easy to look up; give it the name "atm"
+ * Use the CDI *`beanContainer`* to look the *atm*, makes some deposits and withdraws.
+
+
+===Create an empty *bean.xml* file under *META-INF* resource folder ===
+===META-INF/beans.xml===
+{{{
+<beans xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
+
+</beans>
+}}}
+
+
+ * Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*
+
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+
+...
+
+public class AtmMain {
+
+        ...
+        ...
+
+	public static void main(String[] args) throws Exception {
+		AutomatedTellerMachine atm = (AutomatedTellerMachine) beanContainer
+				.getBeanByName("atm");
+
+		atm.deposit(new BigDecimal("1.00"));
+
+	}
+
+}
+}}}
+
+
+===`StandardAtmTransport`===
+{{{
+package org.cdi.advocacy;
+
+import javax.enterprise.inject.Default;
+
+@Default
+public class StandardAtmTransport implements ATMTransport {
+
+	@Override 
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via Standard REST transport");
+	}
+
+}
+}}}
+
+===`SoapAtmTransport`===
+{{{
+package org.cdi.advocacy;
+
+import javax.enterprise.inject.Alternative;
+
+@Alternative
+public class SoapAtmTransport implements ATMTransport {
+
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via Soap transport");
+	}
+
+}
+
+}}}
+
+===`JsonRestAtmTransport`===
+{{{
+package org.cdi.advocacy;
+
+import javax.enterprise.inject.Alternative;
+
+@Alternative
+public class JsonRestAtmTransport implements ATMTransport {
+
+	@Override 
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via JSON REST transport");
+	}
+
+}
+}}}
