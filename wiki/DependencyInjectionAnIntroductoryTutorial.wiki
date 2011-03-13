@@ -629,15 +629,8 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 	@PostConstruct
 	protected void init() {
-		if (allTransports.isAmbiguous()) {
-			System.out.println("Is this ambigous? " + allTransports.isAmbiguous() );
-		}
-		
-		if (allTransports.isUnsatisfied()) {
-			System.out.println("Is this unsatisfied? " + allTransports.isUnsatisfied() );
-			
-		}
-		
+		System.out.println("Is this ambigous? " + allTransports.isAmbiguous() );
+		System.out.println("Is this unsatisfied? " + allTransports.isUnsatisfied() );
 	}
 	
 	public void deposit(BigDecimal bd) {
