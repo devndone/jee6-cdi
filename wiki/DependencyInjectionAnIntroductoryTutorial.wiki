@@ -349,7 +349,7 @@ Caused by: javax.enterprise.inject.AmbiguousResolutionException: org.cdi.advocac
    ...
 }}} 
 
-==Using @Inject to inject via constructor args a fields==
+==Using @Inject to inject via constructor args and fields==
 ==Using @Alternative to select an Alternative==
 ==Using @Qualifier to inject different types==
 ==Using @Instance to inject all transports==
