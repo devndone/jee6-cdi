@@ -329,3 +329,10 @@ public class AtmMain {
 
 }
 }}}
+
+When you run it from the command line, you should get the following:
+
+{{{
+deposit called
+communicating with bank via Standard transport
+}}}
