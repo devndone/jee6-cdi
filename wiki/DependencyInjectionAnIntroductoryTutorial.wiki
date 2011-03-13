@@ -471,7 +471,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
-==Using @Instance to inject all transports==
+==Using Instance to inject transports==
 
 {{{
 package org.cdi.advocacy;
@@ -688,6 +688,147 @@ deposit called
 }}}
 
 Notice ... 
+
+Add the annotations we comment out, back to all of the transports. Take out the Alternative annotation for the JSON transport.
+
+
+
+Change main ATM like so...
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+
+import javax.annotation.PostConstruct;
+//import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Default;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.util.AnnotationLiteral;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named("atm")
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject @Any 
+	private Instance<ATMTransport> allTransports;
+	
+	private ATMTransport transport;
+
+	@PostConstruct
+	protected void init() {
+		transport = allTransports.select(new AnnotationLiteral<Default>(){}).get();
+		
+		if (transport!=null) {
+			System.out.println("Found standard transport");
+			return;
+		}
+		
+		transport = allTransports.select(new AnnotationLiteral<Json>(){}).get();
+
+		
+		if (transport!=null) {
+			System.out.println("Found JSON standard transport");
+			return;
+		}
+
+		
+		transport = allTransports.select(new AnnotationLiteral<Soap>(){}).get();
+		
+		
+		if (transport!=null) {
+			System.out.println("Found SOAP standard transport");
+			return;
+		}
+		
+	}
+	
+
+	public void deposit(BigDecimal bd) {
+		System.out.println("deposit called");
+		
+		transport.communicateWithBank(null);
+	}
+
+       ...
+}
+
+}}}
+
+Output
+{{{
+Found standard transport
+deposit called
+communicating with bank via Standard transport
+}}}
+
+
+Imagine there being setting that are configured in a db or something.
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Default;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.util.AnnotationLiteral;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named("atm")
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject @Any 
+	private Instance<ATMTransport> allTransports;
+	
+	private ATMTransport transport;
+	
+	//These could be looked up in a DB, JNDI or a properties file.
+	private boolean useJSON = true;
+	private boolean behindFireWall = true;
+
+	@PostConstruct
+	protected void init() {
+		
+		ATMTransport soapTransport, jsonTransport, standardTransport;
+		
+		standardTransport = allTransports.select(new AnnotationLiteral<Default>(){}).get();
+		jsonTransport = allTransports.select(new AnnotationLiteral<Json>(){}).get();
+		soapTransport = allTransports.select(new AnnotationLiteral<Soap>(){}).get();
+
+		if (!behindFireWall) {
+			transport = standardTransport;
+		} else {
+			if (useJSON) {
+				transport = jsonTransport;
+			} else {
+				transport = soapTransport;
+			}
+		}		
+		
+	}
+	
+
+	public void deposit(BigDecimal bd) {
+		System.out.println("deposit called");
+		
+		transport.communicateWithBank(null);
+	}
+
+	public void withdraw(BigDecimal bd) {
+		System.out.println("withdraw called");
+
+		transport.communicateWithBank(null);
+
+	}
+
+}
+
 
 
 ==Using @Produces==
