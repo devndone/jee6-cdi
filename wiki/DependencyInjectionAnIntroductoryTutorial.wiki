@@ -350,11 +350,125 @@ Caused by: javax.enterprise.inject.AmbiguousResolutionException: org.cdi.advocac
 }}} 
 
 ==Using @Inject to inject via constructor args and fields==
-TBD
+TBD Under construction
+
+Field injection.
+{{{
+...
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject
+	private ATMTransport transport;
+
+}}}
+
+Constructor injection.
+{{{
+...
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject 
+	public AutomatedTellerMachineImpl(ATMTransport transport) {
+		this.transport = transport;
+	}
+
+}}}
+
 ==Using @Alternative to select an Alternative==
-TBD
+TBD under construction
+
+/META-INF/beans.xml
+{{{
+<beans xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
+	<alternatives>
+		<class>org.cdi.advocacy.JsonRestAtmTransport</class>
+	</alternatives>
+</beans>
+}}}
+
+Output
+{{{
+deposit called
+communicating with bank via JSON REST transport
+}}}
+
+
+
 ==Using @Qualifier to inject different types==
 TBD
+
+Soap Qualifier
+{{{
+package org.cdi.advocacy;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+
+import javax.inject.Qualifier;
+
+
+@Qualifier @Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface Soap {
+
+}
+
+}}}
+
+
+{{{
+package org.cdi.advocacy;
+
+@Soap
+public class SoapAtmTransport implements ATMTransport {
+
+	@Override 
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via Soap transport");
+	}
+
+}
+}}}
+
+Via constructor
+{{{
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	private ATMTransport transport;
+
+	@Inject 
+	public AutomatedTellerMachineImpl(@Soap ATMTransport transport) {
+		this.transport = transport;
+	}
+
+}}}
+
+Via Property
+{{{
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	private ATMTransport transport;
+
+	@Inject 
+	public void setTransport(@Soap ATMTransport transport) {
+		this.transport = transport;
+	}
+}}}
+
+
+Via Field
+{{{
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject @Soap
+	private ATMTransport transport;
+
+}}}
+
 ==Using @Instance to inject all transports==
 TBD
 ==Understanding Stereo types==
