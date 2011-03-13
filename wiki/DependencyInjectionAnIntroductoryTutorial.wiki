@@ -336,3 +336,24 @@ When you run it from the command line, you should get the following:
 deposit called
 communicating with bank via Standard transport
 }}}
+
+If you remove the *@Default* from the *`StandardATMTransport`*, you will get the same output.
+If you remove the *@Alternative* from both of the other transports, namely,  *`JsonATMTransport`*, and  *`SoapATMTransport`*, CDI will croak as follows:
+
+{{{
+Exception in thread "main" java.lang.ExceptionInInitializerError
+Caused by: javax.enterprise.inject.AmbiguousResolutionException: org.cdi.advocacy.AutomatedTellerMachineImpl.setTransport: Too many beans match, because they all have equal precedence.  See the @Stereotype and <enable> tags to choose a precedence.  Beans:
+    ManagedBeanImpl[JsonRestAtmTransport, {@Default(), @Any()}]
+    ManagedBeanImpl[SoapAtmTransport, {@Default(), @Any()}]
+    ManagedBeanImpl[StandardAtmTransport, {@javax.enterprise.inject.Default(), @Any()}]
+   ...
+}}} 
+
+==Using @Inject to inject via constructor args a fields==
+==Using @Alternative to select an Alternative==
+==Using @Qualifier to inject different types==
+==Using @Instance to inject all transports==
+==Understanding Stereo types==
+==Using @Produces==
+==Configuring transports via annotations and @Produces==
+==Scopes and lifecycle==
