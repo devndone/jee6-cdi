@@ -665,14 +665,37 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 Output
 {{{
 Is this ambigous? true
+Is this unsatisfied? false
 deposit called
 communicating with bank via JSON REST transport
 communicating with bank via Soap transport
 communicating with bank via Standard transport
 }}}
 
-==Understanding Stereo types==
-TBD
+Notice ...
+
+Comment out the //implements ATMTransport { in the JSON and SOAP implementation.
+You get this output
+{{{
+Output 
+Is this ambigous? false
+Is this unsatisfied? false
+deposit called
+communicating with bank via Standard transport
+}}}
+
+Notice ...
+
+Now comment out all three //implements ATMTransport, and you get this:
+
+{{{
+Is this ambigous? false
+Is this unsatisfied? true
+deposit called
+}}}
+
+Notice ... 
+
 
 ==Using @Produces==
 TBD
