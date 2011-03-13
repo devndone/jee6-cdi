@@ -546,9 +546,128 @@ communicating with bank via JSON REST transport
 
 
 Calling all installed transports.
-Remove all of the annotations in the ATMTransport interfaces.
+Remove all of the annotations in the ATMTransport interfaces and make the beans.xml empty again.
+
+{{{
+package org.cdi.advocacy;
+
+//import javax.enterprise.inject.Alternative;
+
+//@Soap
+public class SoapAtmTransport implements ATMTransport {
+
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via Soap transport");
+	}
+
+}
+}}}
+
+{{{
+package org.cdi.advocacy;
+
+//import javax.enterprise.inject.Alternative;
+
+//@Alternative @Json
+public class JsonRestAtmTransport implements ATMTransport {
+
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via JSON REST transport");
+	}
+
+}
+
+}}}
 
 
+{{{
+package org.cdi.advocacy;
+
+//import javax.enterprise.inject.Default;
+
+//@Default
+public class StandardAtmTransport implements ATMTransport {
+
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via Standard transport");
+	}
+
+}
+
+}}}
+
+beans.xml
+{{{
+<beans xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
+</beans>
+}}}
+
+Now use every transport that is installed using the @Any annotation.
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+import java.util.Iterator;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named("atm")
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject @Any 
+	private Instance<ATMTransport> allTransports;
+
+	@PostConstruct
+	protected void init() {
+		if (allTransports.isAmbiguous()) {
+			System.out.println("Is this ambigous? " + allTransports.isAmbiguous() );
+		}
+		
+		if (allTransports.isUnsatisfied()) {
+			System.out.println("Is this unsatisfied? " + allTransports.isUnsatisfied() );
+			
+		}
+		
+	}
+	
+	public void deposit(BigDecimal bd) {
+		System.out.println("deposit called");
+		
+		for (ATMTransport transport : this.allTransports) {
+			transport.communicateWithBank(null);
+		}
+		
+	}
+
+	public void withdraw(BigDecimal bd) {
+		System.out.println("withdraw called");
+
+		for (ATMTransport transport : this.allTransports) {
+			transport.communicateWithBank(null);
+		}
+
+	}
+
+}
+}}}
+
+
+Output
+{{{
+Is this ambigous? true
+deposit called
+communicating with bank via JSON REST transport
+communicating with bank via Soap transport
+communicating with bank via Standard transport
+}}}
 
 ==Understanding Stereo types==
 TBD
