@@ -179,6 +179,9 @@ To use CDI to manage the dependencies you could do the following:
 
 ===Step 1: Create an empty *bean.xml* file under *META-INF* resource folder ===
 ===META-INF/beans.xml===
+
+==== Code Listing: `META-INF/beans.xml` just as empty as can be====
+
 {{{
 <beans xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
@@ -190,6 +193,10 @@ http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 
 
 ===Step 2: Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*===
+
+
+==== Code Listing: `StandardAtmTransport` using *@Inject* to inject a transport====
+
 {{{
 package org.cdi.advocacy;
 
@@ -213,6 +220,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }}}
 
 ===Step 3: Use the *@Default* annotation to annotate the *`StandardAtmTransport`*===
+==== Code Listing: `StandardAtmTransport` using *@Default*====
 {{{
 package org.cdi.advocacy;
 
@@ -225,6 +233,8 @@ public class StandardAtmTransport implements ATMTransport {
 }}}
 
 === Step 4: Use the *@Alternative* to annotate the *`SoapAtmTransport`*, and *`JsonRestAtmTransport`*. ===
+
+==== Code Listing: `JsonRestAtmTransport` using *@Alternative*====
 {{{
 package org.cdi.advocacy;
 
@@ -238,6 +248,7 @@ public class JsonRestAtmTransport implements ATMTransport {
 
 }}}
 
+==== Code Listing: `SoapAtmTransport` using *@Alternative*====
 {{{
 package org.cdi.advocacy;
 
@@ -252,60 +263,10 @@ public class SoapAtmTransport implements ATMTransport {
 
 
 
-===`StandardAtmTransport`===
-{{{
-package org.cdi.advocacy;
-
-import javax.enterprise.inject.Default;
-
-@Default
-public class StandardAtmTransport implements ATMTransport {
-
-	@Override 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via Standard REST transport");
-	}
-
-}
-}}}
-
-===`SoapAtmTransport`===
-{{{
-package org.cdi.advocacy;
-
-import javax.enterprise.inject.Alternative;
-
-@Alternative
-public class SoapAtmTransport implements ATMTransport {
-
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via Soap transport");
-	}
-
-}
-
-}}}
-
-===`JsonRestAtmTransport`===
-{{{
-package org.cdi.advocacy;
-
-import javax.enterprise.inject.Alternative;
-
-@Alternative
-public class JsonRestAtmTransport implements ATMTransport {
-
-	@Override 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via JSON REST transport");
-	}
-
-}
-}}}
-
 
  === Step 5: Use the *@Named* annotation to make the *`AutomatedTellerMachineImpl`* easy to look up; give it the name "atm"===
 
+==== Code Listing: `AutomatedTellerMachineImpl` using *@Named*====
 {{{
 package org.cdi.advocacy;
 
@@ -325,12 +286,10 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 
 
- === Step 6: Use the CDI *`beanContainer`* to look the *atm*, makes some deposits and withdraws. ===
-
+ === Step 6: Use the CDI *`beanContainer`* to look up the *atm*, makes some deposits and withdraws. ===
+==== Code Listing: `AtmMain` looking up the atm ====
 {{{
 package org.cdi.advocacy;
-
-import java.math.BigDecimal;
 
 ...
 
