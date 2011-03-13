@@ -184,6 +184,8 @@ To use CDI to manage the dependencies you could do the following:
 ===Step 1: Create an empty *bean.xml* file under *META-INF* resource folder ===
 ===META-INF/beans.xml===
 
+CDI needs an bean.xml file to be in META-INF of your jar file or classpath or WEB-INF of your web application. This file can be completely empty (as in 0 bytes). If there is no beans.xml file in your META-INF or WEB-INF then that war file or jar file will not be processed by CDI. Otherwise, CDI will scan the jar and war file if the beans.xml file exists even if it is 0 bytes.
+
 ==== Code Listing: `META-INF/beans.xml` just as empty as can be====
 
 {{{
@@ -195,11 +197,14 @@ http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 </beans>
 }}}
 
+Notice that we included a starter beans.xml file with a namespace and a `<beans>` element. Although *beans.xml* could be completely empty, it is nice to have a starter file so when you need to add things (like later on in this tutorial) you can readily. Also it keeps the IDE from complaining about ill formed xml when you actually do have a 0 byte beans.xml. (I hate when the IDE complains. It is very distracting.)
+
 
 ===Step 2: Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*===
 
+The *@Inject* annotation is used to mark where an injection goes. You can annotate constructor arguments, instance fields and setter methods of properties. In this example, we will annotate the *setTransport* method (which would be the setter method of the transport property).
 
-==== Code Listing: `StandardAtmTransport` using *@Inject* to inject a transport====
+====Code Listing: `AutomatedTellerMachineImpl` using *@Inject* to inject a transport====
 
 {{{
 package org.cdi.advocacy;
@@ -223,7 +228,12 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+By default, CDI would look for a class that implements the *`ATMTransport`* interface, once it finds this it creates an instance and injects this instance of *`ATMTransport`* using the setter method *`setTransport`*. If we only had one possible instance of *`ATMTransport`* in our classpath, we would not need to annotate any of the *`ATMTransport`* implementations. Since we have three, namely, *`StandardAtmTransport`*, *`SoapAtmTransport`*,  and *`JsonAtmTransport`*, we need to mark two of them as *`@Alternative`*s and one as *`@Default`*.
+
 ===Step 3: Use the *@Default* annotation to annotate the *`StandardAtmTransport`*===
+
+At this stage of the example, we would like our default transport to be *`StandardAtmTransport`*; thus, we mark it as *`@Default`* as follows:.
+
 ==== Code Listing: `StandardAtmTransport` using *@Default*====
 {{{
 package org.cdi.advocacy;
@@ -236,7 +246,11 @@ public class StandardAtmTransport implements ATMTransport {
 
 }}}
 
+It should be noted that a class is @Default by default. Thus marking it so is redundant; and not only that its redundant. 
+
 === Step 4: Use the *@Alternative* to annotate the *`SoapAtmTransport`*, and *`JsonRestAtmTransport`*. ===
+
+If we don't mark the others as @Alternative, they are by default as far as CDI is concerned, marked as @Default.  Let's mark *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`* *@Alternative* so CDI does not get confused.
 
 ==== Code Listing: `JsonRestAtmTransport` using *@Alternative*====
 {{{
@@ -266,9 +280,11 @@ public class SoapAtmTransport implements ATMTransport {
 }}}
 
 
-
-
  === Step 5: Use the *@Named* annotation to make the *`AutomatedTellerMachineImpl`* easy to look up; give it the name "atm"===
+
+Since we are not using `AutomatedTellerMachineImpl` from a Java EE 6 application, let's just use the *`beanContainer`* to look it up. Let's give it an easy logical name like "atm". To give it a name, use the @Named annotation. The @Named annotation is also used by JEE 6 application to make the bean accessible via the Universal EL (EL stands for Expression language and it gets used by JSPs and JSF components).
+
+Here is an example of using @Named to give the *`AutomatedTellerMachineImpl`* the name "atm"as follows:
 
 ==== Code Listing: `AutomatedTellerMachineImpl` using *@Named*====
 {{{
@@ -284,13 +300,14 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
        ...
 
 }
-
-
 }}}
 
 
 
- === Step 6: Use the CDI *`beanContainer`* to look up the *atm*, makes some deposits and withdraws. ===
+=== Step 6: Use the CDI *`beanContainer`* to look up the *atm*, makes some deposits and withdraws. ===
+
+Lastly we want to look up the *atm* using the *`beanContainer`* and make some deposits.
+ 
 ==== Code Listing: `AtmMain` looking up the atm ====
 {{{
 package org.cdi.advocacy;
