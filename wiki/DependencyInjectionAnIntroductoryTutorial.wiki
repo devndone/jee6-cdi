@@ -419,7 +419,7 @@ public @interface Soap {
 
 }}}
 
-
+Using @Soap
 {{{
 package org.cdi.advocacy;
 
@@ -470,15 +470,99 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }}}
 
 ==Using @Instance to inject all transports==
-TBD
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Default;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named("atm")
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject @Soap 
+	private Instance<ATMTransport> soapTransport;
+
+	@Inject @Json 
+	private Instance<ATMTransport> jsonTransport;
+
+	@Inject @Default 
+	private Instance<ATMTransport> defaultTransport;
+	
+	private ATMTransport transport;
+
+	@PostConstruct
+	protected void init() {
+		if (!defaultTransport.isUnsatisfied()) {
+			System.out.println("picked Default");
+			transport = defaultTransport.iterator().next();
+		} else if (!jsonTransport.isUnsatisfied()) {
+			System.out.println("picked JSON");
+			transport = jsonTransport.iterator().next();
+		} else if (!soapTransport.isUnsatisfied()) {
+			System.out.println("picked SOAP");
+			transport = soapTransport.iterator().next();
+		}
+	}
+
+}}}
+
+Output
+{{{
+picked Default
+deposit called
+communicating with bank via Standard transport
+}}}
+
+Comment out implements ATMTransport in StandardAtmTransport
+{{{
+package org.cdi.advocacy;
+
+import javax.enterprise.inject.Default;
+
+@Default
+public class StandardAtmTransport { //implements ATMTransport {
+
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via Standard transport");
+	}
+
+}
+
+}}}
+
+Now the output is this:
+
+{{{
+picked JSON
+deposit called
+communicating with bank via JSON REST transport
+}}}
+
+
+Calling all installed transports.
+Remove all of the annotations in the ATMTransport interfaces.
+
+
+
 ==Understanding Stereo types==
 TBD
+
 ==Using @Produces==
 TBD
+
 ==Configuring transports via annotations and @Produces==
 TBD
+
 ==Scopes and lifecycle==
 TBD
+
 ==The dirty truth about CDI and Java SE==
 TBD
+
 == Conclusion ==
