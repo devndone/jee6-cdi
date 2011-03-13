@@ -350,10 +350,21 @@ Caused by: javax.enterprise.inject.AmbiguousResolutionException: org.cdi.advocac
 }}} 
 
 ==Using @Inject to inject via constructor args and fields==
+TBD
 ==Using @Alternative to select an Alternative==
+TBD
 ==Using @Qualifier to inject different types==
+TBD
 ==Using @Instance to inject all transports==
+TBD
 ==Understanding Stereo types==
+TBD
 ==Using @Produces==
+TBD
 ==Configuring transports via annotations and @Produces==
+TBD
 ==Scopes and lifecycle==
+TBD
+==The dirty truth about CDI and Java SE==
+TBD
+== Conclusion ==
