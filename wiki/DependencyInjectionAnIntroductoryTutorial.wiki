@@ -342,7 +342,9 @@ If you remove the *@Alternative* from both of the other transports, namely,  *`J
 
 {{{
 Exception in thread "main" java.lang.ExceptionInInitializerError
-Caused by: javax.enterprise.inject.AmbiguousResolutionException: org.cdi.advocacy.AutomatedTellerMachineImpl.setTransport: Too many beans match, because they all have equal precedence.  See the @Stereotype and <enable> tags to choose a precedence.  Beans:
+Caused by: javax.enterprise.inject.AmbiguousResolutionException: org.cdi.advocacy.AutomatedTellerMachineImpl.setTransport: 
+Too many beans match, because they all have equal precedence.  
+See the @Stereotype and <enable> tags to choose a precedence.  Beans:
     ManagedBeanImpl[JsonRestAtmTransport, {@Default(), @Any()}]
     ManagedBeanImpl[SoapAtmTransport, {@Default(), @Any()}]
     ManagedBeanImpl[StandardAtmTransport, {@javax.enterprise.inject.Default(), @Any()}]
