@@ -630,6 +630,77 @@ communicating with bank via JSON REST transport
 }}}
 
 
+== Using multiple @Qualifiers at the same injection point to discriminate further ==
+{{{
+You can use more than one qaulifier to further discriminate your injection target.
+
+{{{
+package org.cdi.advocacy;
+
+...
+
+@Qualifier @Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface SuperFast {
+
+}
+
+}}}
+
+{{{
+package org.cdi.advocacy;
+
+...
+
+@Qualifier @Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface StandardFrameRelaySwitchingFlubber {
+
+}
+
+}}}
+
+{{{
+package org.cdi.advocacy;
+
+@SuperFast @StandardFrameRelaySwitchingFlubber 
+public class SuperFastAtmTransport implements ATMTransport {
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via the Super Fast transport " );
+	}
+}
+
+}}}
+
+{{{
+package org.cdi.advocacy;
+
+
+@StandardFrameRelaySwitchingFlubber
+public class StandardAtmTransport implements ATMTransport {
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via Standard transport");
+	}
+
+}
+
+}}}
+
+
+{{{
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject @SuperFast @StandardFrameRelaySwitchingFlubber
+	private ATMTransport transport;
+       ...
+}}}
+
+Output:
+
+{{{
+deposit called
+communicating with bank via the Super Fast transport 
+}}}
+
+}}}
 
 ==Using @Producer that uses Qualifiers to make a decision about creation==
 
