@@ -514,7 +514,426 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
-==Using Instance to inject transports==
+==Injecting multiple types into the same bean using @Qualfiers==
+Under construction....
+
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named("atm")
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	private ATMTransport transport;
+	
+	@Inject @Soap
+	private ATMTransport soapTransport;
+	
+	@Inject @Json
+	private ATMTransport jsonTransport;
+	
+	@Inject @Json
+	private ATMTransport standardTransport;
+
+	
+	//These could be looked up in a DB, JNDI or a properties file.
+	private boolean useJSON = true;
+	private boolean behindFireWall = true;
+
+	@PostConstruct
+	protected void init() {
+                //Look up values for useJSON and behindFireWall		
+
+		if (!behindFireWall) {
+			transport = standardTransport;
+		} else {
+			if (useJSON) {
+				transport = jsonTransport;
+			} else {
+				transport = soapTransport;
+			}
+		}
+				
+	}
+	
+
+	public void deposit(BigDecimal bd) {
+		System.out.println("deposit called");
+		
+		
+		transport.communicateWithBank(null);
+	}
+
+       ...
+}
+
+}}}
+
+{{{
+deposit called
+communicating with bank via JSON REST transport
+}}}
+
+
+==Using @Producer to make a decision about creation==
+
+Under construction...
+
+Producer that makes a decision about creation
+
+
+{{{
+package org.cdi.advocacy;
+
+import javax.enterprise.inject.Produces;
+
+public class TransportFactory {
+	
+	private boolean useJSON = true;
+	private boolean behindFireWall = true;
+
+	
+	@Produces ATMTransport createTransport() {
+		//Look up config parameters in some config file
+		System.out.println("ATMTransport created with producer makes decisions");
+		
+		if (behindFireWall) {
+			if (useJSON) {
+				System.out.println("Created JSON transport");
+				return new JsonRestAtmTransport();
+			} else {
+				System.out.println("Created SOAP transport");
+				return new SoapAtmTransport();
+			}
+		} else {
+			System.out.println("Created Standard transport");
+			return new StandardAtmTransport();
+		}
+	}
+
+}
+
+}}}
+
+Output
+{{{
+ATMTransport created with producer makes decisions
+Created JSON transport
+deposit called
+communicating with bank via JSON REST transport
+}}}
+
+
+
+==Using @Producer to make a decision about creation==
+
+You can also inject items as arguments into the producer as follows:
+
+{{{
+package org.cdi.advocacy;
+
+import javax.enterprise.inject.Produces;
+
+public class TransportFactory {
+	
+	private boolean useJSON = true;
+	private boolean behindFireWall = true;
+
+	
+	@Produces ATMTransport createTransport(	@Soap ATMTransport soapTransport, 
+											@Json ATMTransport jsonTransport) {
+		//Look up config parameters in some config file
+		System.out.println("ATMTransport created with producer makes decisions");
+		
+		if (behindFireWall) {
+			if (useJSON) {
+				System.out.println("return passed JSON transport");
+				return jsonTransport;
+			} else {
+				System.out.println("return passed SOAP transport");
+				return soapTransport;
+			}
+		} else {
+			System.out.println("Create Standard transport");
+			return new StandardAtmTransport();
+		}
+	}
+
+}
+
+}}}
+
+{{{
+ATMTransport created with producer makes decisions
+return passed JSON transport
+deposit called
+communicating with bank via JSON REST transport
+}}}
+
+
+= Advanced CDI tutorial =
+The faint of heart stop hear. All of the folks who want to understand the inner workings of CDI continue.
+
+==Advanced: Using @Produces and InjectionPoint to create configuration annotations==
+Our ultimate goal is to define an annotation that we can use to configure the retry count on a transport.
+
+We want something that looks like this:
+
+{{{
+	@Inject @TransportConfig(retries=2)
+	private ATMTransport transport;
+
+}}}
+
+Before we do that we need to learn more about Produces and InjectionPoints.
+
+Let's learn about passing an injection point to @Produces
+
+{{{
+package org.cdi.advocacy;
+
+//import javax.enterprise.inject.Default;
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.InjectionPoint;
+
+public class TransportFactory {
+	
+	
+	@Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
+		
+		System.out.println("annotated " + injectionPoint.getAnnotated());
+		System.out.println("bean " + injectionPoint.getBean());
+		System.out.println("member " + injectionPoint.getMember());
+		System.out.println("qualifiers " + injectionPoint.getQualifiers());
+		System.out.println("type " + injectionPoint.getType());
+		System.out.println("isDelegate " + injectionPoint.isDelegate());
+		System.out.println("isTransient " + injectionPoint.isTransient());
+	
+		return new StandardAtmTransport();
+				
+	}
+
+}
+
+}}}
+
+Output
+{{{
+annotated AnnotatedFieldImpl[private org.cdi.advocacy.ATMTransport org.cdi.advocacy.AutomatedTellerMachineImpl.transport]
+bean ManagedBeanImpl[AutomatedTellerMachineImpl, {@javax.inject.Named(value=atm), @Default(), @Any()}, name=atm]
+member private org.cdi.advocacy.ATMTransport org.cdi.advocacy.AutomatedTellerMachineImpl.transport
+qualifiers [@Default()]
+type interface org.cdi.advocacy.ATMTransport
+isDelegate false
+isTransient false
+deposit called
+communicating with bank via Standard transport
+}}}
+
+//Post a link to the API documents
+
+It appears from the output that annotated tells us which area of the program was annotated.
+It also appears that bean tells us which bean the injection is happending in.
+
+Drilling further you can see what is in the beans and annotated properties.
+
+{{{
+	@Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
+		
+		System.out.println("annotated " + injectionPoint.getAnnotated());
+		System.out.println("bean " + injectionPoint.getBean());
+		System.out.println("member " + injectionPoint.getMember());
+		System.out.println("qualifiers " + injectionPoint.getQualifiers());
+		System.out.println("type " + injectionPoint.getType());
+		System.out.println("isDelegate " + injectionPoint.isDelegate());
+		System.out.println("isTransient " + injectionPoint.isTransient());
+
+		Bean<?> bean = injectionPoint.getBean();
+		
+		System.out.println("bean.beanClass " + bean.getBeanClass());
+		System.out.println("bean.injectionPoints " + bean.getInjectionPoints());
+		System.out.println("bean.name " + bean.getName());
+		System.out.println("bean.qualifiers " + bean.getQualifiers());
+		System.out.println("bean.scope " + bean.getScope());
+		System.out.println("bean.stereotypes " + bean.getStereotypes());
+		System.out.println("bean.types " + bean.getTypes());
+		
+		Annotated annotated = injectionPoint.getAnnotated();
+		System.out.println("annotated.annotations " + annotated.getAnnotations());
+		System.out.println("annotated.annotations " + annotated.getBaseType());
+		System.out.println("annotated.typeClosure " + annotated.getTypeClosure());
+		
+		return new StandardAtmTransport();
+}
+}}}
+
+
+Output
+{{{
+...
+bean.beanClass class org.cdi.advocacy.AutomatedTellerMachineImpl
+bean.injectionPoints [InjectionPointImpl[private org.cdi.advocacy.ATMTransport org.cdi.advocacy.AutomatedTellerMachineImpl.transport]]
+bean.name atm
+bean.qualifiers [@javax.inject.Named(value=atm), @Default(), @Any()]
+bean.scope interface javax.enterprise.context.Dependent
+bean.stereotypes []
+bean.types [class org.cdi.advocacy.AutomatedTellerMachineImpl, interface org.cdi.advocacy.AutomatedTellerMachine, class java.lang.Object]
+annotated.annotations AnnotationSet[@javax.inject.Inject()]
+annotated.annotations interface org.cdi.advocacy.ATMTransport
+annotated.typeClosure [interface org.cdi.advocacy.ATMTransport, class java.lang.Object]
+...
+}}}
+
+Ok now that we armed with an idea of what an Injection piont is. Let's get configuring our transport.
+
+First let's define an TransportConfig annotation.
+
+{{{
+package org.cdi.advocacy;
+
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+
+
+
+@Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface TransportConfig {
+	int retries() default 5;
+}
+
+}}}
+
+Now go ahead and use this to decorate the injection point as follows:
+
+{{{
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject @TransportConfig(retries=2)
+	private ATMTransport transport;
+
+}}}
+
+Once it is configured when you run it, you will see the following output from our producer:
+
+{{{
+annotated.annotations AnnotationSet[@javax.inject.Inject(), @org.cdi.advocacy.TransportConfig(retries=2)]
+}}}
+
+This means the annotation data is there. We just need to grab it and use it.
+
+Now we need to change the transport implementations to handle setting retires. Since this is an example, I will do this simply by adding a new setter method for retires (setRetries) to the ATMTranport interface like so:
+
+{{{
+package org.cdi.advocacy;
+
+public interface ATMTransport {
+	public void communicateWithBank(byte[] datapacket);
+	public void setRetries(int retries);
+}
+
+}}}
+
+Then we need to change each of the transport to handle this new property as follows:
+
+{{{
+package org.cdi.advocacy;
+
+public class StandardAtmTransport implements ATMTransport {
+	
+	private int retries;
+
+	public void setRetries(int retries) {
+		this.retries = retries;
+	}
+
+
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via Standard transport retries=" + retries);
+	}
+
+}
+}}}
+
+Now we just change the producer to grab the new annotation and configure the transport as follows:
+
+(For clarity I took out all of the Sysout.prinltns)
+{{{
+package org.cdi.advocacy;
+
+...
+import javax.enterprise.inject.spi.Annotated;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.InjectionPoint;
+
+public class TransportFactory {
+	@Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
+		
+		Annotated annotated = injectionPoint.getAnnotated();
+		
+		TransportConfig transportConfig = annotated.getAnnotation(TransportConfig.class);
+		
+		
+		
+		StandardAtmTransport transport = new StandardAtmTransport();
+		
+		transport.setRetries(transportConfig.retries());
+		return transport;
+	}
+
+}
+
+}}}
+
+(Side Note we are missing a null pointer check. The annotation configuration could be null if the user did not set it, you may want to handle this. The example is kept deliberately short.)
+
+The code just gets the annotation and shoves in the retires into the transport, and then just returns the transport.
+We now have a producers that can use an annotation to configure an injection. 
+
+Here is our new output:
+
+{{{
+...
+deposit called
+communicating with bank via Standard transport retries=2
+}}}
+
+You can see our retries are there as we configured them in the output.
+
+Let's say we had multiple transports in a single ATM and you wanted to configure all of the outputs at once. Oh my! Easy enough.
+
+{{{
+public class TransportFactory {
+	@Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
+		
+		Bean<?> bean = injectionPoint.getBean();
+		TransportConfig transportConfig = bean.getBeanClass().getAnnotation(TransportConfig.class);
+
+		StandardAtmTransport transport = new StandardAtmTransport();
+		
+		transport.setRetries(transportConfig.retries());
+		return transport;
+
+}}}
+
+It is an exercise for the reader to make the injection level annotation (from the last example) override the class level annotations.
+
+Output
+{{{
+deposit called
+communicating with bank via Standard transport retries=7
+}}}
+
+
+==Advanced: Using Instance to inject transports==
 
 {{{
 package org.cdi.advocacy;
