@@ -1293,16 +1293,9 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
-==Using @Produces==
-TBD
-
-==Configuring transports via annotations and @Produces==
-TBD
-
-==Scopes and lifecycle==
-TBD
 
 ==The dirty truth about CDI and Java SE==
 TBD
 
-== Conclusion ==
+= Conclusion =
+= Resources =
