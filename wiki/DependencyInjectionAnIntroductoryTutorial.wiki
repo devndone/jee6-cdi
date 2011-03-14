@@ -61,7 +61,7 @@ Now the *`AutomatedTellerMachine`* needs a transport to perform its intent, name
 
 An implementation of the *`AutomatedTellerMachine`* may look like this:
 
-====Code Listing: AutomatedTellerMachineImpl class====
+====Code Listing: *`AutomatedTellerMachineImpl`* class====
 {{{
 package org.cdi.advocacy;
 ...
@@ -246,11 +246,11 @@ public class StandardAtmTransport implements ATMTransport {
 
 }}}
 
-It should be noted that a class is @Default by default. Thus marking it so is redundant; and not only that its redundant. 
+It should be noted that a class is *`@Default`* by default. Thus marking it so is redundant; and not only that its redundant. 
 
 === Step 4: Use the *@Alternative* to annotate the *`SoapAtmTransport`*, and *`JsonRestAtmTransport`*. ===
 
-If we don't mark the others as @Alternative, they are by default as far as CDI is concerned, marked as @Default.  Let's mark *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`* *@Alternative* so CDI does not get confused.
+If we don't mark the others as @*`Alternative`*, they are by default as far as CDI is concerned, marked as @*`Default`*.  Let's mark *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`* *@Alternative* so CDI does not get confused.
 
 ==== Code Listing: `JsonRestAtmTransport` using *@Alternative*====
 {{{
@@ -282,7 +282,7 @@ public class SoapAtmTransport implements ATMTransport {
 
  === Step 5: Use the *@Named* annotation to make the *`AutomatedTellerMachineImpl`* easy to look up; give it the name "atm"===
 
-Since we are not using `AutomatedTellerMachineImpl` from a Java EE 6 application, let's just use the *`beanContainer`* to look it up. Let's give it an easy logical name like "atm". To give it a name, use the @Named annotation. The @Named annotation is also used by JEE 6 application to make the bean accessible via the Universal EL (EL stands for Expression language and it gets used by JSPs and JSF components).
+Since we are not using *`AutomatedTellerMachineImpl`* from a Java EE 6 application, let's just use the *`beanContainer`* to look it up. Let's give it an easy logical name like "*`atm`*". To give it a name, use the @*`Named`* annotation. The @*`Named`* annotation is also used by JEE 6 application to make the bean accessible via the Universal EL (EL stands for Expression language and it gets used by JSPs and JSF components).
 
 Here is an example of using @Named to give the *`AutomatedTellerMachineImpl`* the name "atm"as follows:
 
@@ -301,6 +301,21 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }
 }}}
+
+It should be noted that if you use the @*`Named`* annotations and don't provide a name, then the name
+is the name of the class with the first letter lower case so this:
+
+
+{{{
+@Named
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+       ...
+
+}
+}}}
+
+makes the name automatedTellerMachineImpl.
+
 
 
 
@@ -332,6 +347,7 @@ public class AtmMain {
 
 When you run it from the command line, you should get the following:
 
+*Output*
 {{{
 deposit called
 communicating with bank via Standard transport
@@ -349,12 +365,19 @@ See the @Stereotype and <enable> tags to choose a precedence.  Beans:
     ManagedBeanImpl[SoapAtmTransport, {@Default(), @Any()}]
     ManagedBeanImpl[StandardAtmTransport, {@javax.enterprise.inject.Default(), @Any()}]
    ...
-}}} 
+}}}
+
+CDI expects to find one and only one qualified injection. Later we will discuss how to use an alternative.
 
 ==Using @Inject to inject via constructor args and fields==
-TBD Under construction
 
-Field injection.
+You can inject into fields,constructor arguments and setter methods (or any method really).
+
+
+Here is an example of field injections:
+
+=== *`AutomatedTellerMachineImpl`*.*`transport`* using @Inject to do field injection. ===
+
 {{{
 ...
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
@@ -364,7 +387,9 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
-Constructor injection.
+
+=== *`AutomatedTellerMachineImpl`*.*`transport`* using @Inject to do constructor injection. ===
+
 {{{
 ...
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
@@ -376,10 +401,16 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
-==Using simple @Produces==
-Under Construction....
+This flexibility allows you to create classes that are easy to unit test.
 
-Simple producer
+==Using simple @Produces==
+
+There are times when the creation of an object may be complex.
+Instead of relying on a constructor, you can delegage to a factory class to 
+create the instance. To do this with CDI, you would use the @Produces from 
+your factory class as follows:
+
+=== *`TransportFactory`*.*`createTransport`* using @Produces to define a factory method ===
 
 {{{
 package org.cdi.advocacy;
@@ -396,7 +427,11 @@ public class TransportFactory {
 }
 }}}
 
-ATM machine code to receive simplr producer
+The factory method could use qualifiers just like a class declaration. In this example, we chose not to.
+The *`AutomatedTellerMachineImpl`* does not need to specify any special qualifiers. Here is the *`AutomatedTellerMachineImpl`* 
+that receives the simple producer.
+
+=== *`AutomatedTellerMachineImpl`* receives the simple producer ===
 
 {{{
 import javax.inject.Inject;
@@ -410,6 +445,8 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
         ...
 }}}
 
+Check your understanding by looking at the output of running this with *`AtmMain`*.
+
 Output
 {{{
 ATMTransport created with producer
@@ -420,9 +457,14 @@ communicating with bank via Standard transport
 
 
 ==Using @Alternative to select an Alternative==
-TBD under construction
 
-/META-INF/beans.xml
+Earlier, you may recall, we defined several alternative transports, namely, *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`*.
+Imagine that you are an installer of ATM machines and you need to configure certain transports at certain locations.
+Our previous injection points essentially inject the default which is the *`StandardRestAtmTransport`* transport.
+
+If I need to install a different transport, all I need to do is change the /META-INF/beans.xml file to use the right transport as follows:
+
+=== *{classpath}/META-INF/beans.xml* ===
 {{{
 <beans xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
@@ -434,12 +476,24 @@ http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 </beans>
 }}}
 
+You can see from the output that the JSON REST transport is selected.
 Output
 {{{
 deposit called
 communicating with bank via JSON REST transport
 }}}
 
+Alternatives codifies and simplifies a very normal case in DI, namely, you have different injected objects based on different builds or environments. 
+The great thing about objects is they can be replaced (Grady Booch said this).
+Alternatives allow you to mark objects that are replacements for other objects and then activate them when you need them.
+
+If the DI container can have alternatives, let's mark them as alternatives.
+Think about it this way. I don't have to document all of the alternatives as much. 
+It is self documenitng. If someone knows CDI and they know about Alternatives they will not be surprised.
+Alternatives really canoncalizes the way you select an Alternative.
+
+You can think of CDI as a canonicalization of many patterns that we have been using with more general purpose DI frameworks.
+The simplifcation and canonicalization is part of the evoluiton of DI.
 
 
 ==Using @Qualifier to inject different types==
