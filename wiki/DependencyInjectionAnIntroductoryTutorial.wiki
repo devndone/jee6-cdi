@@ -376,6 +376,49 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+==Using simple @Produces==
+Under Construction....
+
+Simple producer
+
+{{{
+package org.cdi.advocacy;
+
+import javax.enterprise.inject.Produces;
+
+public class TransportFactory {
+		
+	@Produces ATMTransport createTransport() {
+		System.out.println("ATMTransport created with producer");
+		return new StandardAtmTransport();
+	}
+
+}
+}}}
+
+ATM machine code to receive simplr producer
+
+{{{
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named("atm")
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject
+	private ATMTransport transport;
+        ...
+}}}
+
+Output
+{{{
+ATMTransport created with producer
+deposit called
+communicating with bank via Standard transport
+}}}
+
+
+
 ==Using @Alternative to select an Alternative==
 TBD under construction
 
