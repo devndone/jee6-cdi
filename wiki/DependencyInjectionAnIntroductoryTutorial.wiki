@@ -514,7 +514,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
-==Injecting multiple types into the same bean using @Qualfiers==
+==Using @Qualfiers to inject multiple types into the same bean using ==
 Under construction....
 
 
