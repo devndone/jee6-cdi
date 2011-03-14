@@ -677,6 +677,165 @@ communicating with bank via JSON REST transport
 }}}
 
 
+
+== Using @Qualfiers with members to discriminate injection and stop the explosion of annotation creation==
+
+There could be an explosion of qualifers annotations in your project. 
+This is probably not want you want.
+It is okay if you have a few, but it could quickly become unmaneagle.
+
+Instead of having three qualifier you could have one qualifier and an enum.
+Then if you need more types of transports, you only have to add an enum value instead of another class.
+
+{{{
+package org.cdi.advocacy;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+
+import javax.inject.Qualifier;
+
+
+@Qualifier @Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface Transport {
+	TransportType type() default TransportType.STANDARD;
+}
+
+}}}
+
+{{{
+package org.cdi.advocacy;
+
+public enum TransportType {
+	JSON, SOAP, STANDARD;
+}
+}}}
+
+Imagine in our example if there were 20 types of transports. We would have 20 annotations defined.
+
+You would need to annotated the implementations like so:
+
+{{{
+package org.cdi.advocacy;
+
+
+@Transport(type=TransportType.SOAP)
+public class SoapAtmTransport implements ATMTransport {
+    ...
+}}}
+
+{{{
+package org.cdi.advocacy;
+
+@Transport(type=TransportType.STANDARD)
+public class StandardAtmTransport implements ATMTransport {
+    ...
+
+}}}
+
+{{{
+package org.cdi.advocacy;
+
+@Transport(type=TransportType.JSON)
+public class JsonRestAtmTransport implements ATMTransport {
+     ...
+}}}
+
+{{{
+@Named("atm")
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+
+	@Inject @Transport(type=TransportType.STANDARD)
+	private ATMTransport transport;
+
+}}}
+
+Output
+{{{
+deposit called
+communicating with bank via Standard transport
+}}}
+
+You can have more than one member of the qualifier annotation as follows:
+
+{{{
+package org.cdi.advocacy;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+
+import javax.inject.Qualifier;
+
+
+@Qualifier @Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface Transport {
+	TransportType type() default TransportType.STANDARD;
+	int priorityLevel() default -1;
+}
+
+}}}
+
+Now CDI is going to use both of the members to discriminate for injection.
+
+If we had a transport like so:
+
+{{{
+package org.cdi.advocacy;
+
+@Transport(type=TransportType.STANDARD, priorityLevel=1)
+public class SuperFastAtmTransport implements ATMTransport {
+	
+
+	public void setRetries(int retries) {
+	}
+
+
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via the Super Fast transport ");
+	}
+
+}
+
+}}}
+
+No changes to the StandardAtmTransport.
+
+If we run without changing the AutomatedTellerMachineImpl, we will get:
+
+Output
+{{{
+deposit called
+communicating with bank via the Standard transport 
+}}}
+
+If we change the injection and set the priority level to 1 like so:
+
+{{{
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject @Transport(type=TransportType.STANDARD, priorityLevel=1)
+	private ATMTransport transport;
+
+
+}}}
+
+Then we get this:
+
+Output 
+
+{{{
+deposit called
+communicating with bank via the Super Fast transport 
+}}}
+
+You can match using any type supported by annotations, e.g., Strings, classes, enums, ints, etc.
+
+
+
 = Advanced CDI tutorial =
 The faint of heart stop hear. All of the folks who want to understand the inner workings of CDI continue.
 
