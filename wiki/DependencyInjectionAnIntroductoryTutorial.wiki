@@ -1091,6 +1091,76 @@ deposit called
 communicating with bank via Standard transport retries=7
 }}}
 
+==Advanced Using @Nonbinding to combine a configuration annotation and a qaulifier annotation into one annotation==
+
+In the section titled *"Using @Qualfiers with members to discriminate injection and stop the explosion of annotation creation"* we covered adding additional members to a qualifier annotation and then in *"Advanced: Using @Produces and InjectionPoint to create configuration annotations"* we talked about how to write an annotation to configure an injection. Wouldn't be great if we could combine these two concepts into one annotation?
+
+The problem is that qualifier members are used to do the discrimination. We need some qualifier members that are not used for configuration not discrimination.
+
+To make an qualifier member just a configuration member use @Nonbinding annotation as follows:
+
+{{{
+package org.cdi.advocacy;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+
+import javax.enterprise.util.Nonbinding;
+import javax.inject.Qualifier;
+
+
+@Qualifier @Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface Transport {
+	TransportType type() default TransportType.STANDARD;
+	int priorityLevel() default -1;
+	String name() default "standard";
+	
+	@Nonbinding int retries() default 5;
+
+}
+}}}
+
+Now let's add the setRetries to the Fast Transport:
+
+{{{
+package org.cdi.advocacy;
+
+@Transport(type=TransportType.STANDARD, priorityLevel=1, name="super")
+public class SuperFastAtmTransport implements ATMTransport {
+	private int retries=0;
+
+	public void setRetries(int retries) {
+		this.retries=retries;
+	}
+
+
+	public void communicateWithBank(byte[] datapacket) {
+		System.out.println("communicating with bank via the Super Fast transport retries=" + retries);
+	}
+
+}
+
+}}}
+
+Then we use it as follows:
+
+{{{
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject @Transport(type=TransportType.STANDARD, priorityLevel=1, name="super", retries=9)
+	private ATMTransport transport;
+        ...
+}}}
+
+Ouptut
+{{{
+deposit called
+communicating with bank via Standard transport retries=9
+}}}
+
+
 
 ==Advanced: Using Instance to inject transports==
 
