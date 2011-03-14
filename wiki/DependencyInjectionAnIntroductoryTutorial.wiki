@@ -631,7 +631,7 @@ communicating with bank via JSON REST transport
 
 
 
-==Using @Producer to make a decision about creation==
+==Using @Producer that uses Qualifiers to make a decision about creation==
 
 You can also inject items as arguments into the producer as follows:
 
