@@ -858,7 +858,6 @@ deposit called
 communicating with bank via the Super Fast transport 
 }}}
 
-}}}
 
 
 == Using @Qualfiers with members to discriminate injection and stop the explosion of annotation creation==
