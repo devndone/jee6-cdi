@@ -24,8 +24,8 @@ simplifies and sanitizes the API for DI and AOP. If you have worked with Spring
 or Guice, you find CDI easy to use and easy to learn.
 
 It is no accident that this tutorial follows this tutorial 
-[http://java.dzone.com/articles/dependency-injection-an-introd 
-(using Spring "new" DI annotations)] written three years ago.
+[http://java.dzone.com/articles/dependency-injection-an-introd (using Spring "new" DI annotations)] 
+written three years ago.
 It will be interesting to compare and contrast the examples in this tutorial 
 with the one written three years ago for Spring DI annotations.
 
