@@ -2092,10 +2092,10 @@ This is just a brief taste. There is more to come.
 
 
 = Resources =
-* [http://sites.google.com/site/cdipojo/ CDI advocacy group]
-* [http://cdi4jadvocate.blogspot.com/ CDI advocacy blog]
-* [http://code.google.com/p/jee6-cdi/ CDI advocacy google code project]
-* [http://groups.google.com/group/cdiadvocate4j Google group for CDI advocacy]
-* [http://cdi4jadvocate.blogspot.com/2011/03/cdi-advocacy.html Manisfesto version 1]
-* [http://docs.jboss.org/weld/reference/1.1.0.Final/en-US/html/ Weld reference documentation]
-* [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI JSR299]
+ * [http://sites.google.com/site/cdipojo/ CDI advocacy group]
+ * [http://cdi4jadvocate.blogspot.com/ CDI advocacy blog]
+ * [http://code.google.com/p/jee6-cdi/ CDI advocacy google code project]
+ * [http://groups.google.com/group/cdiadvocate4j Google group for CDI advocacy]
+ * [http://cdi4jadvocate.blogspot.com/2011/03/cdi-advocacy.html Manisfesto version 1]
+ * [http://docs.jboss.org/weld/reference/1.1.0.Final/en-US/html/ Weld reference documentation]
+ * [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI JSR299]
