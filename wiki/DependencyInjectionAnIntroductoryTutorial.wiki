@@ -4,7 +4,6 @@
 <h1> Dependency Injection - An Introductory Tutorial -- Draft 1 </h1>
 
 
-<wiki:toc max_depth="5" />
 
 
 = Introduction =
@@ -43,6 +42,8 @@ want to use some feature of CDI DI.
 This is a code centric tutorial. The code listings are in the TOC so you can 
 find just the code listing you are looking for quickly.
 
+
+<wiki:toc max_depth="5" />
 
 
 
