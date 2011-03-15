@@ -8,13 +8,26 @@
 
 = Introduction =
 
-This article discusses dependency injection in a tutorial format. It covers some of the features of CDI such as type safe annotations configuration, alternatives and more. 
+This article discusses dependency injection in a tutorial format. It covers some 
+of the features of CDI such as type safe annotations configuration, alternatives and more. 
 
-[http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the Java standard for dependency injection and interception (AOP). It is evident from the popularity of DI and AOP that Java needs to address DI and AOP so that it can build other standards on top of it. DI and AOP are the foundation of many Java frameworks.
+[http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
+Java standard for dependency injection and interception (AOP). It is evident 
+from the popularity of DI and AOP that Java needs to address DI and AOP so that 
+it can build other standards on top of it. DI and AOP are the foundation of many Java frameworks.
 
-CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by Caucho's Resin, IBM's !WebSphere, Oracle's Glassfish, Red Hat's JBoss and many more application servers. CDI is similar to core Spring and Guice frameworks. Like JPA did for ORM, CDI simplifies and sanitizes the API for DI and AOP. If you have worked with Spring or Guice, you find CDI easy to use and easy to learn.
+CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by 
+[http://www.caucho.com/resin/ Caucho's Resin], IBM's !WebSphere, Oracle's Glassfish, 
+[http://www.jboss.org/jbossas/docs/6-x.html Red Hat's JBoss] and many more application servers. 
+CDI is similar to core Spring and Guice frameworks. Like JPA did for ORM, CDI 
+simplifies and sanitizes the API for DI and AOP. If you have worked with Spring 
+or Guice, you find CDI easy to use and easy to learn.
 
-It is no accident that this tutorial follows this tutorial [http://java.dzone.com/articles/dependency-injection-an-introd (using Spring "new" DI annotations)] written three years ago. It will be interesting to compare and contrast the examples in this tutorial with the one written three years ago for Spring DI annotations.
+It is no accident that this tutorial follows this tutorial 
+[http://java.dzone.com/articles/dependency-injection-an-introd 
+(using Spring "new" DI annotations)] written three years ago.
+It will be interesting to compare and contrast the examples in this tutorial 
+with the one written three years ago for Spring DI annotations.
 
 = Design goals of this tutorial =
 This tutorial is meant to be a description and explanation of DI in CDI 
@@ -2075,7 +2088,7 @@ more application servers. CDI is similar to core Spring and Guice frameworks.
 However CDI is a general purpose framework that can be used outside of JEE 6.
 
 
-CDI simplifies and sanitizes the API for DI and AOP. Through its use of Instance  and @Produces,
+CDI simplifies and sanitizes the API for DI and AOP. Through its use of *`Instance`*  and @Produces,
 CDI provides a pluggable architecture.
 
 With this pluggable architecture you can write code that finds new dependencies 
@@ -2100,3 +2113,4 @@ This is just a brief taste. There is more to come.
  * [http://cdi4jadvocate.blogspot.com/2011/03/cdi-advocacy.html Manisfesto version 1]
  * [http://docs.jboss.org/weld/reference/1.1.0.Final/en-US/html/ Weld reference documentation]
  * [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI JSR299]
+ * [http://www.caucho.com/resin/ Resin fast and light CDI and Java EE 6 Web Profile implementation]
