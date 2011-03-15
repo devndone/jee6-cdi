@@ -376,7 +376,7 @@ You can inject into fields,constructor arguments and setter methods (or any meth
 
 Here is an example of field injections:
 
-=== *`AutomatedTellerMachineImpl`*.*`transport`* using @Inject to do field injection. ===
+=== Code Listing: *`AutomatedTellerMachineImpl`*.*`transport`* using @Inject to do field injection. ===
 
 {{{
 ...
@@ -388,7 +388,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }}}
 
 
-=== *`AutomatedTellerMachineImpl`*.*`transport`* using @Inject to do constructor injection. ===
+===Code Listing:  *`AutomatedTellerMachineImpl`*.*`transport`* using @Inject to do constructor injection. ===
 
 {{{
 ...
@@ -410,7 +410,7 @@ Instead of relying on a constructor, you can delegage to a factory class to
 create the instance. To do this with CDI, you would use the @Produces from 
 your factory class as follows:
 
-=== *`TransportFactory`*.*`createTransport`* using @Produces to define a factory method ===
+=== Code Listing: *`TransportFactory`*.*`createTransport`* using @Produces to define a factory method ===
 
 {{{
 package org.cdi.advocacy;
@@ -431,7 +431,7 @@ The factory method could use qualifiers just like a class declaration. In this e
 The *`AutomatedTellerMachineImpl`* does not need to specify any special qualifiers. Here is the *`AutomatedTellerMachineImpl`* 
 that receives the simple producer.
 
-=== *`AutomatedTellerMachineImpl`* receives the simple producer ===
+===  Code Listing: *`AutomatedTellerMachineImpl`* receives the simple producer ===
 
 {{{
 import javax.inject.Inject;
@@ -464,7 +464,7 @@ Our previous injection points essentially inject the default which is the *`Stan
 
 If I need to install a different transport, all I need to do is change the /META-INF/beans.xml file to use the right transport as follows:
 
-=== *{classpath}/META-INF/beans.xml* ===
+===  Code Listing:  *`{classpath}/META-INF/beans.xml`* ===
 {{{
 <beans xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
@@ -496,10 +496,19 @@ You can think of CDI as a canonicalization of many patterns that we have been us
 The simplifcation and canonicalization is part of the evoluiton of DI.
 
 
-==Using @Qualifier to inject different types==
-TBD
+== Code Listing: Using @Qualifier to inject different types==
+Qualifiers can be used to discriminate exaclty what gets injected.
+Qualifiers work like granimal tags for kids clothes, you match the qualifier from the injection
+target and the injection source, then that is the type that will be injected.
 
-Soap Qualifier
+
+You may decide that at times you want to inject Soap or Json or the Standard transport.
+You don't want to list them as an alternative. You actually, for example, always want the Json implementation in a certain case.
+
+
+Here is an example of defining a qualifier for Soap.
+
+=== Code Listing: *`Soap`* runtime qualifier annotation ===
 {{{
 package org.cdi.advocacy;
 
@@ -518,7 +527,13 @@ public @interface Soap {
 
 }}}
 
-Using @Soap
+Notice that a qualifier is just a runtime annotation that is marked with the @Qualifier annotation.
+The @Qualifier is an annotation that decorates a runtime annoation and makes that annotation a qualifier.
+
+
+The we would just mark the source of the injection point, namely, *`SoapAtmTransport`* with our new @*`Soap`* qualifier as follows:
+
+=== Code Listing: *`SoapAtmTransport`* using new @*`Soap`* qualifier ===
 {{{
 package org.cdi.advocacy;
 
@@ -533,7 +548,10 @@ public class SoapAtmTransport implements ATMTransport {
 }
 }}}
 
-Via constructor
+Then when we are ready to inject a Soap transport we can do that by annotating the
+argument to the constructor as follows:
+
+=== Code Listing: *`AutomatedTellerMachineImpl`* injecting *`SoapAtmTransport`* using new @*`Soap`* qualifier via constructor arg ===
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
@@ -546,7 +564,10 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
-Via Property
+You could also choose to do this via the setter method for the property as follows:
+
+=== Code Listing: *`AutomatedTellerMachineImpl`* injecting *`SoapAtmTransport`* using new @*`Soap`* qualifier via setter method arg ===
+
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
@@ -558,8 +579,9 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	}
 }}}
 
+And a very common option is to use a field level injection as follows:
 
-Via Field
+=== Code Listing: *`AutomatedTellerMachineImpl`* injecting *`SoapAtmTransport`* using new @*`Soap`* qualifier via setter method arg ===
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
@@ -568,10 +590,23 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+From this point on, I am just going to use field level injection to simplify the examples.
+
 ==Using @Qualfiers to inject multiple types into the same bean using ==
-Under construction....
 
+Let's say that our ATM machine uses different transport based on some business rules
+that are configured in LDAP or config file or XML or a database (does not really matter).
 
+The point is we want to decide at runtime which transport we are going to use.
+
+In this scenario we may want to inject three different transports and then configure
+a transport based on the business rules.
+
+You are going to want to get notified when the injection is done and the bean is ready to go from a CDI perspective. 
+To get this notifcation you would annotated an init method with the @PostConstruct annotation. Then you could pick
+which type of transport that you want to use.
+
+=== Code Listing: *`AutomatedTellerMachineImpl`* injecting multiple transports using new multiple qualifiers ===
 {{{
 package org.cdi.advocacy;
 
@@ -629,19 +664,28 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+Try to follow the code above. Try to guess the output.
+Now compare it to this:
+
+*Output*
 {{{
 deposit called
 communicating with bank via JSON REST transport
 }}}
 
+How did you do?
 
 ==Using @Producer to make a decision about creation==
 
-Under construction...
+This example builds on the last.
 
-Producer that makes a decision about creation
+Perhaps you want to seperate the construction and selection of the transports 
+from the *`AutomatedTellerMachineImpl`*.
 
+You could create a *`Producer`* factory method that makes a decision about the 
+creation and selection of the transport as follows:
 
+=== Code Listing: *`TransportFactory`* deciding which transport to use/create ===
 {{{
 package org.cdi.advocacy;
 
@@ -654,7 +698,8 @@ public class TransportFactory {
 
 	
 	@Produces ATMTransport createTransport() {
-		//Look up config parameters in some config file
+		//Look up config parameters in some config file or LDAP server or database
+
 		System.out.println("ATMTransport created with producer makes decisions");
 		
 		if (behindFireWall) {
@@ -675,7 +720,9 @@ public class TransportFactory {
 
 }}}
 
-Output
+The output should be the same as before.
+
+*Output*
 {{{
 ATMTransport created with producer makes decisions
 Created JSON transport
@@ -684,9 +731,66 @@ communicating with bank via JSON REST transport
 }}}
 
 
-== Using multiple @Qualifiers at the same injection point to discriminate further ==
+
+==Using @Producer that uses qualifiers to make a decision about creation==
+
+This example builds on the last.
+
+You can also inject items as arguments into the producer as follows:
+
+=== Code Listing: *`TransportFactory`* injecting qualifier args ===
 {{{
+package org.cdi.advocacy;
+
+import javax.enterprise.inject.Produces;
+
+public class TransportFactory {
+	
+	private boolean useJSON = true;
+	private boolean behindFireWall = true;
+
+	
+	@Produces ATMTransport createTransport(	@Soap ATMTransport soapTransport, 
+											@Json ATMTransport jsonTransport) {
+		//Look up config parameters in some config file
+		System.out.println("ATMTransport created with producer makes decisions");
+		
+		if (behindFireWall) {
+			if (useJSON) {
+				System.out.println("return passed JSON transport");
+				return jsonTransport;
+			} else {
+				System.out.println("return passed SOAP transport");
+				return soapTransport;
+			}
+		} else {
+			System.out.println("Create Standard transport");
+			return new StandardAtmTransport();
+		}
+	}
+
+}
+
+}}}
+
+In the above example, *`createTransport`* becomes less of a factory method and more of a selection method
+as CDI actually creates and passes the *`soapTransport`* and the *`jsonTransport`*.
+
+Here is the expected output.
+
+*Output*
+{{{
+ATMTransport created with producer makes decisions
+return passed JSON transport
+deposit called
+communicating with bank via JSON REST transport
+}}}
+
+
+== Using multiple @Qualifiers at the same injection point to discriminate further ==
+
 You can use more than one qaulifier to further discriminate your injection target.
+
 
 {{{
 package org.cdi.advocacy;
@@ -755,52 +859,6 @@ communicating with bank via the Super Fast transport
 }}}
 
 }}}
-
-==Using @Producer that uses Qualifiers to make a decision about creation==
-
-You can also inject items as arguments into the producer as follows:
-
-{{{
-package org.cdi.advocacy;
-
-import javax.enterprise.inject.Produces;
-
-public class TransportFactory {
-	
-	private boolean useJSON = true;
-	private boolean behindFireWall = true;
-
-	
-	@Produces ATMTransport createTransport(	@Soap ATMTransport soapTransport, 
-											@Json ATMTransport jsonTransport) {
-		//Look up config parameters in some config file
-		System.out.println("ATMTransport created with producer makes decisions");
-		
-		if (behindFireWall) {
-			if (useJSON) {
-				System.out.println("return passed JSON transport");
-				return jsonTransport;
-			} else {
-				System.out.println("return passed SOAP transport");
-				return soapTransport;
-			}
-		} else {
-			System.out.println("Create Standard transport");
-			return new StandardAtmTransport();
-		}
-	}
-
-}
-
-}}}
-
-{{{
-ATMTransport created with producer makes decisions
-return passed JSON transport
-deposit called
-communicating with bank via JSON REST transport
-}}}
-
 
 
 == Using @Qualfiers with members to discriminate injection and stop the explosion of annotation creation==
