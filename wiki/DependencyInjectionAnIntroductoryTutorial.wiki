@@ -818,9 +818,6 @@ communicating with bank via JSON REST transport
 }}}
 
 
-<!-- Above this line is considered draft -->
-
-
 == Using multiple @Qualifiers at the same injection point to discriminate further ==
 
 You can use more than one qaulifier to further discriminate your injection target.
@@ -1547,6 +1544,9 @@ What are some potential problems of using this approach?
 Send me your answers on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
 The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
 
+
+<!-- Above this line is considered draft. Below this line is the wild wild west.
+No production at all... just code dumps with no explanation TBD -->
 
 
 ==Advanced: Using Instance to inject transports==
