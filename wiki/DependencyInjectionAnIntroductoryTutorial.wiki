@@ -1114,25 +1114,41 @@ The faint of heart stop hear. All of the folks who want to understand the inner 
 So far, we have been at the shallow, warm end of the pool. Things are about to get a little deeper and colder.
 If you need to master CDI, then this section if for you.
 
-==Advanced: Using @Produces and InjectionPoint to create configuration annotations==
+==Advanced: Using @Produces and *`InjectionPoint`* to create configuration annotations==
+
 Our ultimate goal is to define an annotation that we can use to configure the retry count on a transport.
+Essentially, we want to pass a retry count to the transport.
 
 We want something that looks like this:
 
+=== Code Listing: *`TransportConfig`* annotations that does configuration ===
 {{{
 	@Inject @TransportConfig(retries=2)
 	private ATMTransport transport;
 
 }}}
 
-Before we do that we need to learn more about Produces and InjectionPoints.
+(This was my favorite section to write, because I wanted to know how to create a
+annotation configuration from the start.)
 
-Let's learn about passing an injection point to @Produces
 
+Before we do that we need to learn more about @*`Produces`* and *`InjectionPoint`*s. 
+We are going to use a producer to read information (meta-data) about an injection point.
+
+An [http://download.oracle.com/javaee/6/api/javax/enterprise/inject/spi/InjectionPoint.html *`InjectionPoint`*]
+is a class that has information about an injection point. You can learn things
+like what is being decorated, what the target injection type is, what the source injection type, 
+what is the class of the owner of the member that is being injected and so forth.
+
+
+Let's learn about passing an injection point to @*`Produces`*. Below I have rewritten our simple @Produces 
+example, except this time I pass an *`InjectionPoint`* argument into the mix.
+
+
+=== Code Listing: *`TransportFactory`* getting meta-data about the injection point ===
 {{{
 package org.cdi.advocacy;
 
-//import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 
@@ -1155,6 +1171,8 @@ public class TransportFactory {
 
 }
 
+The above produces this output.
+
 }}}
 
 Output
@@ -1170,13 +1188,32 @@ deposit called
 communicating with bank via Standard transport
 }}}
 
-//Post a link to the API documents
-
 It appears from the output that annotated tells us which area of the program was annotated.
 It also appears that bean tells us which bean the injection is happending in.
 
+
+From this output you can see that the *`annotated`* property on the *`injectionPoint`* 
+has information about which language feature (field, constructor argument, method argument, etc.).
+In our case it is the field *`org.cdi.advocacy.AutomatedTellerMachineImpl.transport`*.
+is being used as the target of the injection, it is the thing that was *`annotated`*.
+
+From this output you can see that the *`bean`* property of the *`injectionPoint`* 
+is being used to describe the bean whose member is getting injected. In this case,
+it is the *`AutomatedTellerMachineImpl`* whose is getting the field injected.
+
+I won't describe each property, but as an exercise you can.
+
+Exercise: Look up the *`InjectionPoint`* in the [http://download.oracle.com/javaee/6/api/javax/enterprise/inject/spi/InjectionPoint.html API documentation].
+Find out what the other properties mean. How might you use this meta-data? 
+Can you think of a use case or application where it might be useful?
+Send me your answers on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
+The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
+
+
+
 Drilling further you can see what is in the beans and annotated properties.
 
+=== Code Listing: *`TransportFactory.createTransport`* drilling further into the meta-data about the injection point ===
 {{{
 	@Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
 		
@@ -1207,6 +1244,8 @@ Drilling further you can see what is in the beans and annotated properties.
 }
 }}}
 
+Now we are cooking with oil. Throw some gas on that flame. Look at the wealth of information
+that the *`InjectionPoint`* defines.
 
 Output
 {{{
@@ -1224,10 +1263,28 @@ annotated.typeClosure [interface org.cdi.advocacy.ATMTransport, class java.lang.
 ...
 }}}
 
-Ok now that we armed with an idea of what an Injection piont is. Let's get configuring our transport.
+We see that *`bean.beanClass`* gives up the class of the bean that is getting the 
+injected field. Remember that one, we will use it later.
 
-First let's define an TransportConfig annotation.
+We can see that *`bean.qualifiers*` gives up the list of qualifiers for the *`AutomatedTellerMachineImpl`*.
 
+We can also see that *`annotated.annotations`* gives us the list of annotations that are associated with the injected field.
+We will use this later to pull the configuration annotation and configure the transport with it.
+
+Exercise: Look up the *`Bean`* and *`Annotated`* in the [http://download.oracle.com/javaee/6/api/index.html?javax/enterprise/inject/spi/package-summary.html API documentation].
+Find out what the other properties mean. How might you use this meta-data? 
+Can you think of a use case or application where it might be useful?
+Send me your answers on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
+The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
+
+
+
+Ok now that we armed with an idea of what an *`Injection`* point is. Let's get configuring our transport.
+
+First let's define an *`TransportConfig`* annotation. This is just a plain runtime annotation as follows:
+
+
+=== Code Listing: *`TransportConfig`* an annotation used for configuration ===
 {{{
 package org.cdi.advocacy;
 
@@ -1246,8 +1303,12 @@ public @interface TransportConfig {
 
 }}}
 
+Notice that this annotation has one member retries, which we will use to configure
+the *`ATMTransport`* (*`transport`*).
+
 Now go ahead and use this to decorate the injection point as follows:
 
+=== Code Listing: *`AutomatedTellerMachineImpl`* using *`TransportConfig`* to configure retries ===
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
@@ -1258,14 +1319,27 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 Once it is configured when you run it, you will see the following output from our producer:
 
+Output
 {{{
 annotated.annotations AnnotationSet[@javax.inject.Inject(), @org.cdi.advocacy.TransportConfig(retries=2)]
 }}}
 
-This means the annotation data is there. We just need to grab it and use it.
+This means the annotation data is there. We just need to grab it and use it. Stop and ponder on this a bit.
+This is pretty cool. The producer allows me to customize how annotations are consumed.
+This is powerful stuff and one of the many extention points avaialable to CDI.
 
-Now we need to change the transport implementations to handle setting retires. Since this is an example, I will do this simply by adding a new setter method for retires (setRetries) to the ATMTranport interface like so:
+Please recall that the *`injectionPoint.annotated.annotations`* gives us the 
+list of annotations that are associated with the injected field, namely, the transport field of the 
+AutomatedTellerMachineImpl.Now we can use this to pull the configuration annotation 
+and configure the transport with it. The party is rolling now.
 
+
+
+Now we need to change the transport implementations to handle setting retires. 
+Since this is an example, I will do this simply 
+by adding a new setter method for retires (setRetries) to the ATMTranport interface like so:
+
+=== Code Listing: *`ATMTransport`* adding a retries property ===
 {{{
 package org.cdi.advocacy;
 
@@ -1278,6 +1352,7 @@ public interface ATMTransport {
 
 Then we need to change each of the transport to handle this new property as follows:
 
+=== Code Listing: *`StandardAtmTransport`* adding a retries property ===
 {{{
 package org.cdi.advocacy;
 
@@ -1300,6 +1375,10 @@ public class StandardAtmTransport implements ATMTransport {
 Now we just change the producer to grab the new annotation and configure the transport as follows:
 
 (For clarity I took out all of the Sysout.prinltns)
+
+
+=== Code Listing: *`TransportFactory`* using the annotation configuration to configure a new instance of the transport ===
+
 {{{
 package org.cdi.advocacy;
 
@@ -1327,23 +1406,32 @@ public class TransportFactory {
 
 }}}
 
-(Side Note we are missing a null pointer check. The annotation configuration could be null if the user did not set it, you may want to handle this. The example is kept deliberately short.)
+(Side Note we are missing a null pointer check. The annotation configuration could 
+be null if the user did not set it, you may want to handle this. The example is kept deliberately short.)
 
 The code just gets the annotation and shoves in the retires into the transport, and then just returns the transport.
+
 We now have a producers that can use an annotation to configure an injection. 
 
 Here is our new output:
 
+*Output*
 {{{
 ...
 deposit called
 communicating with bank via Standard transport retries=2
 }}}
 
-You can see our retries are there as we configured them in the output.
+You can see our retries are there as we configured them in the annotation.
 
-Let's say we had multiple transports in a single ATM and you wanted to configure all of the outputs at once. Oh my! Easy enough.
 
+Ok we are done with this example. What remains is a victory lap. 
+Let's say we had multiple transports in a single ATM and you wanted to configure all of the outputs at once. 
+
+Let's configure the tranport 
+based on an annotaion in the parent class of the injection target, namely, *`AutomatedTellerMachine`*.
+
+=== Code Listing: *`TransportFactory`* using the annotation configuration from class not field to configure a new instance of the transport ===
 {{{
 public class TransportFactory {
 	@Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
@@ -1358,7 +1446,9 @@ public class TransportFactory {
 
 }}}
 
-It is an exercise for the reader to make the injection level annotation (from the last example) override the class level annotations.
+It is an exercise for the reader to make the injection level annotation 
+(from the last example) override the class level annotations.
+
 
 Output
 {{{
@@ -1366,14 +1456,25 @@ deposit called
 communicating with bank via Standard transport retries=7
 }}}
 
+Exercise: Make the injection from the field override the injection from the class.
+It is a mere matter of Java code.
+Send me your solution on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
+The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
+
 ==Advanced Using @Nonbinding to combine a configuration annotation and a qaulifier annotation into one annotation==
 
-In the section titled *"Using @Qualfiers with members to discriminate injection and stop the explosion of annotation creation"* we covered adding additional members to a qualifier annotation and then in *"Advanced: Using @Produces and InjectionPoint to create configuration annotations"* we talked about how to write an annotation to configure an injection. Wouldn't be great if we could combine these two concepts into one annotation?
+In the section titled *"Using @Qualfiers with members to discriminate injection and stop the explosion of annotation creation"* 
+we covered adding additional members to a qualifier annotation and 
+then in *"Advanced: Using @Produces and InjectionPoint to create configuration annotations"* 
+we talked about how to write an annotation to configure an injection. 
+Wouldn't be great if we could combine these two concepts into one annotation?
 
-The problem is that qualifier members are used to do the discrimination. We need some qualifier members that are not used for configuration not discrimination.
+The problem is that qualifier members are used to do the discrimination. 
+We need some qualifier members that are not used for configuration not discrimination.
 
-To make an qualifier member just a configuration member use @Nonbinding annotation as follows:
+To make an qualifier member just a configuration member use @*`Nonbinding`* annotation as follows:
 
+=== Code Listing: *`Transport`* qualifier annotation using @*`Nonbinding`* to add configuration retries param ===
 {{{
 package org.cdi.advocacy;
 
@@ -1399,6 +1500,7 @@ public @interface Transport {
 
 Now let's add the setRetries to the Fast Transport:
 
+=== Code Listing: *`Transport`* qualifier annotation using @*`Nonbinding`* to add configuration retries param ===
 {{{
 package org.cdi.advocacy;
 
@@ -1429,11 +1531,21 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
         ...
 }}}
 
-Ouptut
+*Ouptut*
 {{{
 deposit called
 communicating with bank via Standard transport retries=9
 }}}
+
+The final result is we have one annotation that does both qualification and configuration.
+Booyah!
+
+Exercise: 
+There is an easter egg in this example. There is concept we talked about earlier in the 
+qualifier discrimination but never added. Please find it and describe it.
+What are some potential problems of using this approach?
+Send me your answers on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
+The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
 
 
 
