@@ -1,7 +1,7 @@
 #summary Dependency Injection - An Introductory Tutorial
 #sidebar TOCArticlesDependencyInjectionAnIntroductoryTutorial
 
-<h1> Dependency Injection - An Introductory Tutorial -- Under Construction </h1>
+<h1> Dependency Injection - An Introductory Tutorial -- Draft 1 </h1>
 
 
 <wiki:toc max_depth="5" />
@@ -16,6 +16,34 @@ This article discusses dependency injection in a tutorial format. It covers some
 CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by Caucho's Resin, IBM's !WebSphere, Oracle's Glassfish, Red Hat's JBoss and many more application servers. CDI is similar to core Spring and Guice frameworks. Like JPA did for ORM, CDI simplifies and sanitizes the API for DI and AOP. If you have worked with Spring or Guice, you find CDI easy to use and easy to learn.
 
 It is no accident that this tutorial follows this tutorial [http://java.dzone.com/articles/dependency-injection-an-introd (using Spring "new" DI annotations)] written three years ago. It will be interesting to compare and contrast the examples in this tutorial with the one written three years ago for Spring DI annotations.
+
+= Design goals of this tutorial =
+This tutorial is meant to be a description and explanation of DI in CDI 
+without the clutter of EJB 3.1 or JSF. 
+
+There are already plenty of tutorials that cover EJB 3.1 and JSF (and CDI).
+
+We believe that CDI has merit on 
+its own outside of the EJB and JSF space.
+
+This tutorial only covers CDI.
+
+Repeat there is no JSF 2 or EJB 3.1 in this tutorial. 
+
+This tutorial only has full, complete code examples with source code you
+can download and try out on your own. There are no code snippets where you can't figure out
+where in the code you are suppose to be. 
+
+All code examples have actually been run. We don't type in ad hoc code. If it did not run, it is not in our tutorial.
+We are not winging it.
+
+There are clear headings for code listings so you can use this tutorial as a cookbook when you
+want to use some feature of CDI DI. 
+
+This is a code centric tutorial. The code listings are in the TOC so you can 
+find just the code listing you are looking for quickly.
+
+
 
 
 = Dependency Injection =
@@ -57,7 +85,9 @@ public interface ATMTransport {
 }
 }}}
 
-Now the *`AutomatedTellerMachine`* needs a transport to perform its intent, namely withdraw money and deposit money. To carry out these tasks, the *`AutomatedTellerMachine`* may depend on many objects and collaborates with its dependencies to complete the work. 
+Now the *`AutomatedTellerMachine`* needs a transport to perform its intent, 
+namely withdraw money and deposit money. To carry out these tasks, the 
+*`AutomatedTellerMachine`* may depend on many objects and collaborates with its dependencies to complete the work. 
 
 An implementation of the *`AutomatedTellerMachine`* may look like this:
 
@@ -388,7 +418,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }}}
 
 
-===Code Listing:  *`AutomatedTellerMachineImpl`*.*`transport`* using @Inject to do constructor injection. ===
+===Code Listing:  *`AutomatedTellerMachineImpl`*.*`transport`* using @*`Inject`* to do constructor injection. ===
 
 {{{
 ...
@@ -1545,12 +1575,24 @@ Send me your answers on the [http://groups.google.com/group/cdiadvocate4j?pli=1 
 The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
 
 
-<!-- Above this line is considered draft. Below this line is the wild wild west.
-No production at all... just code dumps with no explanation TBD -->
-
-
 ==Advanced: Using Instance to inject transports==
 
+The use of the class Instance allows you to dynamically look up instances of a certain type.
+These instances can be instances that are in a jar file.
+For example the AutomatedTellerMachine could work with transports 
+that did not even exist when the AutomatedTellerMachine was created.
+The Instance class is one of the things that makes CDI so cool and flexible.
+In this section, I hope to give it some justice while still keeping the example small 
+and understandable.
+
+
+Let's say we wanted to work with multiple transports. 
+But we don't know which transport is configured and on the classpath.
+It could be that the build was special for a certain type of transport, and it
+just does not exist on the classpath. Suspend disbelief for a moment and let's look
+a the code.
+
+=== Code Listing: *`AutomatedTellerMachineImpl`* using *`Instance`* ===
 {{{
 package org.cdi.advocacy;
 
@@ -1592,6 +1634,21 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+Notice we are using *`Instance<ATMTransport>`* as the field type instead of *`ATMTransport`*.
+Then we look up the actual transport. We can query a *`Instance`* with the *`Instance.isUnsatisfied`* to 
+see it this tranport actually exist. There is an *`Instance.get`* method to retrieve a single 
+transport, but I used *`Instance.iterator().next()`* to highlight an important aspect
+of *`Instance`*, namely, it can return more the same type. There could be 20 @*`Default`* based
+transports in the system.
+
+Imagine if you were implementing a chain of responsibility pattern or a command pattern, and you
+wanted an easy way to discover the actions or commands that were on the classpath.
+*`Instance`* would be that way. CDI makes this type of plugin development very easy.
+
+
+If it could find a single @*`Default`*, the one we have been using since the start, on the classpath.
+The output from the above would be as follows: 
+
 Output
 {{{
 picked Default
@@ -1599,7 +1656,12 @@ deposit called
 communicating with bank via Standard transport
 }}}
 
-Comment out implements ATMTransport in StandardAtmTransport
+Now to test how the *`Instance.isUnsatisfied`* by commenting out the *`implements ATMTransport`* in StandardAtmTransport
+class definition. You are essntially taking StandardAtmTransport out of the pool of possible injection of *`ATMTransport`*.
+There are no more defaults configured so it should be an unsatified.
+
+
+=== Code Listing: *`StandardAtmTransport`* commenting out *`implements ATMTransport`*  so *`Instance.isUnsatisfied`* returns true===
 {{{
 package org.cdi.advocacy;
 
@@ -1624,10 +1686,17 @@ deposit called
 communicating with bank via JSON REST transport
 }}}
 
+Reread this section if you must and make sure you understand why you get the above output.
 
-Calling all installed transports.
-Remove all of the annotations in the ATMTransport interfaces and make the beans.xml empty again.
 
+You can use Insstance to load more than one bean as mentioned earlier.
+Let's lookup all installed installed @Default transports.
+To setup this example remove all of the annotations in the ATMTransport interfaces 
+and make the beans.xml empty again (so no Alternative is active).
+
+
+
+=== Code Listing: *`SoapAtmTransport`* making it @*`Default`* by removing @*`Soap`* qualifier===
 {{{
 package org.cdi.advocacy;
 
@@ -1643,6 +1712,7 @@ public class SoapAtmTransport implements ATMTransport {
 }
 }}}
 
+=== Code Listing: *`JsonRestAtmTransport`* making it @*`Default`* by removing @*`Json`* qualifier===
 {{{
 package org.cdi.advocacy;
 
@@ -1659,13 +1729,12 @@ public class JsonRestAtmTransport implements ATMTransport {
 
 }}}
 
-
+=== Code Listing: *`StandardAtmTransport`* making it @*`Default`* by removing any qualifiers from it===
 {{{
 package org.cdi.advocacy;
 
-//import javax.enterprise.inject.Default;
 
-//@Default
+//Just make sure there are no qualifiers
 public class StandardAtmTransport implements ATMTransport {
 
 	public void communicateWithBank(byte[] datapacket) {
@@ -1676,7 +1745,11 @@ public class StandardAtmTransport implements ATMTransport {
 
 }}}
 
-beans.xml
+We also need to make sure that the beans.xml file is empty.
+
+
+=== Code Listing: *`{classpath}/META-INF/beans.xml`* removing all alternatives===
+
 {{{
 <beans xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
@@ -1685,7 +1758,7 @@ http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 </beans>
 }}}
 
-Now use every transport that is installed using the @Any annotation.
+Now use every transport that is installed using the annotation.
 
 {{{
 package org.cdi.advocacy;
@@ -1702,7 +1775,7 @@ import javax.inject.Named;
 @Named("atm")
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject @Any 
+	@Inject 
 	private Instance<ATMTransport> allTransports;
 
 	@PostConstruct
@@ -1732,6 +1805,10 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }
 }}}
 
+In this context ambigous means more than one. Therefore, CDI found more than one possibility
+for injection if ambigous returns true. It should find three defaults.
+
+Your output should look like this (or something close to this).
 
 Output
 {{{
@@ -1741,23 +1818,33 @@ deposit called
 communicating with bank via JSON REST transport
 communicating with bank via Soap transport
 communicating with bank via Standard transport
+communicating with bank via the Super Fast transport
 }}}
 
-Notice ...
+Note that we changed deposit to iterate through the available instances.
 
-Comment out the //implements ATMTransport { in the JSON and SOAP implementation.
-You get this output
+Now try something new comment out the *`implements ATMTransports`* in *`SuperFastAtmTransport`*, *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`*.
+
+*`JsonRestAtmTransport`* and *`SoapRestAtmTransport`* transport class defintion should have this *`//implements ATMTransport {`*.
+
+Now rerun the example.
+
+
+You get this output.
+
+*Output*
 {{{
-Output 
 Is this ambigous? false
 Is this unsatisfied? false
 deposit called
 communicating with bank via Standard transport
 }}}
 
-Notice ...
+Since the only transport left is the standard transport (*`StandardAtmTransport`*), only it is in the output.
+The Instance is no longer ambigous, there is only one so it prints false.
+CDI finds the one so it is not unsatisfied.
 
-Now comment out all three //implements ATMTransport, and you get this:
+Now comment out all of //implements ATMTransport, and you get this:
 
 {{{
 Is this ambigous? false
@@ -1765,29 +1852,59 @@ Is this unsatisfied? true
 deposit called
 }}}
 
-Notice ... 
+Notice there a no longer any  ATMTransport transport implementations in the system at all.
 
-Add the annotations we comment out, back to all of the transports. Take out the Alternative annotation for the JSON transport.
+The @Any qualifier states that you want all instances of an implementation.
+It does not matter what qualifiers they have, you want them all @*`Json`*s, @*`Soap`*s, @*`SuperFast`*s, whatever.
+
+Add the all of the annotations we commented out back to all of the transports. 
 
 
 
-Change main ATM like so...
+Add the @Any to the transport injection as follows:
 
+
+=== Code Listing: *`AutomatedTellerMachineImpl`* @*`Inject`* @*`Any`* *`Instance<ATMTransport>`* to inject all transport instances ===
 {{{
-package org.cdi.advocacy;
-
-import java.math.BigDecimal;
-
-import javax.annotation.PostConstruct;
-//import javax.enterprise.inject.Any;
+...
 import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Default;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.util.AnnotationLiteral;
-import javax.inject.Inject;
-import javax.inject.Named;
+...
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+	
+	@Inject @Any 
+	private Instance<ATMTransport> allTransports;
+	
+	private ATMTransport transport;
 
-@Named("atm")
+       ...
+}
+
+}}}
+
+The output of this should be:
+
+Output
+{{{
+Is this ambigous? true
+Is this unsatisfied? false
+deposit called
+communicating with bank via JSON REST transport
+communicating with bank via Soap transport
+communicating with bank via Standard transport
+communicating with bank via the Super Fast transport
+}}}
+
+@Any finds all of the transports in the system.
+
+Once you inject the instances into the system, you can use the *`select`* method of *`instance`* to query for a particular type.
+
+Here is an example of that:
+
+=== Code Listing: *`AutomatedTellerMachineImpl`* using selects to find a particular transport from the list you loaded===
+{{{
+...
+import javax.enterprise.inject.Any;
+...
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
 	@Inject @Any 
@@ -1827,13 +1944,15 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	public void deposit(BigDecimal bd) {
 		System.out.println("deposit called");
 		
-		transport.communicateWithBank(null);
+		transport.communicateWithBank(...);
 	}
 
        ...
 }
 
 }}}
+
+Here is the expected format.
 
 Output
 {{{
@@ -1843,8 +1962,10 @@ communicating with bank via Standard transport
 }}}
 
 
-Imagine there being setting that are configured in a db or something.
+Now imagine there being a set of settings that are configured in a db or something
+and the code might look like this to find a transport (this should look familiar to you by now).
 
+=== Code Listing: *`AutomatedTellerMachineImpl`* using selects and some business logic to decide which transport to use===
 {{{
 package org.cdi.advocacy;
 
@@ -1895,13 +2016,13 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	public void deposit(BigDecimal bd) {
 		System.out.println("deposit called");
 		
-		transport.communicateWithBank(null);
+		transport.communicateWithBank(...);
 	}
 
 	public void withdraw(BigDecimal bd) {
 		System.out.println("withdraw called");
 
-		transport.communicateWithBank(null);
+		transport.communicateWithBank(...);
 
 	}
 
@@ -1909,9 +2030,72 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+Exercise: 
+Please combine the use of Instance with a producer to define the same type of lookup 
+but have the business logic and select lookup happen in the *`TrasportFactory`*.
+Send me your answers on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
+The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
+
 
 ==The dirty truth about CDI and Java SE==
-TBD
+
+The dirty truth is this. CDI is part of JEE 6. It could easily be used outside of
+a JEE 6 container as these examples show. The problem is that there is no
+standard interface to use CDI outside of a JEE 6 container so the three main implementations
+Caucho Resin Candi, Red Hat JBoss Weld and Apache OpenWebBeans all have their own way 
+to run a CDI container standalone.
+
+As part of the promotion and advocacy of CDI, we plan on comming up with a standard way to 
+run CDI standalone. It will be a small wrapper around CDI standalone containers.
+It will work with Resin, Weld and eventually OpenWebBeans.
+
 
 = Conclusion =
+
+Dependency Injection (DI) refers to the process of supplying an external dependency 
+to a software component. 
+
+
+[http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
+Java standard for dependency injection and interception (AOP). 
+It is evident from the popularity of DI and AOP that Java needs to address DI 
+and AOP so that it can build other standards on top of it. 
+DI and AOP are the foundation of many Java frameworks.
+I hope you share my vision of CDI as a basis for other JSRs, Java frameworks and standards.
+
+
+This article discussed CDI dependency injection in a tutorial format. 
+It covers some of the features of CDI such as type safe annotations configuration, 
+alternatives and more. There was an introduction level and and advacned level.
+
+CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by 
+Caucho's Resin, IBM's !WebSphere, Oracle's Glassfish, Red Hat's JBoss and many 
+more application servers. CDI is similar to core Spring and Guice frameworks. 
+However CDI is a general purpose framework that can be used outside of JEE 6.
+
+
+CDI simplifies and sanitizes the API for DI and AOP. Through its use of Instance  and @Produces,
+CDI provides a pluggable architecture.
+
+With this pluggable architecture you can write code that finds new dependencies 
+dynamically.
+
+
+CDI is a rethink on how to do dependency injection and AOP (interception really).
+It simplifies it. It reduces it. It gets rid of legacy, outdated ideas.
+
+CDI is to Spring and Guice what JPA is to Hibernate, and Toplink. CDI will co-exist with Spring and Guice.
+There are plugins to make them interoperate nicely. There is more integration option
+on the way.
+
+This is just a brief taste. There is more to come.
+
+
 = Resources =
+* [http://sites.google.com/site/cdipojo/ CDI advocacy group]
+* [http://cdi4jadvocate.blogspot.com/ CDI advocacy blog]
+* [http://code.google.com/p/jee6-cdi/ CDI advocacy google code project]
+* [http://groups.google.com/group/cdiadvocate4j Google group for CDI advocacy]
+* [http://cdi4jadvocate.blogspot.com/2011/03/cdi-advocacy.html Manisfesto version 1]
+* [http://docs.jboss.org/weld/reference/1.1.0.Final/en-US/html/ Weld reference documentation]
+* [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI JSR299]
