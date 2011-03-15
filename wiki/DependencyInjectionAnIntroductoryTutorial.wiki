@@ -46,6 +46,8 @@ This tutorial only has full, complete code examples with source code you
 can download and try out on your own. There are no code snippets where you can't figure out
 where in the code you are suppose to be. 
 
+We start out slow, step by step and basic. Then once you understand the fundamentals, we pick up the pace quite a bit.
+
 All code examples have actually been run. We don't type in ad hoc code. If it did not run, it is not in our tutorial.
 We are not winging it.
 
@@ -55,6 +57,13 @@ want to use some feature of CDI DI.
 This is a code centric tutorial. The code listings are in the TOC so you can 
 find just the code listing you are looking for quickly.
 
+Decorators, Extentions, Interceptors, Scopes are out of scope for this first tutorial.
+
+If this tutorial is well recieved and we get enough feedback through our google group
+and comments section of the wiki then we will add a comprehensive tutorial on 
+CDI AOP (Decorators and Interceptors) and one on Extentions.
+
+The more positive and constructive feedback we get the more encouraged we will be to add more.
 
 <wiki:toc max_depth="5" />
 
