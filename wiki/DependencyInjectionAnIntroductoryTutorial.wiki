@@ -497,16 +497,24 @@ The simplifcation and canonicalization is part of the evoluiton of DI.
 
 
 == Code Listing: Using @Qualifier to inject different types==
+
+All objects and producers in CDI have qualifiers. If you do not assign a qaulifier
+it by default has the qualifier @*`Default`* and @*`Any`*. It is like a TV crime show
+in the U.S., if you do not have money for a lawyer, you will be assigned one.
+
 Qualifiers can be used to discriminate exaclty what gets injected.
+You can write custom qualifiers.
+
 Qualifiers work like granimal tags for kids clothes, you match the qualifier from the injection
 target and the injection source, then that is the type that will be injected.
 
+TODO add link describing granimals for the younger and non-U.S. folks.
 
-You may decide that at times you want to inject Soap or Json or the Standard transport.
-You don't want to list them as an alternative. You actually, for example, always want the Json implementation in a certain case.
+You may decide that at times you want to inject *`Soap`* or *`Json`* or the *`Standard`* transport.
+You don't want to list them as an alternative. You actually, for example, always want the *`Json`* implementation in a certain case.
 
 
-Here is an example of defining a qualifier for Soap.
+Here is an example of defining a qualifier for *`Soap`*.
 
 === Code Listing: *`Soap`* runtime qualifier annotation ===
 {{{
@@ -527,11 +535,11 @@ public @interface Soap {
 
 }}}
 
-Notice that a qualifier is just a runtime annotation that is marked with the @Qualifier annotation.
-The @Qualifier is an annotation that decorates a runtime annoation and makes that annotation a qualifier.
+Notice that a qualifier is just a runtime annotation that is marked with the @*`Qualifier`* annotation.
+The @*`Qualifier`* is an annotation that decorates a runtime annoation to make it a qualifier.
 
 
-The we would just mark the source of the injection point, namely, *`SoapAtmTransport`* with our new @*`Soap`* qualifier as follows:
+Then we would just mark the source of the injection point, namely, *`SoapAtmTransport`* with our new @*`Soap`* qualifier as follows:
 
 === Code Listing: *`SoapAtmTransport`* using new @*`Soap`* qualifier ===
 {{{
@@ -548,7 +556,7 @@ public class SoapAtmTransport implements ATMTransport {
 }
 }}}
 
-Then when we are ready to inject a Soap transport we can do that by annotating the
+Next time you are ready to inject a *`Soap`* transport we can do that by annotating the
 argument to the constructor as follows:
 
 === Code Listing: *`AutomatedTellerMachineImpl`* injecting *`SoapAtmTransport`* using new @*`Soap`* qualifier via constructor arg ===
@@ -590,14 +598,14 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
-From this point on, I am just going to use field level injection to simplify the examples.
+From this point on, we are just going to use field level injection to simplify the examples.
 
 ==Using @Qualfiers to inject multiple types into the same bean using ==
 
 Let's say that our ATM machine uses different transport based on some business rules
 that are configured in LDAP or config file or XML or a database (does not really matter).
 
-The point is we want to decide at runtime which transport we are going to use.
+The point is you want it decided at runtime which transport we are going to use.
 
 In this scenario we may want to inject three different transports and then configure
 a transport based on the business rules.
@@ -605,6 +613,8 @@ a transport based on the business rules.
 You are going to want to get notified when the injection is done and the bean is ready to go from a CDI perspective. 
 To get this notifcation you would annotated an init method with the @PostConstruct annotation. Then you could pick
 which type of transport that you want to use.
+
+Note the name of the method does not matter, it is the annotation that makes it an init method.
 
 === Code Listing: *`AutomatedTellerMachineImpl`* injecting multiple transports using new multiple qualifiers ===
 {{{
@@ -720,6 +730,11 @@ public class TransportFactory {
 
 }}}
 
+The advantage of this approach is that the logic to do the creation, 
+is seperate from the actual *`AutomatedTellerMachineImpl`* code. 
+
+This may not always be what you want, but if it is, then the producer can help you.
+
 The output should be the same as before.
 
 *Output*
@@ -751,7 +766,7 @@ public class TransportFactory {
 
 	
 	@Produces ATMTransport createTransport(	@Soap ATMTransport soapTransport, 
-											@Json ATMTransport jsonTransport) {
+						@Json ATMTransport jsonTransport) {
 		//Look up config parameters in some config file
 		System.out.println("ATMTransport created with producer makes decisions");
 		
@@ -776,6 +791,22 @@ public class TransportFactory {
 In the above example, *`createTransport`* becomes less of a factory method and more of a selection method
 as CDI actually creates and passes the *`soapTransport`* and the *`jsonTransport`*.
 
+Advanced topic: (Ignore this if it does not make sense) 
+You may wonder why I create *`StandardAtmTransport`* and not inject it as a 
+producer argument like *`soapTransport`* and *`jsonTransport`*. The problem is this
+*`createTransport`* is by default @*`Default`* and @*`Any`* but it overrides the *`StandardAtmTransport`*
+which is also by default @*`Default`* and @*`Any`*, but since *`StandardAtmTransport`* is overidden
+then if I inject *`@Default ATMTransport standardTransport`* as an argument then
+it tries to call *`createTransport`* since it is the @*`Default`*, which will then try to inject
+the argument *`standardTransport`*, which will then call *`createTransport`*, ad infinitum until
+we get a *`StackTraceOverflow`*. The solution is create a qualifier for the standard, say, 
+@*`Standard`* and use that to do the injection, or create one for the *`createProduces`* production, say,
+@*`Transport`*. The key here is that the injection arguments of a producer have to have different qualifiers than the 
+production method or all hell breaks lose, cats sleeping with dogs, pandimodium. Ok. Okay.
+The key here is that the injection arguments have to have different qualifiers than the 
+production method or you will get a *`StackTraceOverflow`* as CDI calls your production method
+to resovle the injection point of you production method ad infinitum.
+
 Here is the expected output.
 
 *Output*
@@ -787,11 +818,21 @@ communicating with bank via JSON REST transport
 }}}
 
 
+<!-- Above this line is considered draft -->
+
+
 == Using multiple @Qualifiers at the same injection point to discriminate further ==
 
 You can use more than one qaulifier to further discriminate your injection target.
 
+To demonstrate this let's define to qualifiers *`SuperFast`* and *`StandardFrameRelaySwitchingFlubber`*.
+Let's say at the time we have two transports that are *`StandardFrameRelaySwitchingFlubber`*.
+Let's also say that you want to inject a *`transport`* that is not only a *`StandardFrameRelaySwitchingFlubber`*
+but also *`SuperFast`*.
 
+First let's define the qualifier annotations as follows:
+
+=== Code Listing: *`SuperFast`* defining a new qualifier ===
 {{{
 package org.cdi.advocacy;
 
@@ -804,6 +845,7 @@ public @interface SuperFast {
 
 }}}
 
+=== Code Listing: *`StandardFrameRelaySwitchingFlubber`* defining another new qualifier ===
 {{{
 package org.cdi.advocacy;
 
@@ -816,6 +858,10 @@ public @interface StandardFrameRelaySwitchingFlubber {
 
 }}}
 
+Ok, here is the code for the *`SuperFastAtmTransport`* which is marked with both the 
+@*`SuperFast`* and the @*`StandardFrameRelaySwitchingFlubber`* qualifiers.
+
+=== Code Listing: *`SuperFastAtmTransport`* uses two qualifiers ===
 {{{
 package org.cdi.advocacy;
 
@@ -828,11 +874,15 @@ public class SuperFastAtmTransport implements ATMTransport {
 
 }}}
 
+
+Ok, we add the *`StandardFrameRelaySwitchingFlubber`* to the *`StandardAtmTransport`* as well.
+
+=== Code Listing: *`StandardAtmTransport`* changed to use one qualifier ===
 {{{
 package org.cdi.advocacy;
 
 
-@StandardFrameRelaySwitchingFlubber
+@StandardFrameRelaySwitchingFlubber @Default
 public class StandardAtmTransport implements ATMTransport {
 	public void communicateWithBank(byte[] datapacket) {
 		System.out.println("communicating with bank via Standard transport");
@@ -843,6 +893,11 @@ public class StandardAtmTransport implements ATMTransport {
 }}}
 
 
+Next if I want my AutomatedTellerMachineImpl to have *`SuperFast`* transport with *`StandardFrameRelaySwitchingFlubber`*, I would
+use both in the injection target as follows:
+
+
+=== Code Listing: *`AutomatedTellerMachineImpl`* changed to use two qualifier ===
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
@@ -858,17 +913,38 @@ deposit called
 communicating with bank via the Super Fast transport 
 }}}
 
+Exercise: Create a transport that is @SuperFast, @StandardFrameRelaySwitchingFlubber and an @Alternative.
+Then use beans.xml to activate this SuperFast, StandardFrameRelaySwitchingFlubber,  Alternative transport.
+Send me your solution on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
+The first one to send gets put on the CDI wall of fame. 
+
+
+Exercise for the reader. Change the injection point qualifiers to make only  the
+*`StandardAtmTransport`* get injected. 
+Send me your solution on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
+Don't get discouraged if you get a stack trace or two that is part of the learning process.
+The first one to send gets put on the CDI wall of fame (everyone else gets an honorable mention). 
 
 
 == Using @Qualfiers with members to discriminate injection and stop the explosion of annotation creation==
 
 There could be an explosion of qualifers annotations in your project. 
-This is probably not want you want.
-It is okay if you have a few, but it could quickly become unmaneagle.
+Imagine in our example if there were 20 types of transports. We would have 20 annotations defined.
 
+This is probably not want you want.
+It is okay if you have a few, but it could quickly become unmanageable.
+
+CDI allows you to descriminate on members of a qualifier to reduce the explosion of qualifiers.
 Instead of having three qualifier you could have one qualifier and an enum.
 Then if you need more types of transports, you only have to add an enum value instead of another class.
 
+Let's demonstrate how this works by creating a new qualifier annotation called *`Transport`*.
+The *`Transport`* qualifier annotation will have a single member, an enum called *`type`*. The *`type`* member
+will be an new enum that we define called *`TransportType`*.
+
+Here is the new *`TransportType`*:
+
+=== Code Listing: *`Transport`* qualifier that has an enum member ===
 {{{
 package org.cdi.advocacy;
 
@@ -887,6 +963,8 @@ public @interface Transport {
 
 }}}
 
+Here is the new enum that is part of the *`TransportType`*.
+=== Code Listing: *`TransportType`* enum that defines a type ===
 {{{
 package org.cdi.advocacy;
 
@@ -895,10 +973,10 @@ public enum TransportType {
 }
 }}}
 
-Imagine in our example if there were 20 types of transports. We would have 20 annotations defined.
 
-You would need to annotated the implementations like so:
+Next you need to qualify your transport instances like so:
 
+=== Code Listing: *`SoapAtmTransport`* using *`@Transport(type=TransportType.SOAP)`*===
 {{{
 package org.cdi.advocacy;
 
@@ -908,6 +986,8 @@ public class SoapAtmTransport implements ATMTransport {
     ...
 }}}
 
+
+=== Code Listing: *`StandardAtmTransport`* using *`@Transport(type=TransportType.STANDARD)`*===
 {{{
 package org.cdi.advocacy;
 
@@ -917,6 +997,7 @@ public class StandardAtmTransport implements ATMTransport {
 
 }}}
 
+=== Code Listing: *`JsonRestAtmTransport`* using *`@Transport(type=TransportType.JSON)`*===
 {{{
 package org.cdi.advocacy;
 
@@ -925,6 +1006,7 @@ public class JsonRestAtmTransport implements ATMTransport {
      ...
 }}}
 
+=== Code Listing: *`AutomatedTellerMachineImpl`* using *`@Inject @Transport(type=TransportType.STANDARD)`*===
 {{{
 @Named("atm")
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
@@ -934,6 +1016,8 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+As always, you will want to run the example.
+
 Output
 {{{
 deposit called
@@ -942,6 +1026,7 @@ communicating with bank via Standard transport
 
 You can have more than one member of the qualifier annotation as follows:
 
+=== Code Listing: *`Transport`* qualifier annotation with more than one member ===
 {{{
 package org.cdi.advocacy;
 
@@ -965,6 +1050,7 @@ Now CDI is going to use both of the members to discriminate for injection.
 
 If we had a transport like so:
 
+=== Code Listing: *`SuperFastAtmTransport`* using two qualifier members to qualify ===
 {{{
 package org.cdi.advocacy;
 
@@ -986,7 +1072,7 @@ public class SuperFastAtmTransport implements ATMTransport {
 
 No changes to the StandardAtmTransport.
 
-If we run without changing the AutomatedTellerMachineImpl, we will get:
+If we run without changing the *`AutomatedTellerMachineImpl`*, we will get:
 
 Output
 {{{
@@ -996,6 +1082,7 @@ communicating with bank via the Standard transport
 
 If we change the injection and set the priority level to 1 like so:
 
+=== Code Listing: *`AutomatedTellerMachineImpl`* using two qualifier members to discriminate ===
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
@@ -1016,10 +1103,16 @@ communicating with bank via the Super Fast transport
 
 You can match using any type supported by annotations, e.g., Strings, classes, enums, ints, etc.
 
+Exercise: Add a member String to the qualifier annotation. Change the injection point to discriminate using
+this new string member. Why do you think this is counter to what CDI stands for?
+Send me your solution on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
+The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
 
 
 = Advanced CDI tutorial =
 The faint of heart stop hear. All of the folks who want to understand the inner workings of CDI continue.
+So far, we have been at the shallow, warm end of the pool. Things are about to get a little deeper and colder.
+If you need to master CDI, then this section if for you.
 
 ==Advanced: Using @Produces and InjectionPoint to create configuration annotations==
 Our ultimate goal is to define an annotation that we can use to configure the retry count on a transport.
