@@ -1,4 +1,5 @@
 #summary Dependency Injection - An Introductory Tutorial
+#labels Featured,Tutorial
 #sidebar TOCArticlesDependencyInjectionAnIntroductoryTutorial
 
 <h1> Dependency Injection - An Introductory Tutorial -- Rough Draft 1 </h1>
