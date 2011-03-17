@@ -3,7 +3,11 @@
 
 = Introduction =
 
-There is no standard interface to doing CDI SE. [http://seamframework.org/Weld Weld] has a way. 
+There is no standard interface to doing CDI SE. 
+We would like this for the tutorial series so folks can download the tutorials and get them to work
+with their CDI container of choice. This will also be useful for unit testing.
+
+[http://seamframework.org/Weld Weld] has a way. 
 [http://caucho.com/resin-4.0/ Caucho Resin] has a way. 
 And, we assume [http://openwebbeans.apache.org/ Apache OpenWebBeans] has a way.
 
@@ -31,5 +35,3 @@ The vision is as follows:
  * End user will use the branch based on the CDI SE container they are interested in
 
 For now this new artifact will be called org.github.cdiadvocate:cdise.
-
-
