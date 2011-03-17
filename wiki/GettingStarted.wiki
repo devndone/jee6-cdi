@@ -1,4 +1,5 @@
 #summary Welcome
+#labels Featured
 
 = Welcome =
 
@@ -35,3 +36,5 @@ Also, there are ways to run CDI inside and outside of a container, we are going 
 [http://goo.gl/yS7oD Using Maven or Eclipse Java EE IDE to run the Java EE CDI samples]
 
 [http://goo.gl/PMR9j Using Maven or Eclipse Java EE IDE to run the Java EE CDI samples PDF]
+
+[DependencyInjectionAnIntroductoryTutorial  Step by Step Tutorial and cookbook for DI and CDI]
