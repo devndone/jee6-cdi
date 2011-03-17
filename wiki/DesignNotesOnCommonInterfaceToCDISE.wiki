@@ -35,3 +35,11 @@ The vision is as follows:
  * End user will use the branch based on the CDI SE container they are interested in
 
 For now this new artifact will be called org.github.cdiadvocate:cdise.
+
+== Design Notes for Resin ==
+
+`com.caucho.resin.ResinBeanContainer` is the main interface for Resin's CDI container. You can use this
+to run CDI from a main method.
+
+ResinBeanContainer has a method called getBeanByName and getInstance(Class, Annotation...) to look up a bean by its class and a list of annotations. There is also a start method to start the container. There are methods to add jars files and classpaths locations of classes to scan.
+
