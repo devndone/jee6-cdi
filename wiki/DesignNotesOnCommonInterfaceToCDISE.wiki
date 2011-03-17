@@ -1,5 +1,5 @@
 #summary Design notes on common interface to CDI SE
-#labels internal,not-meant-for-non-project-members,tutorial-support
+#labels internal,not-meant-for-non-project-members,tutorial-support,Phase-Design,Phase-Requirements,design-notes
 
 = Introduction =
 
@@ -41,5 +41,44 @@ For now this new artifact will be called org.github.cdiadvocate:cdise.
 `com.caucho.resin.ResinBeanContainer` is the main interface for Resin's CDI container. You can use this
 to run CDI from a main method.
 
-ResinBeanContainer has a method called getBeanByName and getInstance(Class, Annotation...) to look up a bean by its class and a list of annotations. There is also a start method to start the container. There are methods to add jars files and classpaths locations of classes to scan.
+`ResinBeanContainer` has a method called getBeanByName and getInstance(Class, Annotation...) to look up a bean by its class and a list of annotations. There is also a start method to start the container. There are methods to add jars files and classpaths locations of classes to scan. Resin uses compiling class-loaders so the locations can have Java source and Resin will compile it and add the annotations. Resin's approach is very powerful.
 
+== Design Notes for Weld ==
+Weld allows the launch of CDI applications through its `org.jboss.weld.environment.se.StartMain`. You just ensure the jar files, and classpath is setup ahead of time. You can not manipulate the classpath like you can with `ResinBeanContainer` so our common interface should probably leave that important feature out (for now). We can add this feature later if needed.
+
+Internally `StartMain` uses `WeldContainer` (`org.jboss.weld.environment.se.WeldContainer`). `WeldContainer` does not do much.  To get a `WeldContainer` you initialize the `Weld` CDI system (`org.jboss.weld.environment.se.Weld`) like so:
+
+{{{
+        WeldContainer weld = new Weld().initialize();
+
+}}}
+
+
+{{{
+//import InstanceManager same package internal class to Weld
+//
+public class WeldContainer
+{
+
+   private final InstanceManager instanceManager;
+   private final BeanManager beanManager;
+
+   @Inject
+   protected WeldContainer(InstanceManager instanceManager, BeanManager beanManager)
+   {
+      this.instanceManager = instanceManager;
+      this.beanManager = beanManager;
+   }
+...
+   public Instance<Object> instance() {
+      return instanceManager.getInstances();
+   }
+...
+ 
+  public BeanManager getBeanManager()
+   {
+      return beanManager;
+   }
+}
+
+}}}
