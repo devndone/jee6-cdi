@@ -1,0 +1,35 @@
+#summary Design notes on common interface to CDI SE
+#labels internal,not-meant-for-non-project-members,tutorial-support
+
+= Introduction =
+
+There is no standard interface to doing CDI SE. [http://seamframework.org/Weld Weld] has a way. 
+[http://caucho.com/resin-4.0/ Caucho Resin] has a way. 
+And, we assume [http://openwebbeans.apache.org/ Apache OpenWebBeans] has a way.
+
+We are most familiar with Resin and Weld so we will start with them.
+
+= Design goals =
+
+ * Single interface for looking up beans by annotation and name 
+ * Single callback for being notified when the container starts up (nice to have for now)
+
+The goals may change as we progress. For now, we want this to work with both Resin and Weld. In the future, we will get it to work with OpenWebBeans.
+
+For now, we just want a standard way to host our examples for our tutorials series.
+
+The vision is as follows:
+
+ * Create a github account for this project to host this common interface for CDI SE
+ * Host a maven repository here at this project site which will host this artifact
+ * Change tutorial to use this maven repo as a repository
+ * Add items to the common lib as needed
+ * To keep the maven pom.xml files simple, we will branch the tutorial into three branches, 
+      ** one for Resin
+     ** one for Weld
+     ** one for OpenWebBeans
+ * End user will use the branch based on the CDI SE container they are interested in
+
+For now this new artifact will be called org.github.cdiadvocate:cdise.
+
+
