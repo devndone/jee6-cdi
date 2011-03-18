@@ -260,7 +260,7 @@ public class WeldBeanContainer implements BeanContainer {
 
 }}}
 
-*Usage*
+*Usage by name*
 {{{
 package org.cdi.advocacy;
 
@@ -282,4 +282,21 @@ public class AtmMain {
 
 }
 
+}}}
+
+*Usage by type*
+{{{
+...
+public class AtmMain {
+
+	static BeanContainer beanContainer =  BeanContainerManager.getInstance();
+	static { beanContainer.start(); }
+
+	public static void main(String[] args) throws Exception {
+		AutomatedTellerMachine atm = beanContainer.getBeanByType(AutomatedTellerMachine.class);
+		atm.deposit(new BigDecimal("1.00"));
+
+	}
+
+}
 }}}
