@@ -24,7 +24,7 @@ CDI is similar to core Spring and Guice frameworks. Like JPA did for ORM, CDI
 simplifies and sanitizes the API for DI and AOP. If you have worked with Spring 
 or Guice, you find CDI easy to use and easy to learn.
 
-[Source code for this tutorial https://jee6-cdi.googlecode.com/svn/tutorial/cdi-di-example]
+[https://jee6-cdi.googlecode.com/svn/tutorial/cdi-di-example Source code for this tutorial.]
 
 It is no accident that this tutorial follows this tutorial 
 [http://java.dzone.com/articles/dependency-injection-an-introd (using Spring "new" DI annotations)] 
