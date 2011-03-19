@@ -1,0 +1,14 @@
+<projectDescription>
+  <name>candi-jsf-numberguess</name>
+  <comment>Example for CDI, implementation of JSR 299: Contexts and Dependency Injection for Java EE
+      Based on Weld numberguess example,  which is based on the orginal numberguess program. Long live Duke!. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>

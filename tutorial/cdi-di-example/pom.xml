@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.cdiadvocate</groupId>
+    <artifactId>cdi-di-tutorial</artifactId>
+    <packaging>jar</packaging>
+    <name>CDI Examples: Numberguess (JSF)</name>
+    <version>1.1.0-SNAPSHOT</version>
+
+
+    <description>
+        Source code for CDI DI tutorial. 
+	See: http://code.google.com/p/jee6-cdi/wiki/DependencyInjectionAnIntroductoryTutorial
+   </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.cdiadvocate</groupId>
+            <artifactId>cdiadvocate-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cdiadvocate</groupId>
+            <artifactId>cdiadvocate-resin-impl</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.0.0.GA</version>
+        </dependency>
+        <!-- <dependency> <groupId>org.cidadvocate</groupId> <artifactId>cdiadvocate-weld-impl</artifactId> 
+            <version>1.0-SNAPSHOT</version> </dependency> -->
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>cdi.advocate</id>
+            <name>CDI Advocacy</name>
+            <url>http://jee6-cdi.googlecode.com/svn/m2/repository/</url>
+        </repository>
+        <repository>
+            <id>caucho.maven.repo</id>
+            <name>Caucho Repository</name>
+            <url>http://caucho.com/m2</url>
+        </repository>
+    </repositories>
+
+</project>
