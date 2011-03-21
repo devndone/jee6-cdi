@@ -17,6 +17,7 @@
    * AOP, interceptors and decorators
    * Finish DI tutorial as prototype
    * Using archetypes that Andy created
+   * Realistic step by step CRUD example using JSF, CDI, (EJB 3.1 lite)
    * All tutorials have a wiki page, screencasts, presos, starter projects
 
 
