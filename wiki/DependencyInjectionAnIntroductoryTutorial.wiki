@@ -15,17 +15,23 @@ of the features of CDI such as type safe annotations configuration, alternatives
 [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
 Java standard for dependency injection and interception (AOP). It is evident 
 from the popularity of DI and AOP that Java needs to address DI and AOP so that 
-it can build other standards on top of it. DI and AOP are the foundation of many Java frameworks.
+it can build other standards on top of it. DI and AOP are the foundation of many 
+Java frameworks.
 
 CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by 
 [http://www.caucho.com/resin/ Caucho's Resin], IBM's !WebSphere, Oracle's Glassfish, 
 [http://www.jboss.org/jbossas/docs/6-x.html Red Hat's JBoss] and many more application servers. 
 CDI is similar to core Spring and Guice frameworks. Like JPA did for ORM, CDI 
 simplifies and sanitizes the API for DI and AOP. If you have worked with Spring 
-or Guice, you find CDI easy to use and easy to learn.
+or Guice, you will find CDI easy to use and easy to learn.
 
+<<<<<<< .mine
+CDI can be used standalone and can be embedded into any application.
+
+=======
 [https://jee6-cdi.googlecode.com/svn/tutorial/cdi-di-example Source code for this tutorial.]
 
+>>>>>>> .r93
 It is no accident that this tutorial follows this tutorial 
 [http://java.dzone.com/articles/dependency-injection-an-introd (using Spring "new" DI annotations)] 
 written three years ago.
@@ -38,27 +44,26 @@ without the clutter of EJB 3.1 or JSF.
 
 There are already plenty of tutorials that cover EJB 3.1 and JSF (and CDI).
 
-We believe that CDI has merit on 
-its own outside of the EJB and JSF space.
+We believe that CDI has merit on its own outside of the EJB and JSF space. This 
+tutorial only covers CDI. Repeat there is no JSF 2 or EJB 3.1 in this tutorial. 
+There are plenty of articles and tutorials that cover using CDI as part of a larger 
+JEE application. This tutorial is not that. This tutorial series is CDI and only CDI.
 
-This tutorial only covers CDI.
-
-Repeat there is no JSF 2 or EJB 3.1 in this tutorial. 
+TODO add links here and in the reference section wrt JEE
 
 This tutorial only has full, complete code examples with source code you
 can download and try out on your own. There are no code snippets where you can't figure out
 where in the code you are suppose to be. 
 
-We start out slow, step by step and basic. Then once you understand the fundamentals, we pick up the pace quite a bit.
+We start out slow, step by step and basic. Then once you understand the fundamentals, 
+we pick up the pace quite a bit.
 
 All code examples have actually been run. We don't type in ad hoc code. If it did not run, it is not in our tutorial.
 We are not winging it.
 
 There are clear headings for code listings so you can use this tutorial as a cookbook when you
-want to use some feature of CDI DI. 
-
-This is a code centric tutorial. The code listings are in the TOC so you can 
-find just the code listing you are looking for quickly.
+want to use some feature of CDI DI in the future. This is a code centric tutorial. 
+Again, the code listings are in the TOC so you can find just the code listing you are looking for quickly.
 
 Decorators, Extentions, Interceptors, Scopes are out of scope for this first tutorial.
 
@@ -66,7 +71,7 @@ If this tutorial is well recieved and we get enough feedback through our google 
 and comments section of the wiki then we will add a comprehensive tutorial on 
 CDI AOP (Decorators and Interceptors) and one on Extentions.
 
-The more positive and constructive feedback we get the more encouraged we will be to add more.
+The more positive and/or constructive feedback we get the more encouraged we will be to add more.
 
 <wiki:toc max_depth="5" />
 
@@ -74,15 +79,28 @@ The more positive and constructive feedback we get the more encouraged we will b
 
 = Dependency Injection =
 
-Dependency Injection (DI) refers to the process of supplying an external dependency to a software component. DI can help make your code architecturally pure. It aids in design by interface as well as test-driven development by providing a consistent way to inject dependencies. For example, a data access object (DAO) may depend on a database connection. Instead of looking up the database connection with JNDI, you could inject it. 
+Dependency Injection (DI) refers to the process of supplying an external dependency 
+to a software component. DI can help make your code architecturally pure. 
+It aids in design by interface as well as test-driven development by providing 
+a consistent way to inject dependencies. For example, a data access object (DAO) 
+may depend on a database connection. 
+Instead of looking up the database connection with JNDI, you could inject it. 
 
-One way to think about a DI framework like CDI is to think of JNDI turned inside out. Instead of an object looking up other objects that it needs to get its job done (dependencies), a DI container injects those dependent objects. This is the so-called Hollywood Principle, “Don't call us” (lookup objects), “we’ll call you” (inject objects). 
+One way to think about a DI framework like CDI is to think of JNDI turned inside out. 
+Instead of an object looking up other objects that it needs to get its job done 
+(dependencies), a DI container injects those dependent objects. 
+This is the so-called Hollywood Principle, "Don't call us�" (lookup objects), 
+"we'll call you" (inject objects). 
 
-If you have worked with CRC cards you can think of a dependency as a collaborator, i.e., an object that another object needs to perform its role.
+If you have worked with CRC cards you can think of a dependency as a collaborator, 
+i.e., an object that another object needs to perform its role.
  
 ==Dependency Injection-`AutomatedTellerMachine` without CDI or Spring or Guice==
 
-Let's say that you have an automated teller machine (ATM, also known as an automated banking machine in other countries) and it needs the ability to talk to a bank. It uses what it calls a transport object to do this. In this example, a transport object handles the low-level communication to the bank. 
+Let's say that you have an automated teller machine (ATM, also known as an 
+automated banking machine in other countries) and it needs the ability to talk 
+to a bank. It uses what it calls a transport object to do this. In this example, 
+a transport object handles the low-level communication to the bank. 
 
 This example could be represented by these two interfaces as follows: 
 
@@ -113,7 +131,8 @@ public interface ATMTransport {
 
 Now the *`AutomatedTellerMachine`* needs a transport to perform its intent, 
 namely withdraw money and deposit money. To carry out these tasks, the 
-*`AutomatedTellerMachine`* may depend on many objects and collaborates with its dependencies to complete the work. 
+*`AutomatedTellerMachine`* may depend on many objects and collaborates with 
+its dependencies to complete the work. 
 
 An implementation of the *`AutomatedTellerMachine`* may look like this:
 
@@ -140,7 +159,9 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
-The *`AutomatedTellerMachineImpl`* does not know or care how the transport withdraws and deposits money from the bank. This level of indirection allows us to replace the transport with different implementations such as in the following example:
+The *`AutomatedTellerMachineImpl`* does not know or care how the transport 
+withdraws and deposits money from the bank. This level of indirection allows 
+us to replace the transport with different implementations such as in the following example:
 
 ===Three example transports: `SoapAtmTransport`, `StandardAtmTransport` and `JsonAtmTransport`===
 
@@ -188,10 +209,16 @@ public class JsonRestAtmTransport implements ATMTransport {
 }
 }}}
 
-Notice the possible implementations of the *`ATMTransport interface`*. The `*AutomatedTellerMachineImpl*` does not know or care which transport it uses. Also, for testing and developing, instead of talking to a real bank, you could easily use Mockito or EasyMock or you could even write a *`SimulationAtmTransport`*.
+Notice the possible implementations of the *`ATMTransport interface`*. 
+The `*AutomatedTellerMachineImpl*` does not know or care which transport it uses. 
+Also, for testing and developing, instead of talking to a real bank, you could 
+easily use Mockito or EasyMock or you could even write a *`SimulationAtmTransport`*.
 
 
-The concept of DI transcends CDI, Guice and Spring. Thus, you can accomplish DI without CDI or Spring as follows: 
+TODO add links for Mockito, EasyMock, Guice and Spring, here an in the reference section.
+
+The concept of DI transcends CDI, Guice and Spring. 
+Thus, you can accomplish DI without CDI, Guice or Spring as follows: 
 
 ====Code Listing: `AtmMain`: DI without CDI, Spring or Guice====
 
@@ -223,12 +250,16 @@ ATMTransport transport = new SimulationAtmTransport();
 }}}
 
 
-The above assumes we added a *`setTransport`* method to the *`AutomateTellerMachineImpl`*. Note you could just as easily use constructor arguments instead of a setter method. Thus keeping the interface of your *`AutomateTellerMachineImpl`* clean.
+The above assumes we added a *`setTransport`* method to the *`AutomateTellerMachineImpl`*. 
+Note you could just as easily use constructor arguments instead of a setter method. 
+Thus keeping the interface of your *`AutomateTellerMachineImpl`* clean.
+
+TODO talk about maven setup and add a link on how to setup maven... 
 
 ==Dependency Injection-`AutomatedTellerMachine` using CDI==
 
 
-To use CDI to manage the dependencies you could do the following:
+To use CDI to manage the dependencies, do the following:
  # Create an empty *bean.xml* file under *META-INF* resource folder
  # Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*
  # Use the *@Default* annotation to annotate the *`StandardAtmTransport`*
@@ -240,7 +271,11 @@ To use CDI to manage the dependencies you could do the following:
 ===Step 1: Create an empty *bean.xml* file under *META-INF* resource folder ===
 ===META-INF/beans.xml===
 
-CDI needs an bean.xml file to be in META-INF of your jar file or classpath or WEB-INF of your web application. This file can be completely empty (as in 0 bytes). If there is no beans.xml file in your META-INF or WEB-INF then that war file or jar file will not be processed by CDI. Otherwise, CDI will scan the jar and war file if the beans.xml file exists even if it is 0 bytes.
+CDI needs an bean.xml file to be in META-INF of your jar file or classpath or 
+WEB-INF of your web application. This file can be completely empty (as in 0 bytes). 
+If there is no beans.xml file in your META-INF or WEB-INF then that war file or 
+jar file will not be processed by CDI. Otherwise, CDI will scan the jar and war 
+file if the beans.xml file exists even if it is 0 bytes.
 
 ==== Code Listing: `META-INF/beans.xml` just as empty as can be====
 
@@ -253,7 +288,11 @@ http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 </beans>
 }}}
 
-Notice that we included a starter beans.xml file with a namespace and a `<beans>` element. Although *beans.xml* could be completely empty, it is nice to have a starter file so when you need to add things (like later on in this tutorial) you can readily. Also it keeps the IDE from complaining about ill formed xml when you actually do have a 0 byte beans.xml. (I hate when the IDE complains. It is very distracting.)
+TODO Left off here
+Notice that we included a starter beans.xml file with a namespace and a `<beans>` 
+element. Although *beans.xml* could be completely empty, it is nice to have a 
+starter file so when you need to add things (like later on in this tutorial) 
+you can readily. Also it keeps the IDE from complaining about ill formed xml when you actually do have a 0 byte beans.xml. (I hate when the IDE complains. It is very distracting.)
 
 
 ===Step 2: Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*===
@@ -2126,3 +2165,14 @@ This is just a brief taste. There is more to come.
  * [http://docs.jboss.org/weld/reference/1.1.0.Final/en-US/html/ Weld reference documentation]
  * [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI JSR299]
  * [http://www.caucho.com/resin/ Resin fast and light CDI and Java EE 6 Web Profile implementation]
+
+ = About the Author =
+ This article was written with CDI advocacy in mind by [http://put.your.google.profile.here.com Rick Hightower].
+ Rick Hightower has worked as a CTO, Director of Development and a Developer for the last 20 years.
+ He has been involved with J2EE since its inception. He worked at an EJB container company in 1999.
+ He has been working with Java since 1996, and writing code professionally since 1990.
+ Rick was an early [http://spring.enthusiast.someurl.com Spring enthusiast]. 
+ Rick enjoys bouncing back and forth between C, Python, Groovy and Java development. 
+ Although not a fan of EJB 3, Rick is a big fan of the potential of CDI and 
+ thinks that EJB 3.1 has come a lot closer to the mark.
+
