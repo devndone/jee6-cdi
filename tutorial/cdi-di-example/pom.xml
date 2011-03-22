@@ -5,7 +5,7 @@
     <groupId>org.cdiadvocate</groupId>
     <artifactId>cdi-di-tutorial</artifactId>
     <packaging>jar</packaging>
-    <name>CDI Examples: Numberguess (JSF)</name>
+    <name>CDI Advocacy DI tutorial</name>
     <version>1.1.0-SNAPSHOT</version>
 
 
