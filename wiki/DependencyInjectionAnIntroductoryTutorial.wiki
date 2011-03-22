@@ -2210,7 +2210,7 @@ This is just a brief taste. There is more to come.
 
  = About the Author =
  This article was written with CDI advocacy in mind by [https://profiles.google.com/RichardHightower/about Rick Hightower]
- with some collaboration with others.
+ with some collaboration from others.
  
  Rick Hightower has worked as a CTO, Director of Development and a Developer for the last 20 years.
  He has been involved with J2EE since its inception. He worked at an EJB container company in 1999.
