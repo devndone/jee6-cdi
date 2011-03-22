@@ -12,7 +12,7 @@ We do want to support you. If you need help running the example, please contact 
 
  * Subversion
   ** We may later include a zip file if there is enough demand
- * Java 6 
+ * Java 6 SDK
   ** (you may be able to get it to work on earlier editions, but we are not going to test or support it)
  * Maven 3 
    ** (It has been out for a while, and there is no use of us supporting Maven 2)
