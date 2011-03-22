@@ -30,8 +30,14 @@
             <artifactId>validation-api</artifactId>
             <version>1.0.0.GA</version>
         </dependency>
-        <!-- <dependency> <groupId>org.cidadvocate</groupId> <artifactId>cdiadvocate-weld-impl</artifactId> 
-            <version>1.0-SNAPSHOT</version> </dependency> -->
+        <!-- 
+	     Uncomment this if you want to use Weld
+	     <dependency> 
+	       <groupId>org.cidadvocate</groupId> 
+	       <artifactId>cdiadvocate-weld-impl</artifactId> 
+               <version>1.0-SNAPSHOT</version> 
+	     </dependency>
+	-->
     </dependencies>
 
     <repositories>
@@ -45,6 +51,13 @@
             <name>Caucho Repository</name>
             <url>http://caucho.com/m2</url>
         </repository>
+       <!-- Uncomment this if you want to use Weld
+        <repository>
+            <id>jboss.maven.repo</id>
+            <name>JBoss Repository</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+        </repository>
+       -->
     </repositories>
 
 </project>
