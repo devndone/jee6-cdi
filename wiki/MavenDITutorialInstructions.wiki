@@ -20,6 +20,8 @@ We do want to support you. If you need help running the example, please contact 
  * Eclipse (Any 3.x+ version should do) 
   ** (You can use other IDEs but this is the one we support. Helios Service Release 2)
 
+= Short Video showing the steps=
+[http://goo.gl/SLY58 Short Video hosted on Vimeo]
 
 = Instructions = 
 
