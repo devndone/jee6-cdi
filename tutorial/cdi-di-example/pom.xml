@@ -33,7 +33,7 @@
         <!-- 
 	     Uncomment this if you want to use Weld
 	     <dependency> 
-	       <groupId>org.cidadvocate</groupId> 
+	       <groupId>org.cdiadvocate</groupId> 
 	       <artifactId>cdiadvocate-weld-impl</artifactId> 
                <version>1.0-SNAPSHOT</version> 
 	     </dependency>
