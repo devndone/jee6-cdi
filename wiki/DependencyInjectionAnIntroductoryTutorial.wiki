@@ -2203,6 +2203,10 @@ This is just a brief taste. There is more to come.
  * [http://docs.jboss.org/weld/reference/1.1.0.Final/en-US/html/ Weld reference documentation]
  * [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI JSR299]
  * [http://www.caucho.com/resin/ Resin fast and light CDI and Java EE 6 Web Profile implementation]
+ * [http://www.andygibson.net/blog/tutorial/getting-started-with-jsf-2-0-and-cdi-in-jee-6-part-1/ CDI & JSF Part 1 Intro by Andy Gibson]
+ * [http://www.andygibson.net/blog/tutorial/getting-started-with-cdi-part-2-injection/ CDI & JSF Part 2 Intro by Andy Gibson]
+ * [http://www.andygibson.net/blog/tutorial/getting-started-with-jsf-2-0-and-cdi-part-3/ CDI & JSF Part 3 Intro by Andy Gibson]
+ 
 
  = About the Author =
  This article was written with CDI advocacy in mind by [https://profiles.google.com/RichardHightower/about Rick Hightower]
