@@ -382,7 +382,12 @@ public class SoapAtmTransport implements ATMTransport {
 
  === Step 5: Use the *@Named* annotation to make the *`AutomatedTellerMachineImpl`* easy to look up; give it the name "atm"===
 
-Since we are not using *`AutomatedTellerMachineImpl`* from a Java EE 6 application, let's just use the *`beanContainer`* to look it up. Let's give it an easy logical name like "*`atm`*". To give it a name, use the @*`Named`* annotation. The @*`Named`* annotation is also used by JEE 6 application to make the bean accessible via the Universal EL (EL stands for Expression language and it gets used by JSPs and JSF components).
+Since we are not using *`AutomatedTellerMachineImpl`* from a Java EE 6 application, 
+let's just use the *`beanContainer`* to look it up. Let's give it an easy logical name like "*`atm`*". 
+To give it a name, use the @*`Named`* annotation. The @*`Named`* annotation is 
+also used by JEE 6 application to make the bean accessible via the 
+[http://java.sun.com/products/jsp/reference/techart/unifiedEL.html Unified EL] 
+(EL stands for Expression language and it gets used by JSPs and JSF components).
 
 Here is an example of using @Named to give the *`AutomatedTellerMachineImpl`* the name "atm"as follows:
 
@@ -423,7 +428,7 @@ makes the name automatedTellerMachineImpl.
 
 Lastly we want to look up the *atm* using the *`beanContainer`* and make some deposits.
  
-==== Code Listing: `AtmMain` looking up the atm ====
+==== Code Listing: `AtmMain` looking up the atm by name ====
 {{{
 package org.cdi.advocacy;
 
@@ -452,6 +457,34 @@ When you run it from the command line, you should get the following:
 deposit called
 communicating with bank via Standard transport
 }}}
+
+You can also lookup the *`AtmMain`* by type and an optional list of Annotations as 
+the name is really to support the Unified EL (JSPs, JSF, etc.).
+
+ 
+==== Code Listing: `AtmMain` looking up the atm by type ====
+{{{
+package org.cdi.advocacy;
+
+...
+
+public class AtmMain {
+
+        ...
+        ...
+
+    public static void main(String[] args) throws Exception {
+        AutomatedTellerMachine atm = beanContainer.getBeanByType(AutomatedTellerMachine.class);
+        atm.deposit(new BigDecimal("1.00"));
+    }
+
+}
+}}}
+
+Since a big part of CDI is its type safe injection, looking up things by name is probably
+discouraged. Notice we have one less cast due to [http://download.oracle.com/javase/tutorial/java/generics/index.html Java Generics].
+
+
 
 If you remove the *@Default* from the *`StandardATMTransport`*, you will get the same output.
 If you remove the *@Alternative* from both of the other transports, namely,  *`JsonATMTransport`*, and  *`SoapATMTransport`*, CDI will croak as follows:
