@@ -20,7 +20,7 @@ Java frameworks.
 
 CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by 
 [http://www.caucho.com/resin/ Caucho's Resin], IBM's !WebSphere, 
-[Oracle's Glassfish http://glassfish.java.net/], 
+[http://glassfish.java.net/ Oracle's Glassfish], 
 [http://www.jboss.org/jbossas/docs/6-x.html Red Hat's JBoss] and many more application servers. 
 CDI is similar to core Spring and Guice frameworks. Like JPA did for ORM, CDI 
 simplifies and sanitizes the API for DI and AOP. If you have worked with Spring 
