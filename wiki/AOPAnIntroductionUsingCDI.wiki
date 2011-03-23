@@ -2,7 +2,7 @@
 #labels Featured,Tutorial
 #sidebar TOCArticlesDependencyInjectionAnIntroductoryTutorial
 
-<h1> CDI based AOP - An Introductory Tutorial</h1>
+<h1> CDI based AOP - An Introductory Tutorial -- NOT DONE.... IN PROGRESS </h1>
 
 
 
@@ -172,113 +172,104 @@ For this example, we will use a simplified *SecurityToken* that gets stored into
 Here is the *SecurityToken*, which gets stored into a *ThreadLocal* variable, for this example:
 
 ====SecurityToken====
-{{{
-package com.arcmind.springquickstart.security;
+{{{package org.cdi.advocacy.security;
 
 /**
  * @author Richard Hightower
  *
  */
 public class SecurityToken {
-	
-	private boolean allowed;
-	private String userName;
-	
-	public SecurityToken() {
-		
-	}
-	
-	
-	
-	public SecurityToken(boolean allowed, String userName) {
-		super();
-		this.allowed = allowed;
-		this.userName = userName;
-	}
+        
+        private boolean allowed;
+        private String userName;
+        
+        public SecurityToken() {
+                
+        }
+        
+        
+        
+        public SecurityToken(boolean allowed, String userName) {
+                super();
+                this.allowed = allowed;
+                this.userName = userName;
+        }
 
 
 
-	public boolean isAllowed(String object, String methodName) {
-		return allowed;
-	}
+        public boolean isAllowed(String object, String methodName) {
+                return allowed;
+        }
 
-	
-	/**
-	 * @return Returns the allowed.
-	 */
-	public boolean isAllowed() {
-		return allowed;
-	}
-	/**
-	 * @param allowed The allowed to set.
-	 */
-	public void setAllowed(boolean allowed) {
-		this.allowed = allowed;
-	}
-	/**
-	 * @return Returns the userName.
-	 */
-	public String getUserName() {
-		return userName;
-	}
-	/**
-	 * @param userName The userName to set.
-	 */
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+        
+        /**
+         * @return Returns the allowed.
+         */
+        public boolean isAllowed() {
+                return allowed;
+        }
+        /**
+         * @param allowed The allowed to set.
+         */
+        public void setAllowed(boolean allowed) {
+                this.allowed = allowed;
+        }
+        /**
+         * @return Returns the userName.
+         */
+        public String getUserName() {
+                return userName;
+        }
+        /**
+         * @param userName The userName to set.
+         */
+        public void setUserName(String userName) {
+                this.userName = userName;
+        }
 }
-
 }}}
 
 The * SecurityService* stores the *SecurityToken* into the *ThreadLocal* variable, and then delegates to it to see if the current user has access to perform the current operation on the current object as follows:
 
 ====SecurityService====
 {{{
-package com.arcmind.springquickstart.security;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
+package org.cdi.advocacy.security;
 
 
-/**
- * @author Richard Hightower
- *
- */
-@Service ("defaultSecurityService")
-@Qualifier("manager")
 public class SecurityService {
-	
-	private static ThreadLocal<SecurityToken> currentToken = new ThreadLocal<SecurityToken>();
-	
-	public static void placeSecurityToken(SecurityToken token){
-		currentToken.set(token);
-	}
-	
-	public void clearSecuirtyToken(){
-		currentToken.set(null);
-	}
-	
-	public boolean isLoggedIn(){
-		SecurityToken token = currentToken.get();
-		return token!=null;
-	}
-	
-	public boolean isAllowed(String object, String method){
-		SecurityToken token = currentToken.get();
-		return token.isAllowed();
-	}
-	
-	public String getCurrentUserName(){
-		SecurityToken token = currentToken.get();
-		if (token!=null){
-			return token.getUserName();
-		}else {
-			return "Unknown";
-		}
-	}
+        
+        private static ThreadLocal<SecurityToken> currentToken = new ThreadLocal<SecurityToken>();
+        
+        public static void placeSecurityToken(SecurityToken token){
+                currentToken.set(token);
+        }
+        
+        public void clearSecuirtyToken(){
+                currentToken.set(null);
+        }
+        
+        public boolean isLoggedIn(){
+                SecurityToken token = currentToken.get();
+                return token!=null;
+        }
+        
+        public boolean isAllowed(String object, String method){
+                SecurityToken token = currentToken.get();
+                return token.isAllowed();
+        }
+        
+        public String getCurrentUserName(){
+                SecurityToken token = currentToken.get();
+                if (token!=null){
+                        return token.getUserName();
+                }else {
+                        return "Unknown";
+                }
+        }
 
 }
+
 
 }}}
 
@@ -308,36 +299,36 @@ Here is the SecurityAdvice class which will intercept calls on the AutomatedTell
 
 ====SecurityAdvice====
 {{{
-package com.arcmind.springquickstart.security;
+package org.cdi.advocacy.security;
 
 
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import javax.inject.Inject;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
 
 /**
  * @author Richard Hightower
  */
-@Component
+@Secure @Interceptor
 public class SecurityAdvice {
-	
-	@Autowired(required=true)
-	@Qualifier ("manager")
-	private SecurityService securityManager;
+        
+        @Inject
+        private SecurityService securityManager;
 
-	public void checkSecurity(ProceedingJoinPoint joinPoint) throws Throwable {
-		
+        @AroundInvoke
+        public void checkSecurity(InvocationContext joinPoint) throws Throwable {
+                
             /* If the user is not logged in, don't let them use this method */
             if(!securityManager.isLoggedIn()){            
                 throw new SecurityViolationException();
             }
 
             /* Get the name of the method being invoked. */
-            String operationName = joinPoint.getSignature().getName();
+            String operationName = joinPoint.getMethod().getName();
             /* Get the name of the object being invoked. */
-            String objectName = joinPoint.getThis().getClass().getName();
+            String objectName = joinPoint.getTarget().getClass().getName();
 
 
            /*
@@ -347,24 +338,9 @@ public class SecurityAdvice {
             if (!securityManager.isAllowed(objectName, operationName)){
                 throw new SecurityViolationException();
             }
-    	
+        
             joinPoint.proceed();
         }
-	
-
-	/**
-	 * @return Returns the manager.
-	 */
-	public SecurityService getSecurityManager() {
-		return securityManager;
-	}
-	/**
-	 * @param manager The manager to set.
-	 */
-	public void setSecurityManager(SecurityService manager) {
-		this.securityManager = manager;
-	}
-	
 }
 
 }}}
@@ -382,32 +358,64 @@ There is no complex pointcut language. You could implement one as a CDI extentio
 it does not come with it by default.
 
 
-CDI scans each jar that has a META-INF/beans.xml turned on with the *context:component-scan* tag, the *SecurityAdvice* get installed in the Spring application context under the default bean name *securityAdvice*. (The default bean name is the simple name of the class). The atm bean is registered using the component scan as well as follows:
+CDI scans each class in each jar (and other classpath locations) that has a META-INF/beans.xml.
 
-==== AutomatedTellerMachine class using @Service ====
+The *SecurityAdvice* get installed in the CDI beans.xml.
+
+
+==== Secure ====
 {{{
-@Service ("atm")
-public class AutomatedTellerMachineImpl implements AutomatedTellerMachine{
-        
-        @Autowired (required=true)
-        @Qualifier ("default")
-        private ATMTransport transport;
+package org.cdi.advocacy.security;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+import javax.interceptor.InterceptorBinding;
+
+
+@InterceptorBinding 
+@Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface Secure {
+
+}
+
 }}}
 
-The *aop:pointcut* tag defines the pointcut rule using this AspectJ expression *bean(atm)* which means decorate the methods of the bean named *atm*. If you want to decorate all beans whose names ends in *Service* you would use
-
+==== AutomatedTellerMachine class using @Secure ====
 {{{
- bean(*Service)
+package org.cdi.advocacy;
+...
+import javax.inject.Inject;
+
+import org.cdi.advocacy.security.Secure;
+
+@Secure
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+
+    @Inject
+    @Json
+    private ATMTransport transport;
+
+    public void deposit(BigDecimal bd) {
+        System.out.println("deposit called");
+        transport.communicateWithBank(null);
+
+    }
+
+    public void withdraw(BigDecimal bd) {
+        System.out.println("withdraw called");
+
+        transport.communicateWithBank(null);
+
+    }
+
+}
 }}}
 
-To see a full description of the AspectJ pointcut language see [http://www.eclipse.org/aspectj/doc/released/progguide/semantics-pointcuts.html pointcuts]. Note that the bean name pointcut can take you far.
+{{{
 
-You apply this pointcut and advice around the *atm* methods using the *aop:around* tag by referring to the *atmLayer*. You defined with the *aop:pointcut*. Then when the *atm* is looked up with AtmMain (listed below), instead of getting the original *atm*, you get an AOP proxy which is like a dynamic decorator.
-
-Figure 3 shows graphically how the objects and advice are found and applied.
-
-====Figure 3: AOP Configuration====
-http://arc-pocs.googlecode.com/svn/images/images-spring-quickstart/aopConfig.png
+}}}
 
 Let's complete our example by reviewing the AtmMain main method that looks up the atm out of the Spring *applicatoinContext*.
 
@@ -415,43 +423,41 @@ Let's review *AtmMain* as follows:
 
 ==== AtmMain.java ====
 {{{
-package com.arcmind.springquickstart.atm;
+package org.cdi.advocacy;
 
 import java.math.BigDecimal;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import com.arcmind.springquickstart.security.SecurityService;
-import com.arcmind.springquickstart.security.SecurityToken;
+import org.cdi.advocacy.security.SecurityToken;
+import org.cdiadvocate.beancontainer.BeanContainer;
+import org.cdiadvocate.beancontainer.BeanContainerManager;
+import org.cdi.advocacy.security.SecurityService;
 
 public class AtmMain {
-	
-	public static void simulateLogin() {
-		SecurityService.placeSecurityToken(new SecurityToken(true, "Rick Hightower"));
-	}
 
-	public static void simulateNoAccess() {
-		SecurityService.placeSecurityToken(new SecurityToken(false, "Tricky Lowtower"));
-	}	
-	
-	public static void main(String[] args) throws Exception {
-		
-		simulateLogin();
+    public static void simulateLogin() {
+        SecurityService.placeSecurityToken(new SecurityToken(true,
+                "Rick Hightower"));
+    }
 
-		ApplicationContext appContext = new ClassPathXmlApplicationContext(
-											"classpath:./spring/applicationContext.xml");
+    public static void simulateNoAccess() {
+        SecurityService.placeSecurityToken(new SecurityToken(false,
+                "Tricky Lowtower"));
+    }
 
-		AutomatedTellerMachine atm = (AutomatedTellerMachine) appContext
-				.getBean("atm");
+    public static BeanContainer beanContainer = BeanContainerManager
+            .getInstance();
+    static {
+        beanContainer.start();
+    }
 
-		atm.withdraw(new BigDecimal("10.00"));
+    public static void main(String[] args) throws Exception {
+        simulateLogin();
+        //simulateNoAccess();
 
-		atm.deposit(new BigDecimal("100.00"));
-		
-		System.out.println("done");
-
-	}
+        AutomatedTellerMachine atm = beanContainer
+                .getBeanByType(AutomatedTellerMachine.class);
+        atm.deposit(new BigDecimal("1.00"));
+    }
 
 }
 
