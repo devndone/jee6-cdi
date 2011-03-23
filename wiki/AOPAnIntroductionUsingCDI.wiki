@@ -152,7 +152,7 @@ are similar to *`ServletFilter`*s but for methods instead of requests.
 
 ==asdf==
 
-Thus before we added Spring AOP, our atm example was like Figure 1.
+Thus before we added CDI AOP, our atm example was like Figure 1.
 
 ====Figure 1: Before AOP advice====
 http://jee6-cdi.googlecode.com/svn/wiki/images/beforeAOP.png
@@ -375,36 +375,14 @@ Notice that the *SecurityService* gets injected into the *SecurityAdvice* and th
 
 An instance of *ProceedingJoinPoint*, namely *joinPoint*, is passed as an argument to *checkSecurity*. The  *ProceedingJoinPoint* has information about the method that is being called and provides control that determines if the method on the advised object's methods gets invoked (*AutomatedTellerMachineImpl.withdraw* and *AutomatedTellerMachineImpl.deposit*). If *joinPoint.proceed()* is not called then the wrapped method of the advised object (*withdraw* or *deposit*) is not called. (The proceed method causes the actual decorated method to be invoked or the next interceptor in the chain.)
 
-To apply an Advice like *SecurityAdvice* to an advised object, you need a pointcut. A pointcut is like a filter that picks the objects and methods that get decorated. For this example, we will configure the pointcut into the Spring application context with the *aop:config*,  *aop:aspect*, *aop:pointcut*, and *aop:around* tags as follows:.
+In Spring, to apply an Advice like *SecurityAdvice* to an advised object, you need a pointcut. 
+A pointcut is like a filter that picks the objects and methods that get decorated. 
+In CDI, you just mark the class or methods of the class that you want decorated.
+There is no complex pointcut language. You could implement one as a CDI extention, but
+it does not come with it by default.
 
-====applicationContext.xml====
-{{{
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:p="http://www.springframework.org/schema/p" 
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:aop="http://www.springframework.org/schema/aop"
-	xsi:schemaLocation="
-		http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
-		http://www.springframework.org/schema/aop     http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
-		">
 
-	
-	<context:component-scan base-package="com.arcmind.springquickstart"/>
-	
-	<aop:config>
-		<aop:aspect id="securityAspect" ref="securityAdvice">
-			<aop:pointcut id="atmLayer"  expression="bean(atm)"/>
-			<aop:around  pointcut-ref="atmLayer"  method="checkSecurity"/>
-		</aop:aspect>
-	</aop:config>
-	
-</beans>
-
-}}}
-
-Because we have component scan turned on with the *context:component-scan* tag, the *SecurityAdvice* get installed in the Spring application context under the default bean name *securityAdvice*. (The default bean name is the simple name of the class). The atm bean is registered using the component scan as well as follows:
+CDI scans each jar that has a META-INF/beans.xml turned on with the *context:component-scan* tag, the *SecurityAdvice* get installed in the Spring application context under the default bean name *securityAdvice*. (The default bean name is the simple name of the class). The atm bean is registered using the component scan as well as follows:
 
 ==== AutomatedTellerMachine class using @Service ====
 {{{
