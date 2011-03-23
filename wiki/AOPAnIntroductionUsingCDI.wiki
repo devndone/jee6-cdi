@@ -172,7 +172,9 @@ For this example, we will use a simplified *SecurityToken* that gets stored into
 Here is the *SecurityToken*, which gets stored into a *ThreadLocal* variable, for this example:
 
 ====SecurityToken====
-{{{package org.cdi.advocacy.security;
+{{{
+
+package org.cdi.advocacy.security;
 
 /**
  * @author Richard Hightower
@@ -275,6 +277,7 @@ public class SecurityService {
 
 ====SecurityViolationException====
 {{{
+
 package com.arcmind.springquickstart.security;
 
 /**
