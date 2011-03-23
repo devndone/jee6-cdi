@@ -155,12 +155,13 @@ are similar to *`ServletFilter`*s but for methods instead of requests.
 Thus before we added Spring AOP, our atm example was like Figure 1.
 
 ====Figure 1: Before AOP advice====
-/beforeAOP.png
+http://jee6-cdi.googlecode.com/svn/wiki/images/beforeAOP.png
 
 After we added AOP support, we now get an AOP proxy that applies the *securityAdvice* to the *atm* as show in figure 2.
 
 ==== Figure 2: After AOP advice ====
-http://arc-pocs.googlecode.com/svn/images/images-spring-quickstart/afterAOP.png
+
+http://jee6-cdi.googlecode.com/svn/wiki/images/afterAOP.png
 
 You can see that the AOP proxy implements the AutomatedTellerMachine interface. When the client object looks up the atm and starts invoking methods instead of executing the methods directly, it executes the method on the proxy, which then delegates the call to a series of method interceptor called advice, which eventually invoke the actual atm instance (now called atmTarget).
 
