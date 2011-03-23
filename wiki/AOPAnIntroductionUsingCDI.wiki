@@ -1,0 +1,228 @@
+#summary CDI based Apect Oriented Programming - An Introductory Tutorial
+#labels Featured,Tutorial
+#sidebar TOCArticlesDependencyInjectionAnIntroductoryTutorial
+
+<h1> CDI based AOP - An Introductory Tutorial</h1>
+
+
+
+
+= Introduction =
+
+This article discusses CDI based AOP in a tutorial format. 
+
+[http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
+Java standard for dependency injection (DI) and interception (AOP). It is evident 
+from the popularity of DI and AOP that Java needs to address DI and AOP so that 
+it can build other standards on top of it. DI and AOP are the foundation of many 
+Java frameworks.
+
+CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by 
+[http://www.caucho.com/resin/ Caucho's Resin], IBM's !WebSphere, 
+[http://glassfish.java.net/ Oracle's Glassfish], 
+[http://www.jboss.org/jbossas/docs/6-x.html Red Hat's JBoss] and many more application servers. 
+CDI is similar to core Spring and Guice frameworks. Like JPA did for ORM, CDI 
+simplifies and sanitizes the API for DI and AOP. If you have worked with Spring 
+or Guice, you will find CDI easy to use and easy to learn. If you are new to AOP, 
+then CDI is an easy on ramp for picking up AOP quickly, as it uses a small subset of
+what AOP provides. CDI based AOP is simpler to use and learn.
+
+CDI can be used standalone and can be embedded into any application.
+
+[https://jee6-cdi.googlecode.com/svn/tutorial/cdi-di-example Source code for this tutorial], 
+and [MavenAOPTutorialInstructions instructions] for use.
+
+It is no accident that this tutorial follows many of the same examples in the 
+[http://java.dzone.com/articles/introduction-spring-aop Spring 2.5 AOP tutorial]
+written three years ago.
+
+It will be interesting to compare and contrast the examples in this tutorial 
+with the one written three years ago for Spring based AOP.
+
+= Design goals of this tutorial =
+This tutorial is meant to be a description and explanation of AOP in CDI 
+without the clutter of EJB 3.1 or JSF. 
+
+There are already plenty of tutorials that cover EJB 3.1 and JSF (and CDI).
+
+We believe that CDI has merit on its own outside of the EJB and JSF space. This 
+tutorial only covers CDI. Repeat there is no JSF 2 or EJB 3.1 in this tutorial. 
+There are plenty of articles and tutorials that cover using CDI as part of a larger 
+[http://download.oracle.com/javaee/6/tutorial/doc/gjbnr.html JEE 6 application]. 
+This tutorial is not that. This tutorial series is CDI and only CDI.
+
+This tutorial only has full, complete code examples with source code you
+can download and try out on your own. There are no code snippets where you can't figure out
+where in the code you are suppose to be.
+
+If these tutorials are well recieved and we get enough feedback through our google group
+and comments section of the wiki then we will add a comprehensive tutorial on 
+CDI Extentions.
+
+The more positive and/or constructive feedback we get the more encouraged we will be to add more.
+
+<wiki:toc max_depth="5" />
+
+
+
+= AOP Basics =
+
+For some, AOP seems like voodoo magic. For others, AOP seems like a cureall. 
+For now, let's just say that AOP is a tool that you want in your developer tool box. 
+It can make seemingly impossible things easy. When we talk about AOP in CDI,
+we are really talking about interception which is a small but very useful part of AOP.
+For brevity, I am going to refer to interception as AOP.
+
+
+The first time that I used AOP was with Spring's transaction management support. 
+I did not realize I was using AOP. I just knew Spring could apply EJB-style 
+declarative transaction management to POJOs. It was probably Ðthree to six months 
+before I realized that I was using was Spring's AOP support. The Spring framework 
+truly brought AOP out of the esoteric closet into the main stream light of day.
+
+You can think of AOP as a way to apply services (called cross-cutting concerns) 
+to objects. AOP encompasses more than this, but this is where it gets used 
+mostly in the main stream.
+
+I've using AOP to apply caching services, transaction management, 
+resource management, etc. to any number of objects in an application. 
+It is not a panacea, but it certainly fits a lot of otherwise difficult use cases.
+
+You can think of AOP as a dynamic decorator design pattern. The decorator 
+pattern allows additional behavior to be added to an existing class by wrapping
+the original class and duplicating its interface and then delegating to the original. 
+See this article [http://en.wikipedia.org/wiki/Decorator_pattern decorator pattern] 
+for more detail about the decorator design pattern. 
+
+=Sample application revisited=
+
+For this introduction to AOP, let's take a simple example, let's apply security 
+services to our Automated Teller Machine example from the first 
+[DependencyInjectionAnIntroductoryTutorial Dependency Injection example from 
+the first tutorial] in this series.
+
+Let's say when a user logs into a system that a *`SecurityToken`* is created that 
+carries the user's credentials and before methods on objects get invoked, we 
+want to check to see if the user has credentials to invoke these methods.
+
+In a web application, you could write a *`ServletFilter`*, that stored this 
+*`SecurityToken`* in HttpSession and then on every request retrieved the token 
+from Session and put it into a *`ThreadLocal`* variable where it could be accessed 
+from a *`SecurityService`* that you could implement.
+
+Perhaps the objects that needed the *`SecurityService`* could access it as follows:
+
+====Code Listing: `AutomatedTellerMachineImpl` implementing security without AOP====
+
+{{{
+	public void deposit(BigDecimal bd) {
+	    	/* If the user is not logged in, don't let them use this method */
+    		if(!securityManager.isLoggedIn()){
+    			throw new SecurityViolationException();
+    		}
+	    	/* Only proceed if the current user is allowed. */
+
+	    	if (!securityManager.isAllowed("AutomatedTellerMachine", operationName)){
+    			throw new SecurityViolationException();
+    		}
+		...
+
+		transport.communicateWithBank(...);
+	}
+}}}
+
+In our ATM example, the above might work out well, but imagine a system with 
+thousands of classes that needed security. Now imagine, the way we check to see 
+if a user is logged is changed. If we put this code into every method that needed 
+security, then we could possibly have to change this a thousand times if we 
+changed the way we checked to see if a user was logged in.
+
+What we want to do instead is to use CDI to create a decorated version of the 
+*`AutomateTellerMachineImpl`* bean. 
+The decorated version would add the additional behavior to the *`AutomateTellerMachineImpl`* object without 
+changing the actual implementation of the *`AutomateTellerMachineImpl`*. 
+
+CDI does this by creating what is called an AOP proxy. An AOP proxy is like a dynamic decorator. 
+Underneath the covers CDI can generate a class at runtime (the AOP proxy) that 
+has the same interface as our *`AutomatedTellerMachine`*. The AOP proxy wraps our 
+existing atm object and provides additional behavior by delegating to a list of 
+method interceptors. The method interceptors provide the additional behavior and 
+are similar to *`ServletFilter`*s but for methods instead of requests.
+
+
+==asdf==
+
+====Code Listing: `AutomatedTellerMachine` interface====
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+
+public interface AutomatedTellerMachine {
+
+	public abstract void deposit(BigDecimal bd);
+
+	public abstract void withdraw(BigDecimal bd);
+
+}
+}}}
+
+
+
+= Conclusion =
+
+
+
+[http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
+Java standard for dependency injection and interception (AOP). 
+It is evident from the popularity of DI and AOP that Java needs to address DI 
+and AOP so that it can build other standards on top of it. 
+DI and AOP are the foundation of many Java frameworks.
+I hope you share my vision of CDI as a basis for other JSRs, Java frameworks and standards.
+
+CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by 
+Caucho's Resin, IBM's !WebSphere, Oracle's Glassfish, Red Hat's JBoss and many 
+more application servers. CDI is similar to core Spring and Guice frameworks. 
+However CDI is a general purpose framework that can be used outside of JEE 6.
+
+
+CDI simplifies and sanitizes the API for DI and AOP. ...
+
+CDI is a rethink on how to do dependency injection and AOP (interception really).
+It simplifies it. It reduces it. It gets rid of legacy, outdated ideas.
+
+CDI is to Spring and Guice what JPA is to Hibernate, and Toplink. CDI will co-exist with Spring and Guice.
+There are plugins to make them interoperate nicely. There is more integration option
+on the way.
+
+This is just a brief taste. There is more to come.
+
+
+= Resources =
+ * [http://sites.google.com/site/cdipojo/ CDI advocacy group]
+ * [http://cdi4jadvocate.blogspot.com/ CDI advocacy blog]
+ * [http://code.google.com/p/jee6-cdi/ CDI advocacy google code project]
+ * [http://groups.google.com/group/cdiadvocate4j Google group for CDI advocacy]
+ * [http://cdi4jadvocate.blogspot.com/2011/03/cdi-advocacy.html Manisfesto version 1]
+ * [http://docs.jboss.org/weld/reference/1.1.0.Final/en-US/html/ Weld reference documentation]
+ * [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI JSR299]
+ * [http://www.caucho.com/resin/ Resin fast and light CDI and Java EE 6 Web Profile implementation]
+ * [http://www.andygibson.net/blog/tutorial/getting-started-with-jsf-2-0-and-cdi-in-jee-6-part-1/ CDI & JSF Part 1 Intro by Andy Gibson]
+ * [http://www.andygibson.net/blog/tutorial/getting-started-with-cdi-part-2-injection/ CDI & JSF Part 2 Intro by Andy Gibson]
+ * [http://www.andygibson.net/blog/tutorial/getting-started-with-jsf-2-0-and-cdi-part-3/ CDI & JSF Part 3 Intro by Andy Gibson]
+ 
+
+ = About the Author =
+ This article was written with CDI advocacy in mind by [https://profiles.google.com/RichardHightower/about Rick Hightower]
+ with some collaboration from others.
+ 
+ Rick Hightower has worked as a CTO, Director of Development and a Developer for the last 20 years.
+ He has been involved with J2EE since its inception. He worked at an EJB container company in 1999.
+ He has been working with Java since 1996, and writing code professionally since 1990.
+ Rick was an early [http://java.sys-con.com/node/47735 Spring enthusiast]. 
+ Rick enjoys bouncing back and forth between C, Python, Groovy and Java development. 
+ Although not a fan of [http://java.sys-con.com/node/216307 EJB 3], 
+ Rick is a big fan of the potential of CDI and 
+ thinks that EJB 3.1 has come a lot closer to the mark.
+
