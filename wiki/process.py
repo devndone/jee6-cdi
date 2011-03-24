@@ -1,7 +1,7 @@
 import sys
 
-#f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
-f = file("test.wiki")
+f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
+#f = file("test.wiki")
 lines = f.readlines()
 
 def processURL(url) :
