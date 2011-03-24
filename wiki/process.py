@@ -1,7 +1,7 @@
 import sys
 
-f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
-#f = file("test.wiki")
+#f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
+f = file("test.wiki")
 lines = f.readlines()
 
 def processURL(url) :
@@ -37,7 +37,8 @@ for line in lines:
             print "</ol>"
             inOL=0
         else:
-            print "<br />"
+            #print "<br />"
+            pass
         continue
 
     if line[0:4] == "====":
@@ -107,8 +108,21 @@ for line in lines:
             url.append(part)
 #            print "START=%s" % part,
             continue
+        
+            
         if not inURL:
-            print part,
+            if part.startswith("*`") and part.endswith("`*"):
+                part = part[2:-2]
+                print "<b><code>%s</code></b>" % part,
+            elif part.startswith("*`") and part.endswith("`*,"):
+                part = part[2:-3]
+                print "<b><code>%s</code></b>," % part,
+            elif part.startswith("*`") and part.endswith("`*'s"):
+                part = part[2:-4]
+                print "<b><code>%s</code></b>'s" % part,
+
+            else:
+                print part,
     if inOL:
         sys.stdout.write("</li>")
 
