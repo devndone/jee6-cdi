@@ -43,3 +43,7 @@ lkj
  * three item 
 
 sdfasdf asdfasdf asdfasdf
+
+*`single`*
+*`double`* *`double`*
+*`with_comma`*, *`with_apsotrophe_s`*'s

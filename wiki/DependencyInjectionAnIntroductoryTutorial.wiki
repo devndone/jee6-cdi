@@ -9,15 +9,19 @@
 
 = Introduction =
 
-This article discusses dependency injection in a tutorial format. It covers some 
-of the features of CDI such as type safe annotations configuration, alternatives and more. 
+<p>This article discusses dependency injection in a tutorial format. It covers some 
+of the features of CDI such as type safe annotations configuration, alternatives and more.
+</p> 
 
+<p>
 [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
 Java standard for dependency injection (DI) and interception (AOP). It is evident 
 from the popularity of DI and AOP that Java needs to address DI and AOP so that 
 it can build other standards on top of it. DI and AOP are the foundation of many 
 Java frameworks.
+</p>
 
+<p>
 CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by 
 [http://www.caucho.com/resin/ Caucho's Resin], 
 IBM's !WebSphere, 
@@ -28,17 +32,24 @@ simplifies and sanitizes the API for DI and AOP. If you have worked with Spring
 or Guice, you will find CDI easy to use and easy to learn. If you are new to Dependency
 Injection (DI), then CDI is an easy on ramp for picking up DI quickly. 
 CDI is simpler to use and learn.
+</p>
 
+<p>
 CDI can be used standalone and can be embedded into any application.
+</p>
 
+<p>
 [https://jee6-cdi.googlecode.com/svn/tutorial/cdi-di-example Source code for this tutorial], 
 and [MavenDITutorialInstructions instructions] for use.
+</p>
 
+<p>
 It is no accident that this tutorial follows this Spring 2.5 DI tutorial 
 [http://java.dzone.com/articles/dependency-injection-an-introd (using Spring "new" DI annotations)] 
 written three years ago.
 It will be interesting to compare and contrast the examples in this tutorial 
 with the one written three years ago for Spring DI annotations.
+</p>
 
 = Design goals of this tutorial =
 This tutorial is meant to be a description and explanation of DI in CDI 
