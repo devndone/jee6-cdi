@@ -1,8 +1,7 @@
 import sys
 
 wikiURL = "http://code.google.com/p/jee6-cdi/wiki/"
-f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
-#f = file("test.wiki")
+f = file(sys.argv[1])
 lines = f.readlines()
 
 sig=file("signatureRick.wiki").read()
