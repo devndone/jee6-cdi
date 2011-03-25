@@ -58,3 +58,8 @@ bold
 *single*
 *double* *double*
 *with_comma*, *with_apsotrophe_s*'s
+
+URL
+[http://foo.com foo]
+[FooWIKIPage foo wiki page]
+
