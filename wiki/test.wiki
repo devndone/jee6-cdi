@@ -64,3 +64,20 @@ URL
 [FooWIKIPage foo wiki page]
 
 == *`Bold_Code`* love and rocket==
+
+
+<p>
+CDI has merit on its own outside of the EJB and JSF space. This
+tutorial only covers CDI. Repeat there is no JSF 2 or EJB 3.1 in this tutorial.
+There are plenty of articles and tutorials that cover using CDI as part of a larger [http://download.oracle.com/javaee/6/tutorial/doc/gjbnr.html JEE 6 application].
+This tutorial is not that. This tutorial series is CDI and only CDI.
+</p>
+
+<p>
+CDI has merit on its own outside of the EJB and JSF space. This
+tutorial only covers CDI. Repeat there is no JSF 2 or EJB 3.1 in this tutorial.
+There are plenty of articles and tutorials that cover using CDI as part of a larger [http://download.oracle.com/javaee/6/tutorial/doc/gjbnr.html JEE 6] application.
+This tutorial is not that. This tutorial series is CDI and only CDI.
+[http://download.com can handle a period at the end].
+</p>
+
