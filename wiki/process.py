@@ -4,7 +4,8 @@ wikiURL = "http://code.google.com/p/jee6-cdi/wiki/"
 f = file(sys.argv[1])
 lines = f.readlines()
 
-sig=file("signatureRick.wiki").read()
+#Looks for a signature file in the local dir
+sig=file("signature.htm").read()
 
 def processParts(parts):
     lst = []
@@ -62,8 +63,9 @@ def processPart(part):
 def processURL(url) :
     url[-1] = url[-1][:-1]
     theURL = url[0][1:]
-    if not theURL.startswith("http://"):
+    if not theURL.startswith("http://") and not theURL.startswith("https://"):
         theURL = "%s%s" % (wikiURL, theURL)
+
     body = " ".join( url[1:] )
     sys.stdout.write ( " <a href='%s'>%s</a>" % ( theURL, body ))
 
@@ -164,6 +166,12 @@ for line in lines:
             processURL(url)
             print ",",
 #            print "END WITH COMMA=%s" % url,
+            continue
+        if part.endswith("]."):
+            inURL = 0
+            url.append(part[:-1])
+            processURL(url)
+            print ".",
             continue
         if inURL == 1:
             url.append(part)

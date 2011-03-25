@@ -11,8 +11,9 @@
 [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
 Java standard for dependency injection (DI) and interception (AOP). It is evident 
 from the popularity of DI and AOP that Java needs to address DI and AOP so that 
-it can build other standards on top of it. DI and AOP are the foundation of many 
-Java frameworks.
+it can build other standards and JSRs on top of it. DI and AOP are the foundation of many 
+Java frameworks, and CDI will be the foundation of many future
+specifications and JSRs.
 </p>
 
 
@@ -31,8 +32,8 @@ CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by
 IBM's !WebSphere, 
 [http://glassfish.java.net/ Oracle's Glassfish], 
 [http://www.jboss.org/jbossas/docs/6-x.html Red Hat's JBoss] and many more application servers. 
-CDI is similar to core Spring and Guice frameworks. Like JPA did for ORM, CDI 
-simplifies and sanitizes the API for DI and AOP. If you have worked with Spring 
+CDI is similar to core Spring and Guice frameworks. <bold>Like JPA did for ORM, CDI 
+simplifies and sanitizes the API for DI and AOP</bold>. If you have worked with Spring 
 or Guice, you will find CDI easy to use and easy to learn. If you are new to Dependency
 Injection (DI), then CDI is an easy on ramp for picking up DI quickly. 
 CDI is simpler to use and learn.
@@ -57,15 +58,13 @@ with the one written three years ago for Spring DI annotations.
 
 = Design goals of this tutorial =
 
-<p>This tutorial is meant to be a description and explanation of DI in CDI 
-without the clutter of EJB 3.1 or JSF. </p>
-
-<p>
-There are already plenty of tutorials that cover EJB 3.1 and JSF (and CDI).
+<p>This tutorial series is meant to be a description and explanation of DI in CDI 
+without the clutter of EJB 3.1 or JSF. There are already plenty of
+tutorials that cover EJB 3.1 and JSF with CDI as a supporting actor.
 </p>
 
 <p>
-We believe that CDI has merit on its own outside of the EJB and JSF space. This 
+CDI has merit on its own outside of the EJB and JSF space. This 
 tutorial only covers CDI. Repeat there is no JSF 2 or EJB 3.1 in this tutorial. 
 There are plenty of articles and tutorials that cover using CDI as part of a larger 
 [http://download.oracle.com/javaee/6/tutorial/doc/gjbnr.html JEE 6 application]. 
@@ -91,20 +90,23 @@ If it did not run, it is not in our tutorial. We are not winging it.
 <p>
 There are clear headings for code listings so you can use this tutorial as a cookbook when you
 want to use some feature of CDI DI in the future. This is a code centric tutorial. 
-Again, the code listings are in the TOC so you can find just the code listing you are looking for quickly.
+Again, the code listings are in the
+[DependencyInjectionAnIntroductoryTutorial_Part1 TOC on the wiki page]
+so you can find just the code listing you are looking for quickly like
+an index for a cookbook.
 </p>
 
 
-<p>Decorators, Extentions, Interceptors, Scopes are out of scope for this first tutorial.
+<p>Decorators, Extentions, Interceptors, Scopes are out of scope for
+this first tutorial.
+Expect them in future tutorials.
 </p>
 
 <p>
-If this tutorial is well recieved and we get enough feedback through our google group
+If this tutorial is well recieved and we get enough feedback through,
+the JavaLobby articles, our google group
 and comments section of the wiki then we will add a comprehensive tutorial on 
 CDI AOP (Decorators and Interceptors) and one on Extentions.
-</p>
-
-<p>
 The more positive and/or constructive feedback we get the more encouraged we will be to add more.
 </p>
 
