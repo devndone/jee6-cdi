@@ -44,6 +44,17 @@ lkj
 
 sdfasdf asdfasdf asdfasdf
 
+code bold
 *`single`*
 *`double`* *`double`*
 *`with_comma`*, *`with_apsotrophe_s`*'s
+
+code
+`single`
+`double` `double`
+`with_comma`, `with_apsotrophe_s`'s
+
+bold
+*single*
+*double* *double*
+*with_comma*, *with_apsotrophe_s*'s

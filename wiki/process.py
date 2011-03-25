@@ -1,13 +1,60 @@
 import sys
 
-f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
-#f = file("test.wiki")
+#f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
+f = file("test.wiki")
 lines = f.readlines()
+
+
+
+def processPart(part):
+    if part.startswith("*`") and part.endswith("`*"):
+        part = part[2:-2]
+        return "<b><code>%s</code></b>" % part
+    elif part.startswith("*`") and part.endswith("`*,"):
+        part = part[2:-3]
+        return "<b><code>%s</code></b>," % part
+    elif part.startswith("*`") and part.endswith("`*'s"):
+        part = part[2:-4]
+        return "<b><code>%s</code></b>'s" % part
+    elif part.startswith("*`") and part.endswith("`*."):
+        part = part[2:-3]
+        return "<b><code>%s</code></b>." % part
+
+
+    elif part.startswith("*") and part.endswith("*"):
+        part = part[1:-1]
+        return "<b>%s</b>" % part
+    elif part.startswith("*") and part.endswith("*."):
+        part = part[1:-2]
+        return "<b>%s</b>." % part
+    elif part.startswith("*") and part.endswith("*,"):
+        part = part[1:-2]
+        return "<b>%s</b>," % part
+    elif part.startswith("*") and part.endswith("*'s"):
+        part = part[1:-3]
+        return "<b>%s</b>'s" % part
+
+    elif part.startswith("`") and part.endswith("`"):
+        part = part[1:-1]
+        return "<code>%s</code>" % part
+    elif part.startswith("`") and part.endswith("`."):
+        part = part[1:-2]
+        return "<code>%s</code>." % part
+    elif part.startswith("`") and part.endswith("`,"):
+        part = part[1:-2]
+        return "<code>%s</code>," % part
+    elif part.startswith("`") and part.endswith("`'s"):
+        part = part[1:-3]
+        return "<code>%s</code>'s" % part
+
+    else:
+        return part
+
 
 def processURL(url) :
     url[-1] = url[-1][:-1]
-    sys.stdout.write ( " <a href='%s'>%s</a>" % ( url[0][1:], " ".join( url[1:] ) ))
-
+    body = " ".join( url[1:] )
+    sys.stdout.write ( " <a href='%s'>%s</a>" % ( url[0][1:], body ))
 
 
 inCode=0
@@ -43,22 +90,22 @@ for line in lines:
 
     if line[0:4] == "====":
         print "<br />"
-        print "<h5>%s</h5>" % line[4:-4]
+        print "<h5>%s</h5>" % processPart(line[4:-4])
         print "<br />"
         continue
     if line[0:3] == "===":
         print "<br />"
-        print "<h4>%s</h4>" % line[3:-3]
+        print "<h4>%s</h4>" % processPart(line[3:-3])
         print "<br />"
         continue
     if line[0:2] == "==":
         print "<br />"
-        print "<h3>%s</h3>" % line[2:-2]
+        print "<h3>%s</h3>" % processPart(line[2:-2])
         print "<br />"
         continue
     if line[0:1] == "=":
         print "<br />"
-        print "<h2>%s</h2>" % line[1:-1]
+        print "<h2>%s</h2>" % processPart(line[1:-1])
         print "<br />"
         continue
 
@@ -107,22 +154,9 @@ for line in lines:
             inURL = 1
             url.append(part)
 #            print "START=%s" % part,
-            continue
-        
-            
+            continue            
         if not inURL:
-            if part.startswith("*`") and part.endswith("`*"):
-                part = part[2:-2]
-                print "<b><code>%s</code></b>" % part,
-            elif part.startswith("*`") and part.endswith("`*,"):
-                part = part[2:-3]
-                print "<b><code>%s</code></b>," % part,
-            elif part.startswith("*`") and part.endswith("`*'s"):
-                part = part[2:-4]
-                print "<b><code>%s</code></b>'s" % part,
-
-            else:
-                print part,
+            print processPart(part),
     if inOL:
         sys.stdout.write("</li>")
 
