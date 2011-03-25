@@ -2,7 +2,7 @@
 #labels Deprecated,Tutorial
 #sidebar TOCArticlesDependencyInjectionAnIntroductoryTutorial
 
-<h1> Dependency Injection - An Introductory Tutorial Deprecated See Split into two parts</h1>
+<h1> Dependency Injection - An Introductory Tutorial -- Deprecated See Split into two parts</h1>
 
 
 
