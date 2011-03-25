@@ -2,7 +2,7 @@
 #labels Featured,Tutorial
 #sidebar TOCArticlesDependencyInjectionAnIntroductoryTutorial
 
-<h1> Dependency Injection - An Introductory Tutorial</h1>
+<h1> Dependency Injection - An Introductory Tutorial -- Under construction </h1>
 
 
 
@@ -129,7 +129,7 @@ Instead of looking up the database connection with JNDI, you could inject it.
 One way to think about a DI framework like CDI is to think of JNDI turned inside out. 
 Instead of an object looking up other objects that it needs to get its job done 
 (dependencies), a DI container injects those dependent objects. 
-This is the so-called Hollywood Principle, "Don't call usâ" (lookup objects), 
+This is the so-called Hollywood Principle, "Don't call usï¿½" (lookup objects), 
 "we'll call you" (inject objects). 
 </p>
 
@@ -2388,4 +2388,3 @@ This is just a brief taste. There is more to come.
  Although not a fan of [http://java.sys-con.com/node/216307 EJB 3], 
  Rick is a big fan of the potential of CDI and 
  thinks that EJB 3.1 has come a lot closer to the mark.
-
