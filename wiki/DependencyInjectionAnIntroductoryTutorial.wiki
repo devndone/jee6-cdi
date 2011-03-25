@@ -52,38 +52,57 @@ with the one written three years ago for Spring DI annotations.
 </p>
 
 = Design goals of this tutorial =
-This tutorial is meant to be a description and explanation of DI in CDI 
-without the clutter of EJB 3.1 or JSF. 
 
+<p>This tutorial is meant to be a description and explanation of DI in CDI 
+without the clutter of EJB 3.1 or JSF. </p>
+
+<p>
 There are already plenty of tutorials that cover EJB 3.1 and JSF (and CDI).
+</p>
 
+<p>
 We believe that CDI has merit on its own outside of the EJB and JSF space. This 
 tutorial only covers CDI. Repeat there is no JSF 2 or EJB 3.1 in this tutorial. 
 There are plenty of articles and tutorials that cover using CDI as part of a larger 
 [http://download.oracle.com/javaee/6/tutorial/doc/gjbnr.html JEE 6 application]. 
 This tutorial is not that. This tutorial series is CDI and only CDI.
+</p>
 
+<p>
 This tutorial only has full, complete code examples with source code you
 can download and try out on your own. There are no code snippets where you can't figure out
 where in the code you are suppose to be.
+</p>
 
+<p>
 We start out slow, step by step and basic. Then once you understand the fundamentals, 
 we pick up the pace quite a bit.
+</p>
 
+<p>
 All code examples have actually been run. We don't type in ad hoc code. 
 If it did not run, it is not in our tutorial. We are not winging it.
+</p>
 
+<p>
 There are clear headings for code listings so you can use this tutorial as a cookbook when you
 want to use some feature of CDI DI in the future. This is a code centric tutorial. 
 Again, the code listings are in the TOC so you can find just the code listing you are looking for quickly.
+</p>
 
-Decorators, Extentions, Interceptors, Scopes are out of scope for this first tutorial.
 
+<p>Decorators, Extentions, Interceptors, Scopes are out of scope for this first tutorial.
+</p>
+
+<p>
 If this tutorial is well recieved and we get enough feedback through our google group
 and comments section of the wiki then we will add a comprehensive tutorial on 
 CDI AOP (Decorators and Interceptors) and one on Extentions.
+</p>
 
+<p>
 The more positive and/or constructive feedback we get the more encouraged we will be to add more.
+</p>
 
 <wiki:toc max_depth="5" />
 
@@ -91,34 +110,48 @@ The more positive and/or constructive feedback we get the more encouraged we wil
 
 = Dependency Injection =
 
+<p>
 Dependency Injection (DI) refers to the process of supplying an external dependency 
 to a software component. DI can help make your code architecturally pure.
+</p>
 
+<p>
 It aids in design by interface as well as test-driven development by providing 
 a consistent way to inject dependencies. For example, a data access object (DAO) 
 may depend on a database connection. 
+</p>
 
+<p>
 Instead of looking up the database connection with JNDI, you could inject it. 
+</p>
 
+<p>
 One way to think about a DI framework like CDI is to think of JNDI turned inside out. 
 Instead of an object looking up other objects that it needs to get its job done 
 (dependencies), a DI container injects those dependent objects. 
 This is the so-called Hollywood Principle, "Don't call usâ" (lookup objects), 
 "we'll call you" (inject objects). 
+</p>
 
+<p>
 If you have worked with [http://en.wikipedia.org/wiki/Class-responsibility-collaboration_card CRC] cards 
 you can think of a dependency as a collaborator. A collaborator 
 is an object that another object needs to perform its role, like a DAO (data access object)
 needs a JDBC connection object for example.
+</p>
  
 ==Dependency Injection-`AutomatedTellerMachine` without CDI or Spring or Guice==
 
+<p>
 Let's say that you have an automated teller machine (ATM, also known as an 
 automated banking machine in other countries) and it needs the ability to talk 
 to a bank. It uses what it calls a transport object to do this. In this example, 
 a transport object handles the low-level communication to the bank. 
+</p>
 
+<p>
 This example could be represented by these two interfaces as follows: 
+</p>
 
 ====Code Listing: `AutomatedTellerMachine` interface====
 
@@ -145,12 +178,16 @@ public interface ATMTransport {
 }
 }}}
 
+<p>
 Now the *`AutomatedTellerMachine`* needs a transport to perform its intent, 
 namely withdraw money and deposit money. To carry out these tasks, the 
 *`AutomatedTellerMachine`* may depend on many objects and collaborates with 
 its dependencies to complete the work. 
+</p>
 
+<p>
 An implementation of the *`AutomatedTellerMachine`* may look like this:
+</p>
 
 ====Code Listing: *`AutomatedTellerMachineImpl`* class====
 {{{
@@ -175,9 +212,11 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+<p>
 The *`AutomatedTellerMachineImpl`* does not know or care how the transport 
 withdraws and deposits money from the bank. This level of indirection allows 
 us to replace the transport with different implementations such as in the following example:
+</p>
 
 ===Three example transports: `SoapAtmTransport`, `StandardAtmTransport` and `JsonAtmTransport`===
 
@@ -225,15 +264,19 @@ public class JsonRestAtmTransport implements ATMTransport {
 }
 }}}
 
+<p>
 Notice the possible implementations of the *`ATMTransport interface`*. 
 The `*AutomatedTellerMachineImpl*` does not know or care which transport it uses. 
 Also, for testing and developing, instead of talking to a real bank, you could 
 easily use [http://mockito.org/ Mockito] or [http://easymock.org/ EasyMock] 
 or you could even write a *`SimulationAtmTransport`* that was a mock implementation
 just for testing.
+</p>
 
+<p>
 The concept of DI transcends CDI, Guice and Spring. 
 Thus, you can accomplish DI without CDI, Guice or Spring as follows: 
+</p>
 
 ====Code Listing: `AtmMain`: DI without CDI, Spring or Guice====
 
@@ -256,7 +299,9 @@ public class AtmMain {
 }
 }}}
 
+<p>
 Then injecting a different *transport* is a mere matter of calling a different setter method as follows:
+</p>
 
 ====Code Listing: `AtmMain`: DI without CDI, Spring or Guice: `setTransport`====
 {{{
@@ -264,19 +309,22 @@ ATMTransport transport = new SimulationAtmTransport();
 ((AutomatedTellerMachineImpl)atm).setTransport(transport);
 }}}
 
-
+<p>
 The above assumes we added a *`setTransport`* method to the *`AutomateTellerMachineImpl`*. 
 Note you could just as easily use constructor arguments instead of a setter method. 
 Thus keeping the interface of your *`AutomateTellerMachineImpl`* clean.
+</p>
 
 ==Running the examples==
 
+<p>
 To run the examples quickly, we setup some maven pom.xml files for you.
 Here are the [MavenDITutorialInstructions instructions] to get the examples up and running.
+</p>
 
 ==Dependency Injection-`AutomatedTellerMachine` using CDI==
 
-
+<p>
 To use CDI to manage the dependencies, do the following:
  # Create an empty *bean.xml* file under *META-INF* resource folder
  # Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*
@@ -284,16 +332,18 @@ To use CDI to manage the dependencies, do the following:
  # Use the *@Alternative* to annotate the *`SoapAtmTransport`*, and *`JsonRestAtmTransport`*.
  # Use the *@Named* annotation to make the *`AutomatedTellerMachineImpl`* easy to look up; give it the name "atm"
  # Use the CDI *`beanContainer`* to look the *atm*, makes some deposits and withdraws.
-
+</p>
 
 ===Step 1: Create an empty *bean.xml* file under *META-INF* resource folder ===
 ===META-INF/beans.xml===
 
+<p>
 CDI needs an bean.xml file to be in META-INF of your jar file or classpath or 
 WEB-INF of your web application. This file can be completely empty (as in 0 bytes). 
 If there is no beans.xml file in your META-INF or WEB-INF then that war file or 
 jar file will not be processed by CDI. Otherwise, CDI will scan the jar and war 
 file if the beans.xml file exists even if it is 0 bytes.
+</p>
 
 ==== Code Listing: `META-INF/beans.xml` just as empty as can be====
 
@@ -306,15 +356,18 @@ http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 </beans>
 }}}
 
+<p>
 Notice that we included a starter beans.xml file with a namespace and a `<beans>` 
 element. Although *beans.xml* could be completely empty, it is nice to have a 
 starter file so when you need to add things (like later on in this tutorial) 
 you can readily. Also it keeps the IDE from complaining about ill formed xml when you actually do have a 0 byte beans.xml. (I hate when the IDE complains. It is very distracting.)
-
+</p>
 
 ===Step 2: Use the *@Inject* annotation to annotate a *`setTransport`* setter method in *`AutomatedTellerMachineImpl`*===
 
+<p>
 The *@Inject* annotation is used to mark where an injection goes. You can annotate constructor arguments, instance fields and setter methods of properties. In this example, we will annotate the *setTransport* method (which would be the setter method of the transport property).
+</p>
 
 ====Code Listing: `AutomatedTellerMachineImpl` using *@Inject* to inject a transport====
 
@@ -340,11 +393,15 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+<p>
 By default, CDI would look for a class that implements the *`ATMTransport`* interface, once it finds this it creates an instance and injects this instance of *`ATMTransport`* using the setter method *`setTransport`*. If we only had one possible instance of *`ATMTransport`* in our classpath, we would not need to annotate any of the *`ATMTransport`* implementations. Since we have three, namely, *`StandardAtmTransport`*, *`SoapAtmTransport`*,  and *`JsonAtmTransport`*, we need to mark two of them as *`@Alternative`*s and one as *`@Default`*.
+</p>
 
 ===Step 3: Use the *@Default* annotation to annotate the *`StandardAtmTransport`*===
 
-At this stage of the example, we would like our default transport to be *`StandardAtmTransport`*; thus, we mark it as *`@Default`* as follows:.
+<p>
+At this stage of the example, we would like our default transport to be *`StandardAtmTransport`*; thus, we mark it as *`@Default`* as follows:
+</p>
 
 ==== Code Listing: `StandardAtmTransport` using *@Default*====
 {{{
@@ -358,11 +415,14 @@ public class StandardAtmTransport implements ATMTransport {
 
 }}}
 
+<p>
 It should be noted that a class is *`@Default`* by default. Thus marking it so is redundant; and not only that its redundant. 
+</p>
 
 === Step 4: Use the *@Alternative* to annotate the *`SoapAtmTransport`*, and *`JsonRestAtmTransport`*. ===
-
+<p>
 If we don't mark the others as @*`Alternative`*, they are by default as far as CDI is concerned, marked as @*`Default`*.  Let's mark *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`* *@Alternative* so CDI does not get confused.
+</p>
 
 ==== Code Listing: `JsonRestAtmTransport` using *@Alternative*====
 {{{
@@ -394,14 +454,18 @@ public class SoapAtmTransport implements ATMTransport {
 
  === Step 5: Use the *@Named* annotation to make the *`AutomatedTellerMachineImpl`* easy to look up; give it the name "atm"===
 
+<p>
 Since we are not using *`AutomatedTellerMachineImpl`* from a Java EE 6 application, 
 let's just use the *`beanContainer`* to look it up. Let's give it an easy logical name like "*`atm`*". 
 To give it a name, use the @*`Named`* annotation. The @*`Named`* annotation is 
 also used by JEE 6 application to make the bean accessible via the 
 [http://java.sun.com/products/jsp/reference/techart/unifiedEL.html Unified EL] 
 (EL stands for Expression language and it gets used by JSPs and JSF components).
+</p>
 
+<p>
 Here is an example of using @Named to give the *`AutomatedTellerMachineImpl`* the name "atm"as follows:
+</p>
 
 ==== Code Listing: `AutomatedTellerMachineImpl` using *@Named*====
 {{{
@@ -419,9 +483,10 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }
 }}}
 
+<p>
 It should be noted that if you use the @*`Named`* annotations and don't provide a name, then the name
 is the name of the class with the first letter lower case so this:
-
+</p>
 
 {{{
 @Named
@@ -431,14 +496,17 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }
 }}}
 
+<p>
 makes the name automatedTellerMachineImpl.
-
+</p>
 
 
 
 === Step 6: Use the CDI *`beanContainer`* to look up the *atm*, makes some deposits and withdraws. ===
 
+<p>
 Lastly we want to look up the *atm* using the *`beanContainer`* and make some deposits.
+</p>
  
 ==== Code Listing: `AtmMain` looking up the atm by name ====
 {{{
@@ -462,7 +530,9 @@ public class AtmMain {
 }
 }}}
 
+<p>
 When you run it from the command line, you should get the following:
+</p>
 
 *Output*
 {{{
@@ -470,8 +540,10 @@ deposit called
 communicating with bank via Standard transport
 }}}
 
+<p>
 You can also lookup the *`AtmMain`* by type and an optional list of Annotations as 
 the name is really to support the Unified EL (JSPs, JSF, etc.).
+</p>
 
  
 ==== Code Listing: `AtmMain` looking up the atm by type ====
@@ -493,14 +565,17 @@ public class AtmMain {
 }
 }}}
 
+<p>
 Since a big part of CDI is its type safe injection, looking up things by name is probably
 discouraged. Notice we have one less cast due to [http://download.oracle.com/javase/tutorial/java/generics/index.html Java Generics].
+</p>
 
-
-
+<p>
 If you remove the *@Default* from the *`StandardATMTransport`*, you will get the same output.
 If you remove the *@Alternative* from both of the other transports, namely,  *`JsonATMTransport`*, and  *`SoapATMTransport`*, CDI will croak as follows:
+</p>
 
+*Output*
 {{{
 Exception in thread "main" java.lang.ExceptionInInitializerError
 Caused by: javax.enterprise.inject.AmbiguousResolutionException: org.cdi.advocacy.AutomatedTellerMachineImpl.setTransport: 
@@ -512,14 +587,19 @@ See the @Stereotype and <enable> tags to choose a precedence.  Beans:
    ...
 }}}
 
+<p>
 CDI expects to find one and only one qualified injection. Later we will discuss how to use an alternative.
+</p>
 
 ==Using @Inject to inject via constructor args and fields==
 
+<p>
 You can inject into fields,constructor arguments and setter methods (or any method really).
+</p>
 
-
+<p>
 Here is an example of field injections:
+</p>
 
 === Code Listing: *`AutomatedTellerMachineImpl`*.*`transport`* using @Inject to do field injection. ===
 
@@ -550,10 +630,12 @@ This flexibility allows you to create classes that are easy to unit test.
 
 ==Using simple @Produces==
 
+<p>
 There are times when the creation of an object may be complex.
 Instead of relying on a constructor, you can delegage to a factory class to 
 create the instance. To do this with CDI, you would use the @Produces from 
 your factory class as follows:
+</p>
 
 === Code Listing: *`TransportFactory`*.*`createTransport`* using @Produces to define a factory method ===
 
@@ -572,9 +654,11 @@ public class TransportFactory {
 }
 }}}
 
+<p>
 The factory method could use qualifiers just like a class declaration. In this example, we chose not to.
 The *`AutomatedTellerMachineImpl`* does not need to specify any special qualifiers. Here is the *`AutomatedTellerMachineImpl`* 
 that receives the simple producer.
+</p>
 
 ===  Code Listing: *`AutomatedTellerMachineImpl`* receives the simple producer ===
 
@@ -590,9 +674,11 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
         ...
 }}}
 
+<p>
 Check your understanding by looking at the output of running this with *`AtmMain`*.
+</p>
 
-Output
+*Output*
 {{{
 ATMTransport created with producer
 deposit called
@@ -603,9 +689,11 @@ communicating with bank via Standard transport
 
 ==Using @Alternative to select an Alternative==
 
+<p>
 Earlier, you may recall, we defined several alternative transports, namely, *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`*.
 Imagine that you are an installer of ATM machines and you need to configure certain transports at certain locations.
 Our previous injection points essentially inject the default which is the *`StandardRestAtmTransport`* transport.
+</p>
 
 If I need to install a different transport, all I need to do is change the /META-INF/beans.xml file to use the right transport as follows:
 
@@ -620,46 +708,64 @@ http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 	</alternatives>
 </beans>
 }}}
-
+<p>
 You can see from the output that the JSON REST transport is selected.
-Output
+</p>
+
+*Output*
 {{{
 deposit called
 communicating with bank via JSON REST transport
 }}}
 
+<p>
 Alternatives codifies and simplifies a very normal case in DI, namely, you have different injected objects based on different builds or environments. 
 The great thing about objects is they can be replaced (Grady Booch said this).
 Alternatives allow you to mark objects that are replacements for other objects and then activate them when you need them.
+</p>
 
+<p>
 If the DI container can have alternatives, let's mark them as alternatives.
 Think about it this way. I don't have to document all of the alternatives as much. 
 It is self documenitng. If someone knows CDI and they know about Alternatives they will not be surprised.
 Alternatives really canoncalizes the way you select an Alternative.
+</p>
 
+<p>
 You can think of CDI as a canonicalization of many patterns that we have been using with more general purpose DI frameworks.
 The simplifcation and canonicalization is part of the evoluiton of DI.
-
+</p>
 
 == Code Listing: Using @Qualifier to inject different types==
 
+<p>
 All objects and producers in CDI have qualifiers. If you do not assign a qaulifier
 it by default has the qualifier @*`Default`* and @*`Any`*. It is like a TV crime show
 in the U.S., if you do not have money for a lawyer, you will be assigned one.
+</p>
 
+<p>
 Qualifiers can be used to discriminate exaclty what gets injected.
 You can write custom qualifiers.
+</p>
 
+<p>
 Qualifiers work like [http://www.garanimals.com/about.htm garanimal] tags for kids clothes, you match the qualifier from the injection
 target and the injection source, then that is the type that will be injected.
+</p>
 
+<p>
 If the tags (Qualifiers) match, then you have a match for injection.
+</p>
 
+<p>
 You may decide that at times you want to inject *`Soap`* or *`Json`* or the *`Standard`* transport.
 You don't want to list them as an alternative. You actually, for example, always want the *`Json`* implementation in a certain case.
+</p>
 
-
+<p>
 Here is an example of defining a qualifier for *`Soap`*.
+</p>
 
 === Code Listing: *`Soap`* runtime qualifier annotation ===
 {{{
@@ -680,11 +786,14 @@ public @interface Soap {
 
 }}}
 
+<p>
 Notice that a qualifier is just a runtime annotation that is marked with the @*`Qualifier`* annotation.
 The @*`Qualifier`* is an annotation that decorates a runtime annoation to make it a qualifier.
+</p>
 
-
+<p>
 Then we would just mark the source of the injection point, namely, *`SoapAtmTransport`* with our new @*`Soap`* qualifier as follows:
+</p>
 
 === Code Listing: *`SoapAtmTransport`* using new @*`Soap`* qualifier ===
 {{{
@@ -747,17 +856,26 @@ From this point on, we are just going to use field level injection to simplify t
 
 ==Using @Qualfiers to inject multiple types into the same bean using ==
 
+<p>
 Let's say that our ATM machine uses different transport based on some business rules
 that are configured in LDAP or config file or XML or a database (does not really matter).
+</p>
 
+<p>
 The point is you want it decided at runtime which transport we are going to use.
+</p>
 
+<p>
 In this scenario we may want to inject three different transports and then configure
 a transport based on the business rules.
+</p>
 
+<p>
 You are going to want to get notified when the injection is done and the bean is ready to go from a CDI perspective. 
 To get this notifcation you would annotated an init method with the @PostConstruct annotation. Then you could pick
 which type of transport that you want to use.
+</p>
+
 
 Note the name of the method does not matter, it is the annotation that makes it an init method.
 
@@ -834,11 +952,14 @@ How did you do?
 
 This example builds on the last.
 
-Perhaps you want to seperate the construction and selection of the transports 
+<p>Perhaps you want to seperate the construction and selection of the transports 
 from the *`AutomatedTellerMachineImpl`*.
+</p>
 
+<p>
 You could create a *`Producer`* factory method that makes a decision about the 
 creation and selection of the transport as follows:
+</p>
 
 === Code Listing: *`TransportFactory`* deciding which transport to use/create ===
 {{{
@@ -875,12 +996,18 @@ public class TransportFactory {
 
 }}}
 
+<p>
 The advantage of this approach is that the logic to do the creation, 
 is seperate from the actual *`AutomatedTellerMachineImpl`* code. 
+</p>
 
+<p>
 This may not always be what you want, but if it is, then the producer can help you.
+</p>
 
+<p>
 The output should be the same as before.
+</p>
 
 *Output*
 {{{
@@ -896,7 +1023,7 @@ communicating with bank via JSON REST transport
 
 This example builds on the last.
 
-You can also inject items as arguments into the producer as follows:
+<p>You can also inject items as arguments into the producer as follows:</p>
 
 === Code Listing: *`TransportFactory`* injecting qualifier args ===
 {{{
@@ -933,10 +1060,13 @@ public class TransportFactory {
 
 }}}
 
+<p>
 In the above example, *`createTransport`* becomes less of a factory method and more of a selection method
 as CDI actually creates and passes the *`soapTransport`* and the *`jsonTransport`*.
+</p>
 
-Advanced topic: (Ignore this if it does not make sense) 
+<p>
+*Advanced topic*: (Ignore this if it does not make sense) 
 You may wonder why I create *`StandardAtmTransport`* and not inject it as a 
 producer argument like *`soapTransport`* and *`jsonTransport`*. The problem is this
 *`createTransport`* is by default @*`Default`* and @*`Any`* but it overrides the *`StandardAtmTransport`*
@@ -951,8 +1081,11 @@ production method or all hell breaks lose, cats sleeping with dogs, pandimodium.
 The key here is that the injection arguments have to have different qualifiers than the 
 production method or you will get a *`StackTraceOverflow`* as CDI calls your production method
 to resovle the injection point of you production method ad infinitum.
+</p>
 
+<p>
 Here is the expected output.
+</p>
 
 *Output*
 {{{
@@ -967,10 +1100,12 @@ communicating with bank via JSON REST transport
 
 You can use more than one qaulifier to further discriminate your injection target.
 
+<p>
 To demonstrate this let's define to qualifiers *`SuperFast`* and *`StandardFrameRelaySwitchingFlubber`*.
 Let's say at the time we have two transports that are *`StandardFrameRelaySwitchingFlubber`*.
 Let's also say that you want to inject a *`transport`* that is not only a *`StandardFrameRelaySwitchingFlubber`*
 but also *`SuperFast`*.
+</p>
 
 First let's define the qualifier annotations as follows:
 
@@ -1055,34 +1190,44 @@ deposit called
 communicating with bank via the Super Fast transport 
 }}}
 
+<p>
 Exercise: Create a transport that is @SuperFast, @StandardFrameRelaySwitchingFlubber and an @Alternative.
 Then use beans.xml to activate this SuperFast, StandardFrameRelaySwitchingFlubber,  Alternative transport.
 Send me your solution on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
 The first one to send gets put on the CDI wall of fame. 
+</p>
 
-
+<p>
 Exercise for the reader. Change the injection point qualifiers to make only  the
 *`StandardAtmTransport`* get injected. 
 Send me your solution on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
 Don't get discouraged if you get a stack trace or two that is part of the learning process.
 The first one to send gets put on the CDI wall of fame (everyone else gets an honorable mention). 
-
+</p>
 
 == Using @Qualfiers with members to discriminate injection and stop the explosion of annotation creation==
 
+<p>
 There could be an explosion of qualifers annotations in your project. 
 Imagine in our example if there were 20 types of transports. We would have 20 annotations defined.
+</p>
 
+<p>
 This is probably not want you want.
 It is okay if you have a few, but it could quickly become unmanageable.
+</p>
 
+<p>
 CDI allows you to descriminate on members of a qualifier to reduce the explosion of qualifiers.
 Instead of having three qualifier you could have one qualifier and an enum.
 Then if you need more types of transports, you only have to add an enum value instead of another class.
+</p>
 
+<p>
 Let's demonstrate how this works by creating a new qualifier annotation called *`Transport`*.
 The *`Transport`* qualifier annotation will have a single member, an enum called *`type`*. The *`type`* member
 will be an new enum that we define called *`TransportType`*.
+</p>
 
 Here is the new *`TransportType`*:
 
@@ -1158,7 +1303,9 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+<p>
 As always, you will want to run the example.
+</p>
 
 Output
 {{{
@@ -1188,7 +1335,9 @@ public @interface Transport {
 
 }}}
 
+<p>
 Now CDI is going to use both of the members to discriminate for injection.
+</p>
 
 If we had a transport like so:
 
@@ -1214,7 +1363,9 @@ public class SuperFastAtmTransport implements ATMTransport {
 
 No changes to the StandardAtmTransport.
 
+<p>
 If we run without changing the *`AutomatedTellerMachineImpl`*, we will get:
+</p>
 
 Output
 {{{
@@ -1234,7 +1385,9 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+<p>
 Then we get this:
+</p>
 
 Output 
 
@@ -1243,13 +1396,16 @@ deposit called
 communicating with bank via the Super Fast transport 
 }}}
 
+<p>
 You can match using any type supported by annotations, e.g., Strings, classes, enums, ints, etc.
+</p>
 
+<p>
 Exercise: Add a member String to the qualifier annotation. Change the injection point to discriminate using
 this new string member. Why do you think this is counter to what CDI stands for?
 Send me your solution on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
 The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
-
+</p>
 
 = Advanced CDI tutorial =
 The faint of heart stop hear. All of the folks who want to understand the inner workings of CDI continue.

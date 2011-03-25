@@ -1,11 +1,18 @@
 import sys
 
 wikiURL = "http://code.google.com/p/jee6-cdi/wiki/"
-#f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
-f = file("test.wiki")
+f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
+#f = file("test.wiki")
 lines = f.readlines()
 
 
+def processParts(parts):
+    lst = []
+    parts = parts.split()
+    for part in parts:
+        lst.append(processPart(part))
+
+    return " ".join(lst)
 
 def processPart(part):
     if part.startswith("*`") and part.endswith("`*"):
@@ -98,22 +105,26 @@ for line in lines:
 
     if line[0:4] == "====":
         print "<br />"
-        print "<h5>%s</h5>" % processPart(line[4:-4])
+        print "<br />"
+        print "<h5>%s</h5>" % processParts(line[4:-4])
         print "<br />"
         continue
     if line[0:3] == "===":
         print "<br />"
-        print "<h4>%s</h4>" % processPart(line[3:-3])
+        print "<br />"
+        print "<h4>%s</h4>" % processParts(line[3:-3])
         print "<br />"
         continue
     if line[0:2] == "==":
         print "<br />"
-        print "<h3>%s</h3>" % processPart(line[2:-2])
+        print "<br />"
+        print "<h3>%s</h3>" % processParts(line[2:-2])
         print "<br />"
         continue
     if line[0:1] == "=":
         print "<br />"
-        print "<h2>%s</h2>" % processPart(line[1:-1])
+        print "<br />"
+        print "<h2>%s</h2>" % processParts(line[1:-1])
         print "<br />"
         continue
 
