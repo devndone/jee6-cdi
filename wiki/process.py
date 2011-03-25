@@ -1,5 +1,6 @@
 import sys
 
+wikiURL = "http://code.google.com/p/jee6-cdi/wiki/"
 #f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
 f = file("test.wiki")
 lines = f.readlines()
@@ -53,13 +54,17 @@ def processPart(part):
 
 def processURL(url) :
     url[-1] = url[-1][:-1]
+    theURL = url[0][1:]
+    if not theURL.startswith("http://"):
+        theURL = "%s%s" % (wikiURL, theURL)
     body = " ".join( url[1:] )
-    sys.stdout.write ( " <a href='%s'>%s</a>" % ( url[0][1:], body ))
+    sys.stdout.write ( " <a href='%s'>%s</a>" % ( theURL, body ))
 
 
 inCode=0
 inOL=0
 inUL=0
+cl=0
 
 for line in lines:
 
@@ -70,6 +75,9 @@ for line in lines:
     if line[0:3] == "}}}":
         inCode=0
         print "</pre>\n"
+        cl = cl +1
+        if cl % 7 == 0:
+            print "<!--pagebreak-->"
         continue
     if inCode:
         print line,
@@ -163,3 +171,5 @@ for line in lines:
     if inUL:
         sys.stdout.write("</li>")
     print ""
+
+print "There are %d code listings in this article" % cl
