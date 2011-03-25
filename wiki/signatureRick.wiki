@@ -6,4 +6,4 @@ This article was written with CDI advocacy in mind by [http://profiles.google.co
 Although not a fan of [http://java.sys-con.com/node/216307 EJB 3], Rick is a big fan of the potential of CDI and thinks that EJB 3.1 has come a lot closer to the mark.
 </p>
 
-<p>CDI - [http://www.caucho.com/ Resin Candi] - [http://seamframework.org/Weld Seam Weld] - [http://openwebbeans.apache.org/1.1.0-SNAPSHOT/index.html Apache OpenWebBeans]</p>
+<p>CDI Implementations - [http://www.caucho.com/ Resin Candi] - [http://seamframework.org/Weld Seam Weld] - [http://openwebbeans.apache.org/1.1.0-SNAPSHOT/index.html Apache OpenWebBeans]</p>
