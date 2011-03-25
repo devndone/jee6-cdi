@@ -4,7 +4,7 @@
 
 <h1> Dependency Injection - An Introductory Tutorial -- Deprecated See Split into two parts</h1>
 
-
+[DependencyInjectionAnIntroductoryTutorial_Part1 Goto Part 1] or [DependencyInjectionAnIntroductoryTutorial_Part2 Goto Part 2]
 
 
 = Introduction =
