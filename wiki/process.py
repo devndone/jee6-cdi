@@ -5,6 +5,7 @@ f = file("DependencyInjectionAnIntroductoryTutorial.wiki")
 #f = file("test.wiki")
 lines = f.readlines()
 
+sig=file("signatureRick.wiki").read()
 
 def processParts(parts):
     lst = []
@@ -84,6 +85,7 @@ for line in lines:
         print "</pre>\n"
         cl = cl +1
         if cl % 7 == 0:
+            print sig
             print "<!--pagebreak-->"
         continue
     if inCode:
