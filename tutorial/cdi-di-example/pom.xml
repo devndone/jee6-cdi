@@ -16,13 +16,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.cdiadvocate</groupId>
-            <artifactId>cdiadvocate-api</artifactId>
+            <groupId>org.cdisource.beancontainer</groupId>
+            <artifactId>beancontainer-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.cdiadvocate</groupId>
-            <artifactId>cdiadvocate-resin-impl</artifactId>
+            <groupId>org.cdisource.beancontainer</groupId>
+            <artifactId>beancontainer-resin-impl</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
