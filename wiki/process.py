@@ -16,12 +16,25 @@ def processParts(parts):
     return " ".join(lst)
 
 def processPart(part):
+    # This is screaming to be fixed, quick and dirty is not ridiculous. I need to parse things better.
     if part.startswith("*`") and part.endswith("`*"):
         part = part[2:-2]
         return "<b><code>%s</code></b>" % part
     elif part.startswith("*`") and part.endswith("`*,"):
         part = part[2:-3]
         return "<b><code>%s</code></b>," % part
+    elif part.startswith("*`") and part.endswith("`*;"):
+        part = part[2:-3]
+        return "<b><code>%s</code></b>;" % part
+    elif part.startswith("*`") and part.endswith("`*:"):
+        part = part[2:-3]
+        return "<b><code>%s</code></b>:" % part
+    elif part.startswith("@*`") and part.endswith("`*"):
+        part = part[3:-2]
+        return "<b><code>%s</code></b>" % part
+    elif part.startswith("\"*`") and part.endswith("`*\""):
+        part = part[3:-3]
+        return '"<b><code>%s</code></b>"' % part
     elif part.startswith("*`") and part.endswith("`*'s"):
         part = part[2:-4]
         return "<b><code>%s</code></b>'s" % part

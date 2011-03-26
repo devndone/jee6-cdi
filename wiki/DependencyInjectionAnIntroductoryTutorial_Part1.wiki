@@ -270,8 +270,8 @@ public class JsonRestAtmTransport implements ATMTransport {
 }}}
 
 <p>
-Notice the possible implementations of the *`ATMTransport interface`*. 
-The `*AutomatedTellerMachineImpl*` does not know or care which transport it uses. 
+Notice the possible implementations of the *`ATMTransport`* interface. 
+The *`AutomatedTellerMachineImpl`* does not know or care which transport it uses. 
 Also, for testing and developing, instead of talking to a real bank, you could 
 easily use [http://mockito.org/ Mockito] or [http://easymock.org/ EasyMock] 
 or you could even write a *`SimulationAtmTransport`* that was a mock implementation
@@ -336,7 +336,7 @@ To use CDI to manage the dependencies, do the following:
  # Use the *@Default* annotation to annotate the *`StandardAtmTransport`*
  # Use the *@Alternative* to annotate the *`SoapAtmTransport`*, and *`JsonRestAtmTransport`*.
  # Use the *@Named* annotation to make the *`AutomatedTellerMachineImpl`* easy to look up; give it the name "atm"
- # Use the CDI *`beanContainer`* to look the *atm*, makes some deposits and withdraws.
+ # Use the CDI *`beanContainer`* to look up the *atm*, makes some deposits and withdraws.
 </p>
 
 ===Step 1: Create an empty *bean.xml* file under *META-INF* resource folder ===
@@ -399,7 +399,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }}}
 
 <p>
-By default, CDI would look for a class that implements the *`ATMTransport`* interface, once it finds this it creates an instance and injects this instance of *`ATMTransport`* using the setter method *`setTransport`*. If we only had one possible instance of *`ATMTransport`* in our classpath, we would not need to annotate any of the *`ATMTransport`* implementations. Since we have three, namely, *`StandardAtmTransport`*, *`SoapAtmTransport`*,  and *`JsonAtmTransport`*, we need to mark two of them as *`@Alternative`*s and one as *`@Default`*.
+By default, CDI would look for a class that implements the *`ATMTransport`* interface, once it finds this it creates an instance and injects this instance of *`ATMTransport`* using the setter method *`setTransport`*. If we only had one possible instance of *`ATMTransport`* in our classpath, we would not need to annotate any of the *`ATMTransport`* implementations. Since we have three, namely, *`StandardAtmTransport`*, *`SoapAtmTransport`*,  and *`JsonAtmTransport`*, we need to mark two of them as *`@Alternative`*'s and one as *`@Default`*.
 </p>
 
 ===Step 3: Use the *@Default* annotation to annotate the *`StandardAtmTransport`*===
@@ -426,7 +426,7 @@ It should be noted that a class is *`@Default`* by default. Thus marking it so i
 
 === Step 4: Use the *@Alternative* to annotate the *`SoapAtmTransport`*, and *`JsonRestAtmTransport`*. ===
 <p>
-If we don't mark the others as @*`Alternative`*, they are by default as far as CDI is concerned, marked as @*`Default`*.  Let's mark *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`* *@Alternative* so CDI does not get confused.
+If we don't mark the others as *`@Alternative`*, they are by default as far as CDI is concerned, marked as *`@Default`*.  Let's mark *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`* *@Alternative* so CDI does not get confused.
 </p>
 
 ==== Code Listing: `JsonRestAtmTransport` using *@Alternative*====
@@ -461,8 +461,8 @@ public class SoapAtmTransport implements ATMTransport {
 
 <p>
 Since we are not using *`AutomatedTellerMachineImpl`* from a Java EE 6 application, 
-let's just use the *`beanContainer`* to look it up. Let's give it an easy logical name like "*`atm`*". 
-To give it a name, use the @*`Named`* annotation. The @*`Named`* annotation is 
+let's just use the *`beanContainer`* to look it up. Let's give it an easy logical name like "atm". 
+To give it a name, use the *`@Named`* annotation. The *`@Named`* annotation is 
 also used by JEE 6 application to make the bean accessible via the 
 [http://java.sun.com/products/jsp/reference/techart/unifiedEL.html Unified EL] 
 (EL stands for Expression language and it gets used by JSPs and JSF components).
@@ -489,7 +489,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }}}
 
 <p>
-It should be noted that if you use the @*`Named`* annotations and don't provide a name, then the name
+It should be noted that if you use the *`@Named`* annotations and don't provide a name, then the name
 is the name of the class with the first letter lower case so this:
 </p>
 
@@ -606,7 +606,7 @@ You can inject into fields,constructor arguments and setter methods (or any meth
 Here is an example of field injections:
 </p>
 
-=== Code Listing: *`AutomatedTellerMachineImpl`*.*`transport`* using @Inject to do field injection. ===
+=== Code Listing: *`AutomatedTellerMachineImpl.transport`* using @Inject to do field injection. ===
 
 {{{
 ...
@@ -618,7 +618,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }}}
 
 
-===Code Listing:  *`AutomatedTellerMachineImpl`*.*`transport`* using @*`Inject`* to do constructor injection. ===
+===Code Listing:  *`AutomatedTellerMachineImpl.transport`* using *`@Inject`* to do constructor injection. ===
 
 {{{
 ...
@@ -642,7 +642,7 @@ create the instance. To do this with CDI, you would use the @Produces from
 your factory class as follows:
 </p>
 
-=== Code Listing: *`TransportFactory`*.*`createTransport`* using @Produces to define a factory method ===
+=== Code Listing: *`TransportFactory.createTransport`* using @Produces to define a factory method ===
 
 {{{
 package org.cdi.advocacy;
@@ -745,7 +745,7 @@ The simplifcation and canonicalization is part of the evoluiton of DI.
 
 <p>
 All objects and producers in CDI have qualifiers. If you do not assign a qaulifier
-it by default has the qualifier @*`Default`* and @*`Any`*. It is like a TV crime show
+it by default has the qualifier *`@Default`* and *`@Any`*. It is like a TV crime show
 in the U.S., if you do not have money for a lawyer, you will be assigned one.
 </p>
 
@@ -792,15 +792,15 @@ public @interface Soap {
 }}}
 
 <p>
-Notice that a qualifier is just a runtime annotation that is marked with the @*`Qualifier`* annotation.
-The @*`Qualifier`* is an annotation that decorates a runtime annoation to make it a qualifier.
+Notice that a qualifier is just a runtime annotation that is marked with the *`@Qualifier`* annotation.
+The *`@Qualifier`* is an annotation that decorates a runtime annoation to make it a qualifier.
 </p>
 
 <p>
-Then we would just mark the source of the injection point, namely, *`SoapAtmTransport`* with our new @*`Soap`* qualifier as follows:
+Then we would just mark the source of the injection point, namely, *`SoapAtmTransport`* with our new *`@Soap`* qualifier as follows:
 </p>
 
-=== Code Listing: *`SoapAtmTransport`* using new @*`Soap`* qualifier ===
+=== Code Listing: *`SoapAtmTransport`* using new *`@Soap`* qualifier ===
 {{{
 package org.cdi.advocacy;
 
@@ -818,7 +818,7 @@ public class SoapAtmTransport implements ATMTransport {
 Next time you are ready to inject a *`Soap`* transport we can do that by annotating the
 argument to the constructor as follows:
 
-=== Code Listing: *`AutomatedTellerMachineImpl`* injecting *`SoapAtmTransport`* using new @*`Soap`* qualifier via constructor arg ===
+=== Code Listing: *`AutomatedTellerMachineImpl`* injecting *`SoapAtmTransport`* using new *`@Soap`* qualifier via constructor arg ===
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
@@ -833,7 +833,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 You could also choose to do this via the setter method for the property as follows:
 
-=== Code Listing: *`AutomatedTellerMachineImpl`* injecting *`SoapAtmTransport`* using new @*`Soap`* qualifier via setter method arg ===
+=== Code Listing: *`AutomatedTellerMachineImpl`* injecting *`SoapAtmTransport`* using new *`@Soap`* qualifier via setter method arg ===
 
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
@@ -848,7 +848,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 And a very common option is to use a field level injection as follows:
 
-=== Code Listing: *`AutomatedTellerMachineImpl`* injecting *`SoapAtmTransport`* using new @*`Soap`* qualifier via setter method arg ===
+=== Code Listing: *`AutomatedTellerMachineImpl`* injecting *`SoapAtmTransport`* using new *`@Soap`* qualifier via setter method arg ===
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
@@ -1074,14 +1074,14 @@ as CDI actually creates and passes the *`soapTransport`* and the *`jsonTransport
 *Advanced topic*: (Ignore this if it does not make sense) 
 You may wonder why I create *`StandardAtmTransport`* and not inject it as a 
 producer argument like *`soapTransport`* and *`jsonTransport`*. The problem is this
-*`createTransport`* is by default @*`Default`* and @*`Any`* but it overrides the *`StandardAtmTransport`*
-which is also by default @*`Default`* and @*`Any`*, but since *`StandardAtmTransport`* is overidden
-then if I inject *`@Default ATMTransport standardTransport`* as an argument then
-it tries to call *`createTransport`* since it is the @*`Default`*, which will then try to inject
+*`createTransport`* is by default *`@Default`* and @*`Any`* but it overrides the *`StandardAtmTransport`*
+which is also by default @*`Default`* and *`@Any`*, but since *`StandardAtmTransport`* is overidden
+then if I inject *`@Default`* *`ATMTransport`* *`standardTransport`* as an argument then
+it tries to call *`createTransport`* since it is the *`@Default`*, which will then try to inject
 the argument *`standardTransport`*, which will then call *`createTransport`*, ad infinitum until
 we get a *`StackTraceOverflow`*. The solution is create a qualifier for the standard, say, 
 @*`Standard`* and use that to do the injection, or create one for the *`createProduces`* production, say,
-@*`Transport`*. The key here is that the injection arguments of a producer have to have different qualifiers than the 
+*`@Transport`*. The key here is that the injection arguments of a producer have to have different qualifiers than the 
 production method or all hell breaks lose, cats sleeping with dogs, pandimodium. Ok. Okay.
 The key here is that the injection arguments have to have different qualifiers than the 
 production method or you will get a *`StackTraceOverflow`* as CDI calls your production method
@@ -1298,7 +1298,7 @@ public class JsonRestAtmTransport implements ATMTransport {
      ...
 }}}
 
-=== Code Listing: *`AutomatedTellerMachineImpl`* using *`@Inject @Transport(type=TransportType.STANDARD)`*===
+=== Code Listing: *`AutomatedTellerMachineImpl`* using *`@Inject`* *`@Transport(type=TransportType.STANDARD)`*===
 {{{
 @Named("atm")
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
