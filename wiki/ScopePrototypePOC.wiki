@@ -1,7 +1,11 @@
 #summary Proof of concept notes
 #labels designnotes,internal
 
-= Introduction =
+= Introduction DEPRECATED INTERNAL DESIGN NOTE=
+
+Quit looking at me. There is nothing to see here. Go away. :)
+
+[ScopePrototypePOCRound2]
 
 The problem is that there is not one way to manage scopes.
 
