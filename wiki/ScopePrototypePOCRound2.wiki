@@ -1,5 +1,17 @@
 #summary Scope Prototype POC Round2
 
+Change... next version we are going to use 
+javax.enterprise.inject.spi 
+
+
+Interface BeforeBeanDiscovery
+void	addScope(java.lang.Class<? extends java.lang.annotation.Annotation> scopeType, boolean normal, boolean passivating) 
+
+to install our scopes...
+
+Although we still might need a mechanism for installing scopes for unit testing.
+
+
 = Scope Prototype POC Round2 =
 
 I am taking another swing at this after reading Andy's email on the subject and sensing his displeasure. :)
