@@ -24,8 +24,8 @@ So I want to write code that looks like this:
 }}}
 
 I have added the following concepts:
-* ScopeController stops/starts a scope
-* ScopeManager manages ScopeControllers, delegates to them for stop start. Allows us to have a fluent API.
+ * ScopeController stops/starts a scope
+ * ScopeManager manages ScopeControllers, delegates to them for stop start. Allows us to have a fluent API.
 
 We need ScopeManagers. I am calling them ScopeControllers since the ScopeManager is going to manage all things scope realted.
 
