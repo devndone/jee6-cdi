@@ -1,4 +1,5 @@
 #summary Scope Prototype POC Round2
+#labels designnotes,internal
 
 Change... next version we are going to use 
 javax.enterprise.inject.spi 
