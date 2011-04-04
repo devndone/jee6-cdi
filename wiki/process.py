@@ -20,15 +20,15 @@ class MatchReplace:
             line = line.replace(match.group(0), self.template % match.group(2))
         return line
 
-boldMR = MatchReplace("(\*)([\w]+)(\*)", "<bold>%s</bold>")
-codeMR = MatchReplace("(`)([\w]+)(`)", "<code>%s</code>")
-boldCodeMR = MatchReplace("(\*`)([\w]+)(`\*)", "<bold><code>%s</code></bold>")
+boldMR = MatchReplace(r"""(\*)([\w.,!?;"'\-]+)(\*)""", "<b>%s</b>")
+codeMR = MatchReplace(r"""(`)([\w.,!?;"'\-]+)(`)""", "<code>%s</code>")
+boldCodeMR = MatchReplace(r"""(\*`)([\w.,!?;"'\-]+)(`\*)""", "<b><code>%s</code></b>")
 
 matcherReplacers = [boldCodeMR, boldMR, codeMR]
 
 def processLine(line):
-    for replacer in matcherReplacers:
-        line = replacer.processLine(line)
+    for mr in matcherReplacers:
+        line = mr.processLine(line)
     return line
 
 def processURL(url) :
