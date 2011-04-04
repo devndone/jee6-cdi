@@ -2,38 +2,70 @@
 #labels Featured,Tutorial
 #sidebar TOCArticlesDependencyInjectionAnIntroductoryTutorial
 
-<h1> Dependency Injection - An Introductory Tutorial -- Part 2 </h1>
+<h1> CDI Dependency Injection - Tutorial -- Part 2 -- Advanced CDI DI </h1>
 
 
 
 
 = Introduction =
 
-<p>This article continues our tutorial of dependency injection with CDI.
-[http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
-Java standard for dependency injection (DI) and interception (AOP).
-</p> 
+<p>This article continues our [http://java.dzone.com/articles/cdi-di-p1 tutorial of dependency injection with CDI].
+
+</p>
+
+<p>
+We cover:
+</p>
+
+ * how to process annotations for configuration (injection level and class level)
+ * how to use an annotation for both injection and configuration (@*`Nonbinding`*)
+ * Using *`Instance`* to manage instances of possible injection targets 
+ ** plugin architecture for the masses
+ 
 
 
 <p>
-[https://jee6-cdi.googlecode.com/svn/tutorial/cdi-di-example Source code for this tutorial], 
-and [MavenDITutorialInstructions instructions] for use.
+CDI simplifies and sanitizes the API for DI and AOP like JPA did for ORMs. 
+Through its use of *`Instance`*  and @Produces,
+CDI provides a pluggable architecture. This is a jaw dropping killer feature of CDI.
+Master this and you start to tap into the power of CDI. The last 
+[http://java.dzone.com/articles/cdi-di-p1 article] was just 
+to lay the ground work to the uninitiated for this article.
 </p>
 
+<p>
+With this pluggable architecture you can write code that finds new dependencies 
+dynamically. CDI can be a framework to write frameworks. This is why it is so
+important that CDI was led through the JSR process.
+</p>
+
+<p>
+Just like last time, there are some instructions on how to run the examples: 
+[https://jee6-cdi.googlecode.com/svn/tutorial/cdi-di-example Source code for this tutorial], 
+and [MavenDITutorialInstructions instructions] for use. A programming article 
+without working sample code is like a sandwich with no condiments 
+or dry toast without Jelly.
+</p>
 
 
 <wiki:toc max_depth="5" />
 
 
 = Advanced CDI tutorial =
-The faint of heart stop hear. All of the folks who want to understand the inner workings of CDI continue.
-So far, we have been at the shallow, warm end of the pool. Things are about to get a little deeper and colder.
-If you need to master CDI, then this article if for you.
+<p>
+The faint of heart stop here. All of the folks who want to understand the inner 
+workings of CDI continue. So far, we have been at the shallow, warm end of the 
+pool. Things are about to get a little deeper and colder.
+If you need to master CDI, then this article if for you. If you don't know what CDI
+is then read the [http://java.dzone.com/articles/cdi-di-p1 first CDI DI article].
+</p>
 
 ==Advanced: Using @Produces and *`InjectionPoint`* to create configuration annotations==
 
+<p>
 Our ultimate goal is to define an annotation that we can use to configure the retry count on a transport.
 Essentially, we want to pass a retry count to the transport.
+</p>
 
 We want something that looks like this:
 
@@ -47,18 +79,27 @@ We want something that looks like this:
 (This was my favorite section to write, because I wanted to know how to create a
 annotation configuration from the start.)
 
-
+<p>
 Before we do that we need to learn more about @*`Produces`* and *`InjectionPoint`*s. 
 We are going to use a producer to read information (meta-data) about an injection point.
+A major inflection point for learning how to deal with annotations is the 
+*`InjectionPoint`*s. The *`InjectionPoint`*s has all the metadeta we need to process 
+configuration annotations.
+</p>
 
+<p>
 An [http://download.oracle.com/javaee/6/api/javax/enterprise/inject/spi/InjectionPoint.html *`InjectionPoint`*]
 is a class that has information about an injection point. You can learn things
 like what is being decorated, what the target injection type is, what the source injection type, 
 what is the class of the owner of the member that is being injected and so forth.
+</p>
 
-
+<p>
 Let's learn about passing an injection point to @*`Produces`*. Below I have rewritten our simple @Produces 
-example, except this time I pass an *`InjectionPoint`* argument into the mix.
+example from the previous 
+[http://java.dzone.com/articles/cdi-di-p1 article], 
+except this time I pass an *`InjectionPoint`* argument into the mix.
+</p>
 
 
 === Code Listing: *`TransportFactory`* getting meta-data about the injection point ===
@@ -86,10 +127,12 @@ public class TransportFactory {
 	}
 
 }
+}}}
+
+
+Now we just run it and see what it produces.
 
 The above produces this output.
-
-}}}
 
 Output
 {{{
@@ -104,30 +147,42 @@ deposit called
 communicating with bank via Standard transport
 }}}
 
-It appears from the output that annotated tells us which area of the program was annotated.
-It also appears that bean tells us which bean the injection is happending in.
+<p>
+It appears from the output that annotated tells us about the area of 
+the program we annotated. It also appears that bean tells us which bean 
+the injection is happending on.
+</p>
 
 
+<p>
 From this output you can see that the *`annotated`* property on the *`injectionPoint`* 
 has information about which language feature (field, constructor argument, method argument, etc.).
 In our case it is the field *`org.cdi.advocacy.AutomatedTellerMachineImpl.transport`*.
 is being used as the target of the injection, it is the thing that was *`annotated`*.
+</p>
 
+<p>
 From this output you can see that the *`bean`* property of the *`injectionPoint`* 
 is being used to describe the bean whose member is getting injected. In this case,
 it is the *`AutomatedTellerMachineImpl`* whose is getting the field injected.
+</p>
 
+<p>
 I won't describe each property, but as an exercise you can.
+</p>
 
-Exercise: Look up the *`InjectionPoint`* in the [http://download.oracle.com/javaee/6/api/javax/enterprise/inject/spi/InjectionPoint.html API documentation].
+<p>
+Exercise: Look up the *`InjectionPoint`* in the 
+[http://download.oracle.com/javaee/6/api/javax/enterprise/inject/spi/InjectionPoint.html API documentation].
 Find out what the other properties mean. How might you use this meta-data? 
 Can you think of a use case or application where it might be useful?
 Send me your answers on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
 The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
+</p>
 
-
-
+<p>
 Drilling further you can see what is in the beans and annotated properties.
+</p>
 
 === Code Listing: *`TransportFactory.createTransport`* drilling further into the meta-data about the injection point ===
 {{{
@@ -160,8 +215,10 @@ Drilling further you can see what is in the beans and annotated properties.
 }
 }}}
 
+<p>
 Now we are cooking with oil. Throw some gas on that flame. Look at the wealth of information
 that the *`InjectionPoint`* defines.
+</p>
 
 Output
 {{{
@@ -179,25 +236,36 @@ annotated.typeClosure [interface org.cdi.advocacy.ATMTransport, class java.lang.
 ...
 }}}
 
+<p>
 We see that *`bean.beanClass`* gives up the class of the bean that is getting the 
 injected field. Remember that one, we will use it later.
+</p>
 
+<p>
 We can see that *`bean.qualifiers*` gives up the list of qualifiers for the *`AutomatedTellerMachineImpl`*.
+</p>
 
+<p>
 We can also see that *`annotated.annotations`* gives us the list of annotations that are associated with the injected field.
 We will use this later to pull the configuration annotation and configure the transport with it.
+</p>
 
-Exercise: Look up the *`Bean`* and *`Annotated`* in the [http://download.oracle.com/javaee/6/api/index.html?javax/enterprise/inject/spi/package-summary.html API documentation].
+<p>
+Exercise: Look up the *`Bean`* and *`Annotated`* in the 
+[http://download.oracle.com/javaee/6/api/index.html?javax/enterprise/inject/spi/package-summary.html API documentation].
 Find out what the other properties mean. How might you use this meta-data? 
 Can you think of a use case or application where it might be useful?
 Send me your answers on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
 The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
+</p>
 
-
-
+<p>
 Ok now that we armed with an idea of what an *`Injection`* point is. Let's get configuring our transport.
+</p>
 
+<p>
 First let's define an *`TransportConfig`* annotation. This is just a plain runtime annotation as follows:
+</p>
 
 
 === Code Listing: *`TransportConfig`* an annotation used for configuration ===
@@ -219,10 +287,14 @@ public @interface TransportConfig {
 
 }}}
 
+<p>
 Notice that this annotation has one member retries, which we will use to configure
 the *`ATMTransport`* (*`transport`*).
+</p>
 
+<p>
 Now go ahead and use this to decorate the injection point as follows:
+</p>
 
 === Code Listing: *`AutomatedTellerMachineImpl`* using *`TransportConfig`* to configure retries ===
 {{{
@@ -233,27 +305,38 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+<p>
 Once it is configured when you run it, you will see the following output from our producer:
+</p>
 
 Output
 {{{
 annotated.annotations AnnotationSet[@javax.inject.Inject(), @org.cdi.advocacy.TransportConfig(retries=2)]
 }}}
 
+<p>
 This means the annotation data is there. We just need to grab it and use it. Stop and ponder on this a bit.
 This is pretty cool. The producer allows me to customize how annotations are consumed.
 This is powerful stuff and one of the many extention points avaialable to CDI.
+CDI was meant to be extensible. It is the first mainstream framework that encourages you to 
+consume your own annotation data. This not some obscure framework feature. 
+This is in the main usage.
+</p>
 
+<p>
 Please recall that the *`injectionPoint.annotated.annotations`* gives us the 
 list of annotations that are associated with the injected field, namely, the transport field of the 
-AutomatedTellerMachineImpl.Now we can use this to pull the configuration annotation 
+*`AutomatedTellerMachineImpl`*. Now we can use this to pull the configuration annotation 
 and configure the transport with it. The party is rolling now.
+</p>
 
 
-
+<p>
 Now we need to change the transport implementations to handle setting retires. 
 Since this is an example, I will do this simply 
-by adding a new setter method for retires (setRetries) to the ATMTranport interface like so:
+by adding a new setter method for retires (*`setRetries`*) to the *`ATMTranport`* 
+interface like so:
+</p>
 
 === Code Listing: *`ATMTransport`* adding a retries property ===
 {{{
@@ -266,7 +349,10 @@ public interface ATMTransport {
 
 }}}
 
-Then we need to change each of the transport to handle this new property as follows:
+<p>
+Then we need to change each of the transports to handle this new *`retries`* 
+property as follows:
+</p>
 
 === Code Listing: *`StandardAtmTransport`* adding a retries property ===
 {{{
@@ -288,9 +374,11 @@ public class StandardAtmTransport implements ATMTransport {
 }
 }}}
 
+<p>
 Now we just change the producer to grab the new annotation and configure the transport as follows:
 
-(For clarity I took out all of the Sysout.prinltns)
+(For clarity I took out all of the Sysout.prinltns.)
+</p>
 
 
 === Code Listing: *`TransportFactory`* using the annotation configuration to configure a new instance of the transport ===
@@ -322,14 +410,23 @@ public class TransportFactory {
 
 }}}
 
-(Side Note we are missing a null pointer check. The annotation configuration could 
-be null if the user did not set it, you may want to handle this. The example is kept deliberately short.)
+<p>
+(Side Note: we are missing a null pointer check. The annotation configuration could 
+be null if the user did not set it, you may want to handle this. 
+The example is kept deliberately short.)
+</p>
 
+<p>
 The code just gets the annotation and shoves in the retires into the transport, and then just returns the transport.
+</p>
 
+<p>
 We now have a producers that can use an annotation to configure an injection. 
+</p>
 
+<p>
 Here is our new output:
+</p>
 
 *Output*
 {{{
@@ -338,14 +435,22 @@ deposit called
 communicating with bank via Standard transport retries=2
 }}}
 
+<p>
 You can see our retries are there as we configured them in the annotation.
+Wonderful! Annotation procesing for the masses!
+</p>
 
 
+<p>
 Ok we are done with this example. What remains is a victory lap. 
-Let's say we had multiple transports in a single ATM and you wanted to configure all of the outputs at once. 
+Let's say we had multiple transports in a single ATM and you wanted to configure 
+all of the outputs at once. 
+</p>
 
+<p>
 Let's configure the tranport 
 based on an annotaion in the parent class of the injection target, namely, *`AutomatedTellerMachine`*.
+</p>
 
 === Code Listing: *`TransportFactory`* using the annotation configuration from class not field to configure a new instance of the transport ===
 {{{
@@ -362,8 +467,12 @@ public class TransportFactory {
 
 }}}
 
+<p>
 It is an exercise for the reader to make the injection level annotation 
 (from the last example) override the class level annotations.
+As always, if you are playing along in the home version of CDI hacker, send me
+your solution. Best solution gets my admiration.
+</p>
 
 
 Output
@@ -372,23 +481,31 @@ deposit called
 communicating with bank via Standard transport retries=7
 }}}
 
+<p>
 Exercise: Make the injection from the field override the injection from the class.
 It is a mere matter of Java code.
 Send me your solution on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
 The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
+</p>
 
 ==Advanced Using @Nonbinding to combine a configuration annotation and a qaulifier annotation into one annotation==
 
+<p>
 In the section titled *"Using @Qualfiers with members to discriminate injection and stop the explosion of annotation creation"* 
 we covered adding additional members to a qualifier annotation and 
 then in *"Advanced: Using @Produces and InjectionPoint to create configuration annotations"* 
 we talked about how to write an annotation to configure an injection. 
 Wouldn't be great if we could combine these two concepts into one annotation?
+</p>
 
+<p>
 The problem is that qualifier members are used to do the discrimination. 
 We need some qualifier members that are not used for configuration not discrimination.
+</p>
 
+<p>
 To make an qualifier member just a configuration member use @*`Nonbinding`* annotation as follows:
+</p>
 
 === Code Listing: *`Transport`* qualifier annotation using @*`Nonbinding`* to add configuration retries param ===
 {{{
@@ -414,7 +531,7 @@ public @interface Transport {
 }
 }}}
 
-Now let's add the setRetries to the Fast Transport:
+Now let's add the *`setRetries`* to the Fast Transport:
 
 === Code Listing: *`Transport`* qualifier annotation using @*`Nonbinding`* to add configuration retries param ===
 {{{
@@ -453,33 +570,48 @@ deposit called
 communicating with bank via Standard transport retries=9
 }}}
 
+<p>
 The final result is we have one annotation that does both qualification and configuration.
 Booyah!
+</p>
 
+<p>
 Exercise: 
-There is an easter egg in this example. There is concept we talked about earlier in the 
+There is an easter egg in this example. There is concept we talked about earlier 
+(in the [http://java.dzone.com/articles/cdi-di-p1 last article]) in the 
 qualifier discrimination but never added. Please find it and describe it.
 What are some potential problems of using this approach?
 Send me your answers on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
 The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
+</p>
 
 
 ==Advanced: Using Instance to inject transports==
+<p>
+The use of the class *`Instance`* allows you to dynamically look up instances 
+of a certain type. This is the plugin architecture for the masses, built right into
+CDI. Grok this and you will not only understand CDI but have a powerful weapon in
+your arsenal of mass programming productivety.
+</p>
 
-The use of the class Instance allows you to dynamically look up instances of a certain type.
-These instances can be instances that are in a jar file.
-For example the AutomatedTellerMachine could work with transports 
-that did not even exist when the AutomatedTellerMachine was created.
-The Instance class is one of the things that makes CDI so cool and flexible.
+<p>
+These instances can be instances that are in a jar files.
+For example the *`AutomatedTellerMachine`* could work with transports 
+that did not even exist when the *`AutomatedTellerMachine`* was created.
+If you don't grok that, read the last sentence again. You are tapping into the 
+scanning capabilities of CDI. This power is there for the taking. 
+The *`Instance`* class is one of the things that makes CDI so cool and flexible.
 In this section, I hope to give it some justice while still keeping the example small 
 and understandable.
+</p>
 
-
+<p>
 Let's say we wanted to work with multiple transports. 
 But we don't know which transport is configured and on the classpath.
 It could be that the build was special for a certain type of transport, and it
 just does not exist on the classpath. Suspend disbelief for a moment and let's look
-a the code.
+at the code.
+</p>
 
 === Code Listing: *`AutomatedTellerMachineImpl`* using *`Instance`* ===
 {{{
@@ -523,20 +655,25 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+<p>
 Notice we are using *`Instance<ATMTransport>`* as the field type instead of *`ATMTransport`*.
 Then we look up the actual transport. We can query a *`Instance`* with the *`Instance.isUnsatisfied`* to 
 see it this tranport actually exist. There is an *`Instance.get`* method to retrieve a single 
 transport, but I used *`Instance.iterator().next()`* to highlight an important aspect
-of *`Instance`*, namely, it can return more the same type. There could be 20 @*`Default`* based
+of *`Instance`*, namely, it can return more than one. For example, there could be 20 @*`Default`* based
 transports in the system.
+</p>
 
+<p>
 Imagine if you were implementing a chain of responsibility pattern or a command pattern, and you
 wanted an easy way to discover the actions or commands that were on the classpath.
 *`Instance`* would be that way. CDI makes this type of plugin development very easy.
+</p>
 
-
+<p>
 If it could find a single @*`Default`*, the one we have been using since the start, on the classpath.
 The output from the above would be as follows: 
+</p>
 
 Output
 {{{
@@ -545,9 +682,11 @@ deposit called
 communicating with bank via Standard transport
 }}}
 
+<p>
 Now to test how the *`Instance.isUnsatisfied`* by commenting out the *`implements ATMTransport`* in StandardAtmTransport
-class definition. You are essntially taking StandardAtmTransport out of the pool of possible injection of *`ATMTransport`*.
+class definition. You are essntially taking *`StandardAtmTransport`* out of the pool of possible injection of *`ATMTransport`*.
 There are no more defaults configured so it should be an unsatified.
+</p>
 
 
 === Code Listing: *`StandardAtmTransport`* commenting out *`implements ATMTransport`*  so *`Instance.isUnsatisfied`* returns true===
@@ -575,14 +714,17 @@ deposit called
 communicating with bank via JSON REST transport
 }}}
 
+<p>
 Reread this section if you must and make sure you understand why you get the above output.
+</p>
 
 
-You can use Insstance to load more than one bean as mentioned earlier.
-Let's lookup all installed installed @Default transports.
-To setup this example remove all of the annotations in the ATMTransport interfaces 
-and make the beans.xml empty again (so no Alternative is active).
-
+<p>
+You can use *`Instance`* to load more than one bean as mentioned earlier.
+Let's lookup all installed installed @*`Default`* transports.
+To setup this example remove all of the annotations in the *`ATMTransport`* interfaces 
+and make the beans.xml empty again (so no *`Alternative`* is active).
+</p>
 
 
 === Code Listing: *`SoapAtmTransport`* making it @*`Default`* by removing @*`Soap`* qualifier===
@@ -634,7 +776,7 @@ public class StandardAtmTransport implements ATMTransport {
 
 }}}
 
-We also need to make sure that the beans.xml file is empty.
+We also need to make sure that the *`beans.xml`* file is empty.
 
 
 === Code Listing: *`{classpath}/META-INF/beans.xml`* removing all alternatives===
@@ -694,10 +836,14 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }
 }}}
 
+<p>
 In this context ambigous means more than one. Therefore, CDI found more than one possibility
 for injection if ambigous returns true. It should find three defaults.
+</p>
 
+<p>
 Your output should look like this (or something close to this).
+</p>
 
 Output
 {{{
@@ -710,16 +856,20 @@ communicating with bank via Standard transport
 communicating with bank via the Super Fast transport
 }}}
 
+<p>
 Note that we changed deposit to iterate through the available instances.
+</p>
 
+<p>
 Now try something new comment out the *`implements ATMTransports`* in *`SuperFastAtmTransport`*, *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`*.
-
 *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`* transport class defintion should have this *`//implements ATMTransport {`*.
+</p>
 
-Now rerun the example.
-
-
+<p>
+Now rerun the example. 
 You get this output.
+</p>
+
 
 *Output*
 {{{
@@ -729,9 +879,11 @@ deposit called
 communicating with bank via Standard transport
 }}}
 
+<p>
 Since the only transport left is the standard transport (*`StandardAtmTransport`*), only it is in the output.
-The Instance is no longer ambigous, there is only one so it prints false.
+The *`Instance`* is no longer ambigous, there is only one so it prints false.
 CDI finds the one so it is not unsatisfied.
+</p>
 
 Now comment out all of //implements ATMTransport, and you get this:
 
@@ -741,16 +893,22 @@ Is this unsatisfied? true
 deposit called
 }}}
 
+<p>
 Notice there a no longer any  ATMTransport transport implementations in the system at all.
+</p>
 
-The @Any qualifier states that you want all instances of an implementation.
+<p>
+The @*`Any`* qualifier states that you want all instances of an implementation.
 It does not matter what qualifiers they have, you want them all @*`Json`*s, @*`Soap`*s, @*`SuperFast`*s, whatever.
+</p>
 
+<p>
 Add the all of the annotations we commented out back to all of the transports. 
 
+Add the @*`Any`* to the transport injection as follows:
 
+</p>
 
-Add the @Any to the transport injection as follows:
 
 
 === Code Listing: *`AutomatedTellerMachineImpl`* @*`Inject`* @*`Any`* *`Instance<ATMTransport>`* to inject all transport instances ===
@@ -783,11 +941,11 @@ communicating with bank via Standard transport
 communicating with bank via the Super Fast transport
 }}}
 
+<p>
 @Any finds all of the transports in the system.
-
 Once you inject the instances into the system, you can use the *`select`* method of *`instance`* to query for a particular type.
-
 Here is an example of that:
+</p>
 
 === Code Listing: *`AutomatedTellerMachineImpl`* using selects to find a particular transport from the list you loaded===
 {{{
@@ -850,9 +1008,10 @@ deposit called
 communicating with bank via Standard transport
 }}}
 
-
+<p>
 Now imagine there being a set of settings that are configured in a db or something
 and the code might look like this to find a transport (this should look familiar to you by now).
+</p>
 
 === Code Listing: *`AutomatedTellerMachineImpl`* using selects and some business logic to decide which transport to use===
 {{{
@@ -919,68 +1078,98 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
+<p>
 Exercise: 
 Please combine the use of Instance with a producer to define the same type of lookup 
 but have the business logic and select lookup happen in the *`TrasportFactory`*.
 Send me your answers on the [http://groups.google.com/group/cdiadvocate4j?pli=1 CDI group mailing list].
 The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
-
+</p>
 
 ==The dirty truth about CDI and Java SE==
 
+<p>
 The dirty truth is this. CDI is part of JEE 6. It could easily be used outside of
 a JEE 6 container as these examples show. The problem is that there is no
 standard interface to use CDI outside of a JEE 6 container so the three main implementations
-Caucho Resin Candi, Red Hat JBoss Weld and Apache OpenWebBeans all have their own way 
+[http://www.caucho.com/resin/candi/ Caucho Resin Candi], 
+[http://seamframework.org/Weld Red Hat JBoss Weld] and 
+[http://openwebbeans.apache.org/owb/index.html Apache OpenWebBeans] all have their own way 
 to run a CDI container standalone.
+</p>
 
-As part of the promotion and advocacy of CDI, we plan on comming up with a standard way to 
-run CDI standalone. It will be a small wrapper around CDI standalone containers.
-It will work with Resin, Weld and eventually OpenWebBeans.
+<p>
+As part of the promotion and advocacy of CDI, we (Andy Gibson, Rob Williams, 
+and others) came up with a standard way to run CDI standalone. It is a small 
+wrapper around CDI standalone containers.
+It works with [http://www.caucho.com/resin/candi/ Resin Candi], 
+[http://seamframework.org/Weld Weld] and  [http://openwebbeans.apache.org/owb/index.html OpenWebBeans]. 
+If you used the examples, in the [http://java.dzone.com/articles/cdi-di-p1 last 
+CDI DI article] or this article 
+then you used the first artifact that the CDISource organization put together.
+We plan on coming up with ways to unit test JPA outside of the container, and a few
+other things. As we find holes in the CDI armour we want to work with the community 
+at large to fill the holes. CDI, although standard, is very new.
+We are hoping that the groundwork that CDI has layed down can get used outside of
+Java EE as well as inside of Java EE (we are not anti-Java EE).
+</p>
 
 
 = Conclusion =
 
+<p>
 Dependency Injection (DI) refers to the process of supplying an external dependency 
 to a software component. 
+</p>
 
-
+<p>
 [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
 Java standard for dependency injection and interception (AOP). 
 It is evident from the popularity of DI and AOP that Java needs to address DI 
 and AOP so that it can build other standards on top of it. 
 DI and AOP are the foundation of many Java frameworks.
 I hope you share my vision of CDI as a basis for other JSRs, Java frameworks and standards.
+</p>
 
 
-This article discussed CDI dependency injection in a tutorial format. 
-It covers some of the features of CDI such as type safe annotations configuration, 
-alternatives and more. There was an introduction level and and advacned level.
+<p>
+This article discussed more advanced CDI dependency injection in a tutorial format. 
+It covered some of the features of CDI such as processing annotation data and working 
+with multiple instances of various types using the *`Instance`* class to tap into the 
+powerful CDI class scanner capabilities.
+</p>
 
+<p>
 CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by 
 Caucho's Resin, IBM's !WebSphere, Oracle's Glassfish, Red Hat's JBoss and many 
 more application servers. CDI is similar to core Spring and Guice frameworks. 
 However CDI is a general purpose framework that can be used outside of JEE 6.
+</p>
 
-
+<p>
 CDI simplifies and sanitizes the API for DI and AOP. Through its use of *`Instance`*  and @Produces,
-CDI provides a pluggable architecture.
-
-With this pluggable architecture you can write code that finds new dependencies 
+CDI provides a pluggable architecture. With this pluggable architecture you can write code that finds new dependencies 
 dynamically.
+</p>
 
-
+<p>
 CDI is a rethink on how to do dependency injection and AOP (interception really).
 It simplifies it. It reduces it. It gets rid of legacy, outdated ideas.
+</p>
 
-CDI is to Spring and Guice what JPA is to Hibernate, and Toplink. CDI will co-exist with Spring and Guice.
+<p>
+CDI is to Spring and Guice what JPA is to Hibernate, and Toplink. 
+CDI will co-exist with Spring and Guice.
 There are plugins to make them interoperate nicely. There is more integration option
 on the way.
+</p>
 
+<p>
 This is just a brief taste. There is more to come.
-
+</p>
 
 = Resources =
+ * [http://java.dzone.com/articles/cdi-di-p1 CDI Depenency Injection Article]
  * [http://sites.google.com/site/cdipojo/ CDI advocacy group]
  * [http://cdi4jadvocate.blogspot.com/ CDI advocacy blog]
  * [http://code.google.com/p/jee6-cdi/ CDI advocacy google code project]
@@ -995,9 +1184,12 @@ This is just a brief taste. There is more to come.
  
 
  = About the Author =
+<p>
  This article was written with CDI advocacy in mind by [https://profiles.google.com/RichardHightower/about Rick Hightower]
  with some collaboration from others.
- 
+</p>
+
+<p> 
  Rick Hightower has worked as a CTO, Director of Development and a Developer for the last 20 years.
  He has been involved with J2EE since its inception. He worked at an EJB container company in 1999.
  He has been working with Java since 1996, and writing code professionally since 1990.
@@ -1006,3 +1198,4 @@ This is just a brief taste. There is more to come.
  Although not a fan of [http://java.sys-con.com/node/216307 EJB 3], 
  Rick is a big fan of the potential of CDI and 
  thinks that EJB 3.1 has come a lot closer to the mark.
+ </p>
