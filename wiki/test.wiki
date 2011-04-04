@@ -44,20 +44,7 @@ lkj
 
 sdfasdf asdfasdf asdfasdf
 
-code bold
-*`single`*
-*`double`* *`double`*
-*`with_comma`*, *`with_apsotrophe_s`*'s
 
-code
-`single`
-`double` `double`
-`with_comma`, `with_apsotrophe_s`'s
-
-bold
-*single*
-*double* *double*
-*with_comma*, *with_apsotrophe_s*'s
 
 URL
 [http://foo.com foo]
@@ -80,4 +67,28 @@ There are plenty of articles and tutorials that cover using CDI as part of a lar
 This tutorial is not that. This tutorial series is CDI and only CDI.
 [http://download.com can handle a period at the end].
 </p>
+
+
+
+
+code bold
+*`single`*
+*`double`* *`double`*
+*`with_comma`*, *`with_apsotrophe_s`*'s
+
+code
+`single`
+`double` `double`
+`with_comma`, `with_apsotrophe_s`'s
+
+bold
+*single*
+*double* *double*
+*with_comma*, *with_apsotrophe_s*'s
+
+
+*`Whisky.tango.rango.dango`*
+*`Whisky.tango-rango.dango`*
+*`Whisky.tango-rango.dango`*
+*`Whisky.tango.rango.dango?,.!;'"`*
 
