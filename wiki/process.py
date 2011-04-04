@@ -1,4 +1,5 @@
 import sys
+import re
 
 wikiURL = "http://code.google.com/p/jee6-cdi/wiki/"
 f = file(sys.argv[1])
@@ -7,71 +8,28 @@ lines = f.readlines()
 #Looks for a signature file in the local dir
 sig=file("signature.htm").read()
 
-def processParts(parts):
-    lst = []
-    parts = parts.split()
-    for part in parts:
-        lst.append(processPart(part))
+class MatchReplace:
+    def __init__(self, pattern, template):
+        self.pattern = re.compile(pattern)
+        self.template = template
+    def processLine(self, line):
+        while True:
+            match = self.pattern.search(line)
+            if not match:
+                break
+            line = line.replace(match.group(0), self.template % match.group(2))
+        return line
 
-    return " ".join(lst)
+boldMR = MatchReplace("(\*)([\w]+)(\*)", "<bold>%s</bold>")
+codeMR = MatchReplace("(`)([\w]+)(`)", "<code>%s</code>")
+boldCodeMR = MatchReplace("(\*`)([\w]+)(`\*)", "<bold><code>%s</code></bold>")
 
-def processPart(part):
-    # This is screaming to be fixed, quick and dirty is not ridiculous. I need to parse things better.
-    if part.startswith("*`") and part.endswith("`*"):
-        part = part[2:-2]
-        return "<b><code>%s</code></b>" % part
-    elif part.startswith("*`") and part.endswith("`*,"):
-        part = part[2:-3]
-        return "<b><code>%s</code></b>," % part
-    elif part.startswith("*`") and part.endswith("`*;"):
-        part = part[2:-3]
-        return "<b><code>%s</code></b>;" % part
-    elif part.startswith("*`") and part.endswith("`*:"):
-        part = part[2:-3]
-        return "<b><code>%s</code></b>:" % part
-    elif part.startswith("@*`") and part.endswith("`*"):
-        part = part[3:-2]
-        return "<b><code>%s</code></b>" % part
-    elif part.startswith("\"*`") and part.endswith("`*\""):
-        part = part[3:-3]
-        return '"<b><code>%s</code></b>"' % part
-    elif part.startswith("*`") and part.endswith("`*'s"):
-        part = part[2:-4]
-        return "<b><code>%s</code></b>'s" % part
-    elif part.startswith("*`") and part.endswith("`*."):
-        part = part[2:-3]
-        return "<b><code>%s</code></b>." % part
+matcherReplacers = [boldCodeMR, boldMR, codeMR]
 
-
-    elif part.startswith("*") and part.endswith("*"):
-        part = part[1:-1]
-        return "<b>%s</b>" % part
-    elif part.startswith("*") and part.endswith("*."):
-        part = part[1:-2]
-        return "<b>%s</b>." % part
-    elif part.startswith("*") and part.endswith("*,"):
-        part = part[1:-2]
-        return "<b>%s</b>," % part
-    elif part.startswith("*") and part.endswith("*'s"):
-        part = part[1:-3]
-        return "<b>%s</b>'s" % part
-
-    elif part.startswith("`") and part.endswith("`"):
-        part = part[1:-1]
-        return "<code>%s</code>" % part
-    elif part.startswith("`") and part.endswith("`."):
-        part = part[1:-2]
-        return "<code>%s</code>." % part
-    elif part.startswith("`") and part.endswith("`,"):
-        part = part[1:-2]
-        return "<code>%s</code>," % part
-    elif part.startswith("`") and part.endswith("`'s"):
-        part = part[1:-3]
-        return "<code>%s</code>'s" % part
-
-    else:
-        return part
-
+def processLine(line):
+    for replacer in matcherReplacers:
+        line = replacer.processLine(line)
+    return line
 
 def processURL(url) :
     url[-1] = url[-1][:-1]
@@ -122,25 +80,25 @@ for line in lines:
     if line[0:4] == "====":
         print "<br />"
         print "<br />"
-        print "<h5>%s</h5>" % processParts(line[4:-4])
+        print "<h5>%s</h5>" % processLine(line[4:-4])
         print "<br />"
         continue
     if line[0:3] == "===":
         print "<br />"
         print "<br />"
-        print "<h4>%s</h4>" % processParts(line[3:-3])
+        print "<h4>%s</h4>" % processLine(line[3:-3])
         print "<br />"
         continue
     if line[0:2] == "==":
         print "<br />"
         print "<br />"
-        print "<h3>%s</h3>" % processParts(line[2:-2])
+        print "<h3>%s</h3>" % processLine(line[2:-2])
         print "<br />"
         continue
     if line[0:1] == "=":
         print "<br />"
         print "<br />"
-        print "<h2>%s</h2>" % processParts(line[1:-1])
+        print "<h2>%s</h2>" % processLine(line[1:-1])
         print "<br />"
         continue
 
@@ -160,7 +118,7 @@ for line in lines:
         line = line[1:]
         sys.stdout.write("<li>")
 
-
+    line = processLine(line)
 
     parts = line.split()
     inURL = 0
@@ -170,7 +128,6 @@ for line in lines:
             inURL = 0
             url.append(part)
             processURL(url)
-#            print "END=%s" % url,
             print "",
             continue
         if part.endswith("],"):
@@ -178,7 +135,6 @@ for line in lines:
             url.append(part[:-1])
             processURL(url)
             print ",",
-#            print "END WITH COMMA=%s" % url,
             continue
         if part.endswith("]."):
             inURL = 0
@@ -188,16 +144,14 @@ for line in lines:
             continue
         if inURL == 1:
             url.append(part)
-#            print "PART=%s" % part,
             continue
         if part[0:1]=="[":
             url = []
             inURL = 1
             url.append(part)
-#            print "START=%s" % part,
             continue            
         if not inURL:
-            print processPart(part),
+            print processLine(part),
     if inOL:
         sys.stdout.write("</li>")
 
