@@ -45,6 +45,7 @@ inCode=0
 inOL=0
 inUL=0
 cl=0
+codeListingsPerPage=10
 
 for line in lines:
 
@@ -56,7 +57,8 @@ for line in lines:
         inCode=0
         print "</pre>\n"
         cl = cl +1
-        if cl % 7 == 0:
+        if cl % codeListingsPerPage  == 0:
+            print "<b>Continue reading...</b> Click on the navigation links below the author bio. to read the other pages of this article."
             print sig
             print "<!--pagebreak-->"
         continue

@@ -9,29 +9,30 @@
 
 = Introduction =
 
-<p>This article continues our [http://java.dzone.com/articles/cdi-di-p1 tutorial of dependency injection with CDI].
-
-</p>
-
-<p>
-We cover:
-</p>
-
- * how to process annotations for configuration (injection level and class level)
- * how to use an annotation for both injection and configuration (@*`Nonbinding`*)
- * Using *`Instance`* to manage instances of possible injection targets 
- ** plugin architecture for the masses
- 
-
-
 <p>
 CDI simplifies and sanitizes the API for DI and AOP like JPA did for ORMs. 
-Through its use of *`Instance`*  and @Produces,
+Through its use of *`Instance`*  and @*`Produces`*,
 CDI provides a pluggable architecture. This is a jaw dropping killer feature of CDI.
 Master this and you start to tap into the power of CDI. The last 
 [http://java.dzone.com/articles/cdi-di-p1 article] was just 
 to lay the ground work to the uninitiated for this article.
 </p>
+
+
+
+<p>
+This article continues our [http://java.dzone.com/articles/cdi-di-p1 tutorial of dependency injection with CDI].
+</p>
+
+<p>
+This article covers:
+</p>
+
+ * how to process annotations for configuration (injection level and class level)
+ * how to use an annotation for both injection and configuration (@*`Nonbinding`*)
+ * Using *`Instance`* to manage instances of possible injection targets 
+ * CDI's plugin architecture for the masses
+ 
 
 <p>
 With this pluggable architecture you can write code that finds new dependencies 
@@ -44,7 +45,7 @@ Just like last time, there are some instructions on how to run the examples:
 [https://jee6-cdi.googlecode.com/svn/tutorial/cdi-di-example Source code for this tutorial], 
 and [MavenDITutorialInstructions instructions] for use. A programming article 
 without working sample code is like a sandwich with no condiments 
-or dry toast without Jelly.
+or dry toast without jelly.
 </p>
 
 
@@ -83,7 +84,7 @@ annotation configuration from the start.)
 Before we do that we need to learn more about @*`Produces`* and *`InjectionPoint`*s. 
 We are going to use a producer to read information (meta-data) about an injection point.
 A major inflection point for learning how to deal with annotations is the 
-*`InjectionPoint`*s. The *`InjectionPoint`*s has all the metadeta we need to process 
+*`InjectionPoint`*s. The *`InjectionPoint`*s has all the metadata we need to process 
 configuration annotations.
 </p>
 
@@ -95,7 +96,7 @@ what is the class of the owner of the member that is being injected and so forth
 </p>
 
 <p>
-Let's learn about passing an injection point to @*`Produces`*. Below I have rewritten our simple @Produces 
+Let's learn about passing an injection point to @*`Produces`*. Below I have rewritten our simple @*`Produces`* 
 example from the previous 
 [http://java.dzone.com/articles/cdi-di-p1 article], 
 except this time I pass an *`InjectionPoint`* argument into the mix.
@@ -148,8 +149,8 @@ communicating with bank via Standard transport
 }}}
 
 <p>
-It appears from the output that annotated tells us about the area of 
-the program we annotated. It also appears that bean tells us which bean 
+It appears from the output that *`annotated`* tells us about the area of 
+the program we annotated. It also appears that *`bean`* tells us which bean 
 the injection is happending on.
 </p>
 
@@ -242,7 +243,7 @@ injected field. Remember that one, we will use it later.
 </p>
 
 <p>
-We can see that *`bean.qualifiers*` gives up the list of qualifiers for the *`AutomatedTellerMachineImpl`*.
+We can see that *`bean.qualifiers`* gives up the list of qualifiers for the *`AutomatedTellerMachineImpl`*.
 </p>
 
 <p>
