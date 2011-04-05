@@ -28,8 +28,8 @@ This article continues our [http://java.dzone.com/articles/cdi-di-p1 tutorial of
 This article covers:
 </p>
 
- * how to process annotations for configuration (injection level and class level)
- * how to use an annotation for both injection and configuration (@*`Nonbinding`*)
+ * How to process annotations for configuration (injection level and class level)
+ * How to use an annotation for both injection and configuration (@*`Nonbinding`*)
  * Using *`Instance`* to manage instances of possible injection targets 
  * CDI's plugin architecture for the masses
  
@@ -111,21 +111,20 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 
 public class TransportFactory {
-	
-	
-	@Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
+
+
+    @Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
 		
-		System.out.println("annotated " + injectionPoint.getAnnotated());
-		System.out.println("bean " + injectionPoint.getBean());
-		System.out.println("member " + injectionPoint.getMember());
-		System.out.println("qualifiers " + injectionPoint.getQualifiers());
-		System.out.println("type " + injectionPoint.getType());
-		System.out.println("isDelegate " + injectionPoint.isDelegate());
-		System.out.println("isTransient " + injectionPoint.isTransient());
-	
-		return new StandardAtmTransport();
-				
-	}
+        System.out.println("annotated " + injectionPoint.getAnnotated());
+        System.out.println("bean " + injectionPoint.getBean());
+        System.out.println("member " + injectionPoint.getMember());
+        System.out.println("qualifiers " + injectionPoint.getQualifiers());
+        System.out.println("type " + injectionPoint.getType());
+        System.out.println("isDelegate " + injectionPoint.isDelegate());
+        System.out.println("isTransient " + injectionPoint.isTransient());
+
+        return new StandardAtmTransport();
+    }
 
 }
 }}}
@@ -151,7 +150,7 @@ communicating with bank via Standard transport
 <p>
 It appears from the output that *`annotated`* tells us about the area of 
 the program we annotated. It also appears that *`bean`* tells us which bean 
-the injection is happending on.
+the injection is happening on.
 </p>
 
 
@@ -187,32 +186,32 @@ Drilling further you can see what is in the beans and annotated properties.
 
 === Code Listing: *`TransportFactory.createTransport`* drilling further into the meta-data about the injection point ===
 {{{
-	@Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
-		
-		System.out.println("annotated " + injectionPoint.getAnnotated());
-		System.out.println("bean " + injectionPoint.getBean());
-		System.out.println("member " + injectionPoint.getMember());
-		System.out.println("qualifiers " + injectionPoint.getQualifiers());
-		System.out.println("type " + injectionPoint.getType());
-		System.out.println("isDelegate " + injectionPoint.isDelegate());
-		System.out.println("isTransient " + injectionPoint.isTransient());
+    @Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
+        
+        System.out.println("annotated " + injectionPoint.getAnnotated());
+        System.out.println("bean " + injectionPoint.getBean());
+        System.out.println("member " + injectionPoint.getMember());
+        System.out.println("qualifiers " + injectionPoint.getQualifiers());
+        System.out.println("type " + injectionPoint.getType());
+        System.out.println("isDelegate " + injectionPoint.isDelegate());
+        System.out.println("isTransient " + injectionPoint.isTransient());
 
-		Bean<?> bean = injectionPoint.getBean();
-		
-		System.out.println("bean.beanClass " + bean.getBeanClass());
-		System.out.println("bean.injectionPoints " + bean.getInjectionPoints());
-		System.out.println("bean.name " + bean.getName());
-		System.out.println("bean.qualifiers " + bean.getQualifiers());
-		System.out.println("bean.scope " + bean.getScope());
-		System.out.println("bean.stereotypes " + bean.getStereotypes());
-		System.out.println("bean.types " + bean.getTypes());
-		
-		Annotated annotated = injectionPoint.getAnnotated();
-		System.out.println("annotated.annotations " + annotated.getAnnotations());
-		System.out.println("annotated.annotations " + annotated.getBaseType());
-		System.out.println("annotated.typeClosure " + annotated.getTypeClosure());
-		
-		return new StandardAtmTransport();
+        Bean<?> bean = injectionPoint.getBean();
+
+        System.out.println("bean.beanClass " + bean.getBeanClass());
+        System.out.println("bean.injectionPoints " + bean.getInjectionPoints());
+        System.out.println("bean.name " + bean.getName());
+        System.out.println("bean.qualifiers " + bean.getQualifiers());
+        System.out.println("bean.scope " + bean.getScope());
+        System.out.println("bean.stereotypes " + bean.getStereotypes());
+        System.out.println("bean.types " + bean.getTypes());
+
+        Annotated annotated = injectionPoint.getAnnotated();
+        System.out.println("annotated.annotations " + annotated.getAnnotations());
+        System.out.println("annotated.annotations " + annotated.getBaseType());
+        System.out.println("annotated.typeClosure " + annotated.getTypeClosure());
+        
+        return new StandardAtmTransport();
 }
 }}}
 
@@ -283,7 +282,7 @@ import static java.lang.annotation.RetentionPolicy.*;
 
 @Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
 public @interface TransportConfig {
-	int retries() default 5;
+    int retries() default 5;
 }
 
 }}}
@@ -301,8 +300,8 @@ Now go ahead and use this to decorate the injection point as follows:
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject @TransportConfig(retries=2)
-	private ATMTransport transport;
+    @Inject @TransportConfig(retries=2)
+    private ATMTransport transport;
 
 }}}
 
@@ -318,7 +317,7 @@ annotated.annotations AnnotationSet[@javax.inject.Inject(), @org.cdi.advocacy.Tr
 <p>
 This means the annotation data is there. We just need to grab it and use it. Stop and ponder on this a bit.
 This is pretty cool. The producer allows me to customize how annotations are consumed.
-This is powerful stuff and one of the many extention points avaialable to CDI.
+This is powerful stuff and one of the many extension points available to CDI.
 CDI was meant to be extensible. It is the first mainstream framework that encourages you to 
 consume your own annotation data. This not some obscure framework feature. 
 This is in the main usage.
@@ -344,8 +343,8 @@ interface like so:
 package org.cdi.advocacy;
 
 public interface ATMTransport {
-	public void communicateWithBank(byte[] datapacket);
-	public void setRetries(int retries);
+    public void communicateWithBank(byte[] datapacket);
+    public void setRetries(int retries);
 }
 
 }}}
@@ -361,16 +360,16 @@ package org.cdi.advocacy;
 
 public class StandardAtmTransport implements ATMTransport {
 	
-	private int retries;
+    private int retries;
 
-	public void setRetries(int retries) {
-		this.retries = retries;
-	}
+    public void setRetries(int retries) {
+        this.retries = retries;
+    }
 
 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via Standard transport retries=" + retries);
-	}
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via Standard transport retries=" + retries);
+    }
 
 }
 }}}
@@ -393,19 +392,19 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.InjectionPoint;
 
 public class TransportFactory {
-	@Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
-		
-		Annotated annotated = injectionPoint.getAnnotated();
-		
-		TransportConfig transportConfig = annotated.getAnnotation(TransportConfig.class);
-		
-		
-		
-		StandardAtmTransport transport = new StandardAtmTransport();
-		
-		transport.setRetries(transportConfig.retries());
-		return transport;
-	}
+    @Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
+        
+        Annotated annotated = injectionPoint.getAnnotated();
+        
+        TransportConfig transportConfig = annotated.getAnnotation(TransportConfig.class);
+
+
+
+        StandardAtmTransport transport = new StandardAtmTransport();
+
+        transport.setRetries(transportConfig.retries());
+        return transport;
+    }
 
 }
 
@@ -438,7 +437,7 @@ communicating with bank via Standard transport retries=2
 
 <p>
 You can see our retries are there as we configured them in the annotation.
-Wonderful! Annotation procesing for the masses!
+Wonderful! Annotation processing for the masses!
 </p>
 
 
@@ -449,22 +448,22 @@ all of the outputs at once.
 </p>
 
 <p>
-Let's configure the tranport 
-based on an annotaion in the parent class of the injection target, namely, *`AutomatedTellerMachine`*.
+Let's configure the transport 
+based on an annotation in the parent class of the injection target, namely, *`AutomatedTellerMachine`*.
 </p>
 
 === Code Listing: *`TransportFactory`* using the annotation configuration from class not field to configure a new instance of the transport ===
 {{{
 public class TransportFactory {
-	@Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
-		
-		Bean<?> bean = injectionPoint.getBean();
-		TransportConfig transportConfig = bean.getBeanClass().getAnnotation(TransportConfig.class);
+    @Produces ATMTransport createTransport(InjectionPoint injectionPoint) {
 
-		StandardAtmTransport transport = new StandardAtmTransport();
-		
-		transport.setRetries(transportConfig.retries());
-		return transport;
+        Bean<?> bean = injectionPoint.getBean();
+        TransportConfig transportConfig = bean.getBeanClass().getAnnotation(TransportConfig.class);
+
+        StandardAtmTransport transport = new StandardAtmTransport();
+
+        transport.setRetries(transportConfig.retries());
+        return transport;
 
 }}}
 
@@ -489,7 +488,7 @@ Send me your solution on the [http://groups.google.com/group/cdiadvocate4j?pli=1
 The first one to send gets put on the CDI wall of fame. (All others get honorable mentions.)
 </p>
 
-==Advanced Using @Nonbinding to combine a configuration annotation and a qaulifier annotation into one annotation==
+==Advanced Using @Nonbinding to combine a configuration annotation and a qualifier annotation into one annotation==
 
 <p>
 In the section titled *"Using @Qualfiers with members to discriminate injection and stop the explosion of annotation creation"* 
@@ -523,11 +522,11 @@ import javax.inject.Qualifier;
 
 @Qualifier @Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
 public @interface Transport {
-	TransportType type() default TransportType.STANDARD;
-	int priorityLevel() default -1;
-	String name() default "standard";
-	
-	@Nonbinding int retries() default 5;
+    TransportType type() default TransportType.STANDARD;
+    int priorityLevel() default -1;
+    String name() default "standard";
+
+    @Nonbinding int retries() default 5;
 
 }
 }}}
@@ -540,16 +539,16 @@ package org.cdi.advocacy;
 
 @Transport(type=TransportType.STANDARD, priorityLevel=1, name="super")
 public class SuperFastAtmTransport implements ATMTransport {
-	private int retries=0;
+    private int retries=0;
 
 	public void setRetries(int retries) {
-		this.retries=retries;
-	}
+        this.retries=retries;
+    }
 
 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via the Super Fast transport retries=" + retries);
-	}
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via the Super Fast transport retries=" + retries);
+    }
 
 }
 
@@ -559,9 +558,9 @@ Then we use it as follows:
 
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
-	
-	@Inject @Transport(type=TransportType.STANDARD, priorityLevel=1, name="super", retries=9)
-	private ATMTransport transport;
+
+    @Inject @Transport(type=TransportType.STANDARD, priorityLevel=1, name="super", retries=9)
+    private ATMTransport transport;
         ...
 }}}
 
@@ -592,7 +591,7 @@ The first one to send gets put on the CDI wall of fame. (All others get honorabl
 The use of the class *`Instance`* allows you to dynamically look up instances 
 of a certain type. This is the plugin architecture for the masses, built right into
 CDI. Grok this and you will not only understand CDI but have a powerful weapon in
-your arsenal of mass programming productivety.
+your arsenal of mass programming productivity.
 </p>
 
 <p>
@@ -628,38 +627,38 @@ import javax.inject.Named;
 
 @Named("atm")
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+
+    @Inject @Soap 
+    private Instance<ATMTransport> soapTransport;
+
+    @Inject @Json 
+    private Instance<ATMTransport> jsonTransport;
+
+    @Inject @Default 
+    private Instance<ATMTransport> defaultTransport;
 	
-	@Inject @Soap 
-	private Instance<ATMTransport> soapTransport;
+    private ATMTransport transport;
 
-	@Inject @Json 
-	private Instance<ATMTransport> jsonTransport;
-
-	@Inject @Default 
-	private Instance<ATMTransport> defaultTransport;
-	
-	private ATMTransport transport;
-
-	@PostConstruct
-	protected void init() {
-		if (!defaultTransport.isUnsatisfied()) {
-			System.out.println("picked Default");
-			transport = defaultTransport.iterator().next();
-		} else if (!jsonTransport.isUnsatisfied()) {
-			System.out.println("picked JSON");
-			transport = jsonTransport.iterator().next();
-		} else if (!soapTransport.isUnsatisfied()) {
-			System.out.println("picked SOAP");
-			transport = soapTransport.iterator().next();
-		}
-	}
+    @PostConstruct
+    protected void init() {
+        if (!defaultTransport.isUnsatisfied()) {
+            System.out.println("picked Default");
+            transport = defaultTransport.iterator().next();
+        } else if (!jsonTransport.isUnsatisfied()) {
+            System.out.println("picked JSON");
+            transport = jsonTransport.iterator().next();
+        } else if (!soapTransport.isUnsatisfied()) {
+            System.out.println("picked SOAP");
+            transport = soapTransport.iterator().next();
+        }
+    }
 
 }}}
 
 <p>
 Notice we are using *`Instance<ATMTransport>`* as the field type instead of *`ATMTransport`*.
 Then we look up the actual transport. We can query a *`Instance`* with the *`Instance.isUnsatisfied`* to 
-see it this tranport actually exist. There is an *`Instance.get`* method to retrieve a single 
+see it this transport actually exist. There is an *`Instance.get`* method to retrieve a single 
 transport, but I used *`Instance.iterator().next()`* to highlight an important aspect
 of *`Instance`*, namely, it can return more than one. For example, there could be 20 @*`Default`* based
 transports in the system.
@@ -685,8 +684,8 @@ communicating with bank via Standard transport
 
 <p>
 Now to test how the *`Instance.isUnsatisfied`* by commenting out the *`implements ATMTransport`* in StandardAtmTransport
-class definition. You are essntially taking *`StandardAtmTransport`* out of the pool of possible injection of *`ATMTransport`*.
-There are no more defaults configured so it should be an unsatified.
+class definition. You are essentially taking *`StandardAtmTransport`* out of the pool of possible injection of *`ATMTransport`*.
+There are no more defaults configured so it should be an unsatisfied.
 </p>
 
 
@@ -699,9 +698,9 @@ import javax.enterprise.inject.Default;
 @Default
 public class StandardAtmTransport { //implements ATMTransport {
 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via Standard transport");
-	}
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via Standard transport");
+    }
 
 }
 
@@ -737,9 +736,9 @@ package org.cdi.advocacy;
 //@Soap
 public class SoapAtmTransport implements ATMTransport {
 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via Soap transport");
-	}
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via Soap transport");
+    }
 
 }
 }}}
@@ -753,9 +752,9 @@ package org.cdi.advocacy;
 //@Alternative @Json
 public class JsonRestAtmTransport implements ATMTransport {
 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via JSON REST transport");
-	}
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via JSON REST transport");
+    }
 
 }
 
@@ -770,7 +769,7 @@ package org.cdi.advocacy;
 public class StandardAtmTransport implements ATMTransport {
 
 	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via Standard transport");
+        System.out.println("communicating with bank via Standard transport");
 	}
 
 }
@@ -807,39 +806,39 @@ import javax.inject.Named;
 @Named("atm")
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject 
-	private Instance<ATMTransport> allTransports;
+    @Inject 
+    private Instance<ATMTransport> allTransports;
 
-	@PostConstruct
-	protected void init() {
-		System.out.println("Is this ambigous? " + allTransports.isAmbiguous() );
-		System.out.println("Is this unsatisfied? " + allTransports.isUnsatisfied() );
-	}
+    @PostConstruct
+    protected void init() {
+        System.out.println("Is this ambiguous? " + allTransports.isAmbiguous() );
+        System.out.println("Is this unsatisfied? " + allTransports.isUnsatisfied() );
+    }
 	
-	public void deposit(BigDecimal bd) {
-		System.out.println("deposit called");
-		
-		for (ATMTransport transport : this.allTransports) {
-			transport.communicateWithBank(null);
-		}
-		
-	}
+    public void deposit(BigDecimal bd) {
+        System.out.println("deposit called");
 
-	public void withdraw(BigDecimal bd) {
-		System.out.println("withdraw called");
+        for (ATMTransport transport : this.allTransports) {
+            transport.communicateWithBank(null);
+        }
 
-		for (ATMTransport transport : this.allTransports) {
-			transport.communicateWithBank(null);
-		}
+    }
 
-	}
+    public void withdraw(BigDecimal bd) {
+        System.out.println("withdraw called");
+
+        for (ATMTransport transport : this.allTransports) {
+            transport.communicateWithBank(null);
+        }
+
+    }
 
 }
 }}}
 
 <p>
-In this context ambigous means more than one. Therefore, CDI found more than one possibility
-for injection if ambigous returns true. It should find three defaults.
+In this context ambiguous means more than one. Therefore, CDI found more than one possibility
+for injection if ambiguous returns true. It should find three defaults.
 </p>
 
 <p>
@@ -848,7 +847,7 @@ Your output should look like this (or something close to this).
 
 Output
 {{{
-Is this ambigous? true
+Is this ambiguous? true
 Is this unsatisfied? false
 deposit called
 communicating with bank via JSON REST transport
@@ -863,7 +862,7 @@ Note that we changed deposit to iterate through the available instances.
 
 <p>
 Now try something new comment out the *`implements ATMTransports`* in *`SuperFastAtmTransport`*, *`JsonRestAtmTransport`* and *`SoapRestAtmTransport`*.
-*`JsonRestAtmTransport`* and *`SoapRestAtmTransport`* transport class defintion should have this *`//implements ATMTransport {`*.
+*`JsonRestAtmTransport`* and *`SoapRestAtmTransport`* transport class definition should have this *`//implements ATMTransport {`*.
 </p>
 
 <p>
@@ -874,7 +873,7 @@ You get this output.
 
 *Output*
 {{{
-Is this ambigous? false
+Is this ambiguous? false
 Is this unsatisfied? false
 deposit called
 communicating with bank via Standard transport
@@ -882,14 +881,14 @@ communicating with bank via Standard transport
 
 <p>
 Since the only transport left is the standard transport (*`StandardAtmTransport`*), only it is in the output.
-The *`Instance`* is no longer ambigous, there is only one so it prints false.
+The *`Instance`* is no longer ambiguous, there is only one so it prints false.
 CDI finds the one so it is not unsatisfied.
 </p>
 
 Now comment out all of //implements ATMTransport, and you get this:
 
 {{{
-Is this ambigous? false
+Is this ambiguous? false
 Is this unsatisfied? true
 deposit called
 }}}
@@ -919,10 +918,10 @@ import javax.enterprise.inject.Any;
 ...
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject @Any 
-	private Instance<ATMTransport> allTransports;
+    @Inject @Any 
+    private Instance<ATMTransport> allTransports;
 	
-	private ATMTransport transport;
+    private ATMTransport transport;
 
        ...
 }
@@ -955,45 +954,45 @@ import javax.enterprise.inject.Any;
 ...
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject @Any 
-	private Instance<ATMTransport> allTransports;
+    @Inject @Any 
+    private Instance<ATMTransport> allTransports;
 	
-	private ATMTransport transport;
+    private ATMTransport transport;
 
-	@PostConstruct
-	protected void init() {
-		transport = allTransports.select(new AnnotationLiteral<Default>(){}).get();
-		
-		if (transport!=null) {
-			System.out.println("Found standard transport");
-			return;
-		}
-		
-		transport = allTransports.select(new AnnotationLiteral<Json>(){}).get();
+    @PostConstruct
+    protected void init() {
+        transport = allTransports.select(new AnnotationLiteral<Default>(){}).get();
 
-		
-		if (transport!=null) {
-			System.out.println("Found JSON standard transport");
-			return;
-		}
+        if (transport!=null) {
+            System.out.println("Found standard transport");
+            return;
+        }
 
-		
-		transport = allTransports.select(new AnnotationLiteral<Soap>(){}).get();
-		
-		
-		if (transport!=null) {
-			System.out.println("Found SOAP standard transport");
-			return;
-		}
-		
-	}
+        transport = allTransports.select(new AnnotationLiteral<Json>(){}).get();
+
+
+        if (transport!=null) {
+            System.out.println("Found JSON standard transport");
+            return;
+        }
+
+
+        transport = allTransports.select(new AnnotationLiteral<Soap>(){}).get();
+
+
+        if (transport!=null) {
+            System.out.println("Found SOAP standard transport");
+            return;
+        }
+
+    }
 	
 
 	public void deposit(BigDecimal bd) {
-		System.out.println("deposit called");
-		
-		transport.communicateWithBank(...);
-	}
+        System.out.println("deposit called");
+
+        transport.communicateWithBank(...);
+    }
 
        ...
 }
@@ -1031,49 +1030,49 @@ import javax.inject.Named;
 @Named("atm")
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject @Any 
-	private Instance<ATMTransport> allTransports;
+    @Inject @Any 
+    private Instance<ATMTransport> allTransports;
 	
-	private ATMTransport transport;
+    private ATMTransport transport;
 	
-	//These could be looked up in a DB, JNDI or a properties file.
-	private boolean useJSON = true;
-	private boolean behindFireWall = true;
+    //These could be looked up in a DB, JNDI or a properties file.
+    private boolean useJSON = true;
+    private boolean behindFireWall = true;
 
-	@PostConstruct
-	protected void init() {
+    @PostConstruct
+    protected void init() {
 		
-		ATMTransport soapTransport, jsonTransport, standardTransport;
+        ATMTransport soapTransport, jsonTransport, standardTransport;
 		
-		standardTransport = allTransports.select(new AnnotationLiteral<Default>(){}).get();
-		jsonTransport = allTransports.select(new AnnotationLiteral<Json>(){}).get();
-		soapTransport = allTransports.select(new AnnotationLiteral<Soap>(){}).get();
+        standardTransport = allTransports.select(new AnnotationLiteral<Default>(){}).get();
+        jsonTransport = allTransports.select(new AnnotationLiteral<Json>(){}).get();
+        soapTransport = allTransports.select(new AnnotationLiteral<Soap>(){}).get();
 
-		if (!behindFireWall) {
-			transport = standardTransport;
-		} else {
-			if (useJSON) {
-				transport = jsonTransport;
-			} else {
-				transport = soapTransport;
-			}
-		}		
-		
-	}
-	
+        if (!behindFireWall) {
+            transport = standardTransport;
+        } else {
+            if (useJSON) {
+                transport = jsonTransport;
+            } else {
+                transport = soapTransport;
+            }
+        }
 
-	public void deposit(BigDecimal bd) {
-		System.out.println("deposit called");
-		
-		transport.communicateWithBank(...);
-	}
+    }
 
-	public void withdraw(BigDecimal bd) {
-		System.out.println("withdraw called");
 
-		transport.communicateWithBank(...);
+    public void deposit(BigDecimal bd) {
+        System.out.println("deposit called");
 
-	}
+        transport.communicateWithBank(...);
+    }
+
+    public void withdraw(BigDecimal bd) {
+        System.out.println("withdraw called");
+
+        transport.communicateWithBank(...);
+
+    }
 
 }
 
@@ -1109,9 +1108,9 @@ If you used the examples, in the [http://java.dzone.com/articles/cdi-di-p1 last
 CDI DI article] or this article 
 then you used the first artifact that the CDISource organization put together.
 We plan on coming up with ways to unit test JPA outside of the container, and a few
-other things. As we find holes in the CDI armour we want to work with the community 
+other things. As we find holes in the CDI armor we want to work with the community 
 at large to fill the holes. CDI, although standard, is very new.
-We are hoping that the groundwork that CDI has layed down can get used outside of
+We are hoping that the groundwork that CDI has laid down can get used outside of
 Java EE as well as inside of Java EE (we are not anti-Java EE).
 </p>
 
