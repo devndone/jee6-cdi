@@ -5,6 +5,13 @@ wikiURL = "http://code.google.com/p/jee6-cdi/wiki/"
 f = file(sys.argv[1])
 lines = f.readlines()
 
+pagebreak = True
+
+if len (sys.argv) == 3:
+    if sys.argv[2]=="False":pagebreak = False
+    else: pagebreak = True
+    
+
 #Looks for a signature file in the local dir
 sig=file("signature.htm").read()
 
@@ -57,7 +64,7 @@ for line in lines:
         inCode=0
         print "</pre>\n"
         cl = cl +1
-        if cl % codeListingsPerPage  == 0:
+        if pagebreak and cl % codeListingsPerPage  == 0:
             print "<b>Continue reading...</b> Click on the navigation links below the author bio to read the other pages of this article."
             print sig
             print "<!--pagebreak-->"
