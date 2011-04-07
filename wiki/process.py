@@ -58,11 +58,12 @@ for line in lines:
         print "</pre>\n"
         cl = cl +1
         if cl % codeListingsPerPage  == 0:
-            print "<b>Continue reading...</b> Click on the navigation links below the author bio. to read the other pages of this article."
+            print "<b>Continue reading...</b> Click on the navigation links below the author bio to read the other pages of this article."
             print sig
             print "<!--pagebreak-->"
         continue
     if inCode:
+        line = line.replace("<", "&lt;").replace(">","&gt;")
         print line,
         continue
 

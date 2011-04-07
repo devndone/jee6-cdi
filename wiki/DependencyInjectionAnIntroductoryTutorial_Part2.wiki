@@ -10,6 +10,11 @@
 = Introduction =
 
 <p>
+CDI provides a pluggable architecture allowing you to easily process your own annotations. 
+Read this article to understand the inner workings of CDI and why this JSR is so important.
+</p>
+
+<p>
 CDI simplifies and sanitizes the API for DI and AOP like JPA did for ORMs. 
 Through its use of *`Instance`*  and @*`Produces`*,
 CDI provides a pluggable architecture. This is a jaw dropping killer feature of CDI.
@@ -1029,24 +1034,26 @@ import javax.inject.Named;
 
 @Named("atm")
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
-	
-    @Inject @Any 
+
+    @Inject @Any
     private Instance<ATMTransport> allTransports;
-	
     private ATMTransport transport;
-	
-    //These could be looked up in a DB, JNDI or a properties file.
+
     private boolean useJSON = true;
     private boolean behindFireWall = true;
 
+    @SuppressWarnings("serial")
     @PostConstruct
     protected void init() {
-		
+
         ATMTransport soapTransport, jsonTransport, standardTransport;
-		
-        standardTransport = allTransports.select(new AnnotationLiteral<Default>(){}).get();
-        jsonTransport = allTransports.select(new AnnotationLiteral<Json>(){}).get();
-        soapTransport = allTransports.select(new AnnotationLiteral<Soap>(){}).get();
+        standardTransport = allTransports.select(new AnnotationLiteral<Soap>() {}).get();
+        jsonTransport = allTransports.select(new AnnotationLiteral<Json>() {}).get();
+        soapTransport = allTransports.select(new AnnotationLiteral<Default>() {}).get();
+
+        System.out.println(standardTransport.getClass().getName());
+        System.out.println(jsonTransport.getClass().getName());
+        System.out.println(soapTransport.getClass().getName());
 
         if (!behindFireWall) {
             transport = standardTransport;
@@ -1057,25 +1064,22 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
                 transport = soapTransport;
             }
         }
-
     }
 
-
     public void deposit(BigDecimal bd) {
-        System.out.println("deposit called");
+        System.out.println("withdraw called");
+        transport.communicateWithBank(null);
 
-        transport.communicateWithBank(...);
     }
 
     public void withdraw(BigDecimal bd) {
         System.out.println("withdraw called");
 
-        transport.communicateWithBank(...);
+        transport.communicateWithBank(null);
 
     }
 
 }
-
 }}}
 
 <p>
