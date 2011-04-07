@@ -20,9 +20,9 @@ class MatchReplace:
             line = line.replace(match.group(0), self.template % match.group(2))
         return line
 
-boldMR = MatchReplace(r"""(\*)([\w.,!?;"'\-/{} ]+)(\*)""", "<b>%s</b>")
-codeMR = MatchReplace(r"""(`)([\w.,!?;"'\-/{} ]+)(`)""", "<code>%s</code>")
-boldCodeMR = MatchReplace(r"""(\*`)([\w.,!?;"'\-/{} ]+)(`\*)""", "<b><code>%s</code></b>")
+boldMR = MatchReplace(r"""(\*)([\w.,!?;"'\-/{} @]+)(\*)""", "<b>%s</b>")
+codeMR = MatchReplace(r"""(`)([\w.,!?;"'\-/{} @]+)(`)""", "<code>%s</code>")
+boldCodeMR = MatchReplace(r"""(\*`)([\w.,!?;"'\-/{} @]+)(`\*)""", "<b><code>%s</code></b>")
 
 matcherReplacers = [boldCodeMR, boldMR, codeMR]
 
