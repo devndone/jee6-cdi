@@ -167,9 +167,9 @@ import java.math.BigDecimal;
 
 public interface AutomatedTellerMachine {
 
-	public abstract void deposit(BigDecimal bd);
+    public abstract void deposit(BigDecimal bd);
 
-	public abstract void withdraw(BigDecimal bd);
+    public abstract void withdraw(BigDecimal bd);
 
 }
 }}}
@@ -179,7 +179,7 @@ public interface AutomatedTellerMachine {
 package org.cdi.advocacy;
 
 public interface ATMTransport {
-	public void communicateWithBank(byte[] datapacket);
+    public void communicateWithBank(byte[] datapacket);
 }
 }}}
 
@@ -200,18 +200,18 @@ package org.cdi.advocacy;
 ...
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	private ATMTransport transport;
+    private ATMTransport transport;
 	
         ...
-	public void deposit(BigDecimal bd) {
-		System.out.println("deposit called");
-		transport.communicateWithBank(...);
-	}
+    public void deposit(BigDecimal bd) {
+        System.out.println("deposit called");
+        transport.communicateWithBank(...);
+    }
 
-	public void withdraw(BigDecimal bd) {
-		System.out.println("withdraw called");
-		transport.communicateWithBank(...);
-	}
+    public void withdraw(BigDecimal bd) {
+        System.out.println("withdraw called");
+        transport.communicateWithBank(...);
+    }
 
 }
 
@@ -232,10 +232,10 @@ package org.cdi.advocacy;
 
 public class StandardAtmTransport implements ATMTransport {
 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via Standard transport");
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via Standard transport");
                 ...
-	}
+    }
 
 }
 }}}
@@ -246,10 +246,10 @@ package org.cdi.advocacy;
 
 public class SoapAtmTransport implements ATMTransport {
 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via Soap transport");
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via Soap transport");
                 ...
-	}
+    }
 
 }
 
@@ -262,9 +262,9 @@ package org.cdi.advocacy;
 
 public class JsonRestAtmTransport implements ATMTransport {
 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via JSON REST transport");
-	}
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via JSON REST transport");
+    }
 
 }
 }}}
@@ -385,12 +385,12 @@ import javax.inject.Inject;
 
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	private ATMTransport transport;
+    private ATMTransport transport;
 
-	@Inject
-	public void setTransport(ATMTransport transport) {
-		this.transport = transport;
-	}
+    @Inject
+    public void setTransport(ATMTransport transport) {
+        this.transport = transport;
+    }
 
        ...
 
@@ -524,13 +524,13 @@ public class AtmMain {
         ...
         ...
 
-	public static void main(String[] args) throws Exception {
-		AutomatedTellerMachine atm = (AutomatedTellerMachine) beanContainer
-				.getBeanByName("atm");
+    public static void main(String[] args) throws Exception {
+        AutomatedTellerMachine atm = (AutomatedTellerMachine) beanContainer
+                .getBeanByName("atm");
 
-		atm.deposit(new BigDecimal("1.00"));
+        atm.deposit(new BigDecimal("1.00"));
 
-	}
+    }
 
 }
 }}}
@@ -612,8 +612,8 @@ Here is an example of field injections:
 ...
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject
-	private ATMTransport transport;
+    @Inject
+    private ATMTransport transport;
 
 }}}
 
@@ -624,10 +624,10 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 ...
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject 
-	public AutomatedTellerMachineImpl(ATMTransport transport) {
-		this.transport = transport;
-	}
+    @Inject 
+    public AutomatedTellerMachineImpl(ATMTransport transport) {
+        this.transport = transport;
+    }
 
 }}}
 
@@ -637,7 +637,7 @@ This flexibility allows you to create classes that are easy to unit test.
 
 <p>
 There are times when the creation of an object may be complex.
-Instead of relying on a constructor, you can delegage to a factory class to 
+Instead of relying on a constructor, you can delegate to a factory class to 
 create the instance. To do this with CDI, you would use the @Produces from 
 your factory class as follows:
 </p>
@@ -650,11 +650,11 @@ package org.cdi.advocacy;
 import javax.enterprise.inject.Produces;
 
 public class TransportFactory {
-		
-	@Produces ATMTransport createTransport() {
-		System.out.println("ATMTransport created with producer");
-		return new StandardAtmTransport();
-	}
+
+    @Produces ATMTransport createTransport() {
+        System.out.println("ATMTransport created with producer");
+        return new StandardAtmTransport();
+    }
 
 }
 }}}
@@ -674,8 +674,8 @@ import javax.inject.Named;
 @Named("atm")
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject
-	private ATMTransport transport;
+    @Inject
+    private ATMTransport transport;
         ...
 }}}
 
@@ -708,9 +708,9 @@ If I need to install a different transport, all I need to do is change the /META
 	xsi:schemaLocation="
 http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
-	<alternatives>
-		<class>org.cdi.advocacy.JsonRestAtmTransport</class>
-	</alternatives>
+    <alternatives>
+        <class>org.cdi.advocacy.JsonRestAtmTransport</class>
+    </alternatives>
 </beans>
 }}}
 <p>
@@ -732,25 +732,25 @@ Alternatives allow you to mark objects that are replacements for other objects a
 <p>
 If the DI container can have alternatives, let's mark them as alternatives.
 Think about it this way. I don't have to document all of the alternatives as much. 
-It is self documenitng. If someone knows CDI and they know about Alternatives they will not be surprised.
-Alternatives really canoncalizes the way you select an Alternative.
+It is self documenting. If someone knows CDI and they know about Alternatives they will not be surprised.
+Alternatives really canonicalizes the way you select an Alternative.
 </p>
 
 <p>
 You can think of CDI as a canonicalization of many patterns that we have been using with more general purpose DI frameworks.
-The simplifcation and canonicalization is part of the evoluiton of DI.
+The simplification and canonicalization is part of the evolution of DI.
 </p>
 
 == Code Listing: Using @Qualifier to inject different types==
 
 <p>
-All objects and producers in CDI have qualifiers. If you do not assign a qaulifier
+All objects and producers in CDI have qualifiers. If you do not assign a qualifier
 it by default has the qualifier *`@Default`* and *`@Any`*. It is like a TV crime show
 in the U.S., if you do not have money for a lawyer, you will be assigned one.
 </p>
 
 <p>
-Qualifiers can be used to discriminate exaclty what gets injected.
+Qualifiers can be used to discriminate exactly what gets injected.
 You can write custom qualifiers.
 </p>
 
@@ -807,10 +807,10 @@ package org.cdi.advocacy;
 @Soap
 public class SoapAtmTransport implements ATMTransport {
 
-	@Override 
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via Soap transport");
-	}
+    @Override 
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via Soap transport");
+    }
 
 }
 }}}
@@ -822,12 +822,12 @@ argument to the constructor as follows:
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	private ATMTransport transport;
+    private ATMTransport transport;
 
-	@Inject 
-	public AutomatedTellerMachineImpl(@Soap ATMTransport transport) {
-		this.transport = transport;
-	}
+    @Inject 
+    public AutomatedTellerMachineImpl(@Soap ATMTransport transport) {
+        this.transport = transport;
+    }
 
 }}}
 
@@ -838,12 +838,12 @@ You could also choose to do this via the setter method for the property as follo
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	private ATMTransport transport;
+    private ATMTransport transport;
 
-	@Inject 
-	public void setTransport(@Soap ATMTransport transport) {
-		this.transport = transport;
-	}
+    @Inject 
+    public void setTransport(@Soap ATMTransport transport) {
+        this.transport = transport;
+    }
 }}}
 
 And a very common option is to use a field level injection as follows:
@@ -852,8 +852,8 @@ And a very common option is to use a field level injection as follows:
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject @Soap
-	private ATMTransport transport;
+    @Inject @Soap
+    private ATMTransport transport;
 
 }}}
 
@@ -897,45 +897,45 @@ import javax.inject.Named;
 @Named("atm")
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	private ATMTransport transport;
+    private ATMTransport transport;
 	
-	@Inject @Soap
-	private ATMTransport soapTransport;
+    @Inject @Soap
+    private ATMTransport soapTransport;
 	
-	@Inject @Json
-	private ATMTransport jsonTransport;
+    @Inject @Json
+    private ATMTransport jsonTransport;
 	
-	@Inject @Json
-	private ATMTransport standardTransport;
+    @Inject @Json
+    private ATMTransport standardTransport;
 
 	
-	//These could be looked up in a DB, JNDI or a properties file.
-	private boolean useJSON = true;
-	private boolean behindFireWall = true;
+    //These could be looked up in a DB, JNDI or a properties file.
+    private boolean useJSON = true;
+    private boolean behindFireWall = true;
 
-	@PostConstruct
-	protected void init() {
+    @PostConstruct
+    protected void init() {
                 //Look up values for useJSON and behindFireWall		
 
-		if (!behindFireWall) {
-			transport = standardTransport;
-		} else {
-			if (useJSON) {
-				transport = jsonTransport;
-			} else {
-				transport = soapTransport;
-			}
-		}
-				
-	}
+        if (!behindFireWall) {
+            transport = standardTransport;
+        } else {
+            if (useJSON) {
+                transport = jsonTransport;
+            } else {
+                transport = soapTransport;
+            }
+        }
+
+    }
 	
 
-	public void deposit(BigDecimal bd) {
-		System.out.println("deposit called");
+    public void deposit(BigDecimal bd) {
+        System.out.println("deposit called");
+
 		
-		
-		transport.communicateWithBank(null);
-	}
+        transport.communicateWithBank(null);
+    }
 
        ...
 }
@@ -974,28 +974,28 @@ import javax.enterprise.inject.Produces;
 
 public class TransportFactory {
 	
-	private boolean useJSON = true;
-	private boolean behindFireWall = true;
+    private boolean useJSON = true;
+    private boolean behindFireWall = true;
 
 	
-	@Produces ATMTransport createTransport() {
-		//Look up config parameters in some config file or LDAP server or database
+    @Produces ATMTransport createTransport() {
+        //Look up config parameters in some config file or LDAP server or database
 
-		System.out.println("ATMTransport created with producer makes decisions");
-		
-		if (behindFireWall) {
-			if (useJSON) {
-				System.out.println("Created JSON transport");
-				return new JsonRestAtmTransport();
-			} else {
-				System.out.println("Created SOAP transport");
-				return new SoapAtmTransport();
-			}
-		} else {
-			System.out.println("Created Standard transport");
-			return new StandardAtmTransport();
-		}
-	}
+        System.out.println("ATMTransport created with producer makes decisions");
+        
+        if (behindFireWall) {
+            if (useJSON) {
+                System.out.println("Created JSON transport");
+                return new JsonRestAtmTransport();
+            } else {
+                System.out.println("Created SOAP transport");
+                return new SoapAtmTransport();
+            }
+        } else {
+            System.out.println("Created Standard transport");
+            return new StandardAtmTransport();
+        }
+    }
 
 }
 
@@ -1003,7 +1003,7 @@ public class TransportFactory {
 
 <p>
 The advantage of this approach is that the logic to do the creation, 
-is seperate from the actual *`AutomatedTellerMachineImpl`* code. 
+is separate from the actual *`AutomatedTellerMachineImpl`* code. 
 </p>
 
 <p>
@@ -1038,28 +1038,28 @@ import javax.enterprise.inject.Produces;
 
 public class TransportFactory {
 	
-	private boolean useJSON = true;
-	private boolean behindFireWall = true;
+    private boolean useJSON = true;
+    private boolean behindFireWall = true;
 
 	
-	@Produces ATMTransport createTransport(	@Soap ATMTransport soapTransport, 
-						@Json ATMTransport jsonTransport) {
-		//Look up config parameters in some config file
-		System.out.println("ATMTransport created with producer makes decisions");
-		
-		if (behindFireWall) {
-			if (useJSON) {
-				System.out.println("return passed JSON transport");
-				return jsonTransport;
-			} else {
-				System.out.println("return passed SOAP transport");
-				return soapTransport;
-			}
-		} else {
-			System.out.println("Create Standard transport");
-			return new StandardAtmTransport();
-		}
-	}
+    @Produces ATMTransport createTransport(	@Soap ATMTransport soapTransport, 
+                        @Json ATMTransport jsonTransport) {
+        //Look up config parameters in some config file
+        System.out.println("ATMTransport created with producer makes decisions");
+
+        if (behindFireWall) {
+            if (useJSON) {
+                System.out.println("return passed JSON transport");
+                return jsonTransport;
+            } else {
+                System.out.println("return passed SOAP transport");
+                return soapTransport;
+            }
+        } else {
+            System.out.println("Create Standard transport");
+            return new StandardAtmTransport();
+        }
+    }
 
 }
 
@@ -1149,9 +1149,9 @@ package org.cdi.advocacy;
 
 @SuperFast @StandardFrameRelaySwitchingFlubber 
 public class SuperFastAtmTransport implements ATMTransport {
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via the Super Fast transport " );
-	}
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via the Super Fast transport " );
+    }
 }
 
 }}}
@@ -1166,9 +1166,9 @@ package org.cdi.advocacy;
 
 @StandardFrameRelaySwitchingFlubber @Default
 public class StandardAtmTransport implements ATMTransport {
-	public void communicateWithBank(byte[] datapacket) {
-		System.out.println("communicating with bank via Standard transport");
-	}
+    public void communicateWithBank(byte[] datapacket) {
+        System.out.println("communicating with bank via Standard transport");
+    }
 
 }
 
@@ -1183,8 +1183,8 @@ use both in the injection target as follows:
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject @SuperFast @StandardFrameRelaySwitchingFlubber
-	private ATMTransport transport;
+    @Inject @SuperFast @StandardFrameRelaySwitchingFlubber
+    private ATMTransport transport;
        ...
 }}}
 
@@ -1250,7 +1250,7 @@ import javax.inject.Qualifier;
 
 @Qualifier @Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
 public @interface Transport {
-	TransportType type() default TransportType.STANDARD;
+    TransportType type() default TransportType.STANDARD;
 }
 
 }}}
@@ -1261,7 +1261,7 @@ Here is the new enum that is part of the *`TransportType`*.
 package org.cdi.advocacy;
 
 public enum TransportType {
-	JSON, SOAP, STANDARD;
+    JSON, SOAP, STANDARD;
 }
 }}}
 
@@ -1303,8 +1303,8 @@ public class JsonRestAtmTransport implements ATMTransport {
 @Named("atm")
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
-	@Inject @Transport(type=TransportType.STANDARD)
-	private ATMTransport transport;
+    @Inject @Transport(type=TransportType.STANDARD)
+    private ATMTransport transport;
 
 }}}
 
@@ -1334,8 +1334,8 @@ import javax.inject.Qualifier;
 
 @Qualifier @Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
 public @interface Transport {
-	TransportType type() default TransportType.STANDARD;
-	int priorityLevel() default -1;
+    TransportType type() default TransportType.STANDARD;
+    int priorityLevel() default -1;
 }
 
 }}}
@@ -1350,8 +1350,8 @@ If we had a transport like so:
 {{{
 public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 	
-	@Inject @Transport(type=TransportType.STANDARD, priorityLevel=1)
-	private ATMTransport transport;
+    @Inject @Transport(type=TransportType.STANDARD, priorityLevel=1)
+    private ATMTransport transport;
 
 
 }}}
@@ -1424,6 +1424,7 @@ This is just a brief taste. There is more to come.
 
 
 = Resources =
+ * [http://java.dzone.com/articles/cdi-di-p2 Part 2 plugins and annotation processing]
  * [http://sites.google.com/site/cdipojo/ CDI advocacy group]
  * [http://cdi4jadvocate.blogspot.com/ CDI advocacy blog]
  * [http://code.google.com/p/jee6-cdi/ CDI advocacy google code project]
@@ -1435,7 +1436,7 @@ This is just a brief taste. There is more to come.
  * [http://www.andygibson.net/blog/tutorial/getting-started-with-jsf-2-0-and-cdi-in-jee-6-part-1/ CDI & JSF Part 1 Intro by Andy Gibson]
  * [http://www.andygibson.net/blog/tutorial/getting-started-with-cdi-part-2-injection/ CDI & JSF Part 2 Intro by Andy Gibson]
  * [http://www.andygibson.net/blog/tutorial/getting-started-with-jsf-2-0-and-cdi-part-3/ CDI & JSF Part 3 Intro by Andy Gibson]
- 
+
 
  = About the Author =
  This article was written with CDI advocacy in mind by [https://profiles.google.com/RichardHightower/about Rick Hightower]
