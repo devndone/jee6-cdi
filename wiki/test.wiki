@@ -92,3 +92,12 @@ bold
 *`Whisky.tango-rango.dango`*
 *`Whisky.tango.rango.dango?,.!;'"`*
 
+*`Whisky.tango.rango.dango?,.!;'"{}/ `*
+
+*`Whisky.tango.rango.dango/foo/bar`*
+*`Whisky.tango.rango.dango{foo}bar`*
+
+*Whisky.tango.rango.dango?,.!;'"{}/ *
+`Whisky.tango.rango.dango?,.!;'"{}/ `
+
+
