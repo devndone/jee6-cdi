@@ -4,7 +4,7 @@
 
 Notes on how to combine Spring with CDI
 
-= Details =
+= Using Roo to setup the sample project =
 
 I created a simple application in Roo that generated one Task entity as follows:
 
@@ -296,4 +296,317 @@ public class Task {
 
 }}}
 
+
+At this point the webapp runs.
+
+I also wrote a simplified unit test for the TaskRepository:
+
+{{{
+package org.cdisource.springapp;
+
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
+import org.cdisource.testing.junit.CdiTestRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+import org.junit.runner.RunWith;
+
+
+
+@Configurable
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "classpath:/META-INF/spring/testApplicationContext.xml")
+@Transactional
+public class TaskRepositoryTest {
+
+	@Autowired
+	private TaskRepository taskRepository;
+
+	@Test
+    public void testCrud() {
+		Task task = new Task();
+		task.setDone(true);
+		task.setTitle("love rockets");
+		taskRepository.persist(task);
+		taskRepository.flush();
+		List<Task> findAllTasks = taskRepository.findAllTasks();
+		assertEquals(1, findAllTasks.size());
+		taskRepository.remove(task);
+		taskRepository.flush();
+		List<Task> findAllTasks2 = taskRepository.findAllTasks();
+		assertEquals(0, findAllTasks2.size());
+    }
+
+}
+
+}}}
+
+
 == Using CDI for the TaskRepository instead of Spring ==
+
+I added these to the pom.xml
+
+==== {projecthome}/pom.xml ====
+{{{
+...
+	<repositories>
+        ...
+        <repository>
+            <id>caucho.maven.repo</id>
+            <name>Caucho Repository</name>
+            <url>http://caucho.com/m2</url>
+        </repository>
+        <repository>
+            <id>caucho.maven.repo.snapshot</id>
+            <name>Caucho Repository</name>
+            <url>http://caucho.com/m2-snapshot</url>
+        </repository>
+        <repository>
+			<id>java.net</id>
+			<name>java.net Repository</name>
+			<url>http://download.java.net/maven/2</url>
+		</repository>
+    </repositories>
+...
+
+	<dependencies>
+	
+		<dependency>
+            <groupId>org.cdisource.beancontainer</groupId>
+    		<artifactId>beancontainer-api</artifactId>
+    		<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+            <groupId>org.cdisource.beancontainer</groupId>
+    		<artifactId>beancontainer-resin-impl</artifactId>
+    		<version>1.0-SNAPSHOT</version>
+    		<scope>test</scope>
+		</dependency>
+        <dependency>
+        	<groupId>org.cdisource.testing</groupId>
+			<artifactId>cdisource-testing-junit</artifactId>
+			<version>1.0-SNAPSHOT</version>
+        	<scope>test</scope>
+        </dependency>
+...
+}}}
+
+
+The beancontainer-resin-impl is not needed at this point. 
+I was using it in a failed attempt to add a unit test for the new TaskRepository.
+
+The next step is to CDIify the TaskRespository as follows:
+
+{{{
+package org.cdisource.springapp;
+
+import java.util.List;
+
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+@Singleton @Startup 
+public class TaskRepository {
+	
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    
+    public void persist(Task task) {
+        if (this.entityManager == null) this.entityManager = entityManager();
+        this.entityManager.persist(task);
+    }
+    
+    public void remove(Task task) {
+        if (this.entityManager == null) this.entityManager = entityManager();
+        if (this.entityManager.contains(task)) {
+            this.entityManager.remove(task);
+        } else {
+            Task attached = this.findTask(task.getId());
+            this.entityManager.remove(attached);
+        }
+    }
+    
+    public void flush() {
+        if (this.entityManager == null) this.entityManager = entityManager();
+        this.entityManager.flush();
+    }
+    
+    public void clear() {
+        if (this.entityManager == null) this.entityManager = entityManager();
+        this.entityManager.clear();
+    }
+    
+    public Task merge(Task task) {
+        if (this.entityManager == null) this.entityManager = entityManager();
+        Task merged = this.entityManager.merge(task);
+        this.entityManager.flush();
+        return merged;
+    }
+    
+    public final EntityManager entityManager() {
+    	return this.entityManager;
+    }
+    
+    public  long countTasks() {
+        return entityManager().createQuery("select count(o) from Task o", Long.class).getSingleResult();
+    }
+    
+    public  List<Task> findAllTasks() {
+        return entityManager().createQuery("select o from Task o", Task.class).getResultList();
+    }
+    
+    public  Task findTask(Long id) {
+        if (id == null) return null;
+        return entityManager().find(Task.class, id);
+    }
+    
+    public  List<Task> findTaskEntries(int firstResult, int maxResults) {
+        return entityManager().createQuery("select o from Task o", Task.class).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
+    }
+
+}
+
+}}}
+
+Notice the removal of the Spring annotations and the addition of the CDI annotations.
+
+Then to make this bean recognizable by Spring I added the following:
+
+{{{
+
+package org.cdisource.springapp;
+
+import javax.enterprise.inject.spi.BeanManager;
+import javax.naming.InitialContext;
+
+import org.springframework.beans.factory.FactoryBean;
+import org.cdisource.beancontainer.BeanContainer;
+import org.cdisource.beancontainer.BeanContainerImpl;
+import org.cdisource.beancontainer.BeanContainerInitializationException;
+
+public class TaskRepositoryFactoryBean implements FactoryBean<TaskRepository> {
+
+	private BeanContainer beanContainer = null;
+	private final String BEAN_MANAGER_LOCATION = "java:comp/BeanManager";
+
+	
+	@Override
+	public TaskRepository getObject() throws Exception {
+
+		if (beanContainer==null) {
+			InitialContext ic = new InitialContext();
+			Object bean = null;
+			try {
+				bean = ic.lookup(BEAN_MANAGER_LOCATION);
+			} catch (Exception e) {
+				throw new BeanContainerInitializationException("Unable to lookup BeanManager instance in JNDI", e);
+			}
+			if (bean == null) {
+				throw new BeanContainerInitializationException(
+						"Null value returned when looking up the BeanManager from JNDI");
+			}
+			if (bean instanceof BeanManager) {
+				beanContainer = new BeanContainerImpl((BeanManager)bean);
+			} else {
+				String msg = "Looked up JNDI Bean is not a BeanManager instance, bean type is " + bean.getClass().getName();
+				throw new BeanContainerInitializationException(msg);
+			}
+		}
+		return beanContainer.getBeanByType(TaskRepository.class);
+	}
+
+	@Override
+	public Class<?> getObjectType() {
+		return TaskRepository.class;
+	}
+
+	@Override
+	public boolean isSingleton() {
+		return true;
+	}
+
+}
+
+
+}}}
+
+Note that I added a new constructor to the BeanContainerImpl to make the above possible.
+
+{{{
+package org.cdisource.beancontainer;
+
+import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Inject;
+
+public class BeanContainerImpl extends AbstractBeanContainer {
+    @Inject protected BeanManager manager;
+    
+    public BeanContainerImpl() {
+    	
+    }
+    
+    public BeanContainerImpl(BeanManager manager) {
+    	this.manager = manager;
+    }
+
+...
+}
+
+}}}
+
+I had some troubles getting the unit test to work. The app does work. 
+The unit test is as follows:
+
+{{{
+package org.cdisource.springapp;
+
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.cdisource.testing.junit.CdiTestRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+
+
+@RunWith(CdiTestRunner.class)
+public class TaskRepositoryTest {
+
+	@Inject
+	private TaskRepository taskRepository;
+
+	@Test
+    public void testCrud() {
+		Task task = new Task();
+		task.setDone(true);
+		task.setTitle("love rockets");
+		taskRepository.persist(task);
+		taskRepository.flush();
+		List<Task> findAllTasks = taskRepository.findAllTasks();
+		assertEquals(1, findAllTasks.size());
+		taskRepository.remove(task);
+		taskRepository.flush();
+		List<Task> findAllTasks2 = taskRepository.findAllTasks();
+		assertEquals(0, findAllTasks2.size());
+    }
+
+}
+
+}}}
+
