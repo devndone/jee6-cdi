@@ -26,28 +26,22 @@ package org.cdisource.springapp;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@Transactional
 public class TaskRepository {
 	
     @PersistenceContext
     private EntityManager entityManager;
 
     
-    @Transactional
     public void persist(Task task) {
-        if (this.entityManager == null) this.entityManager = entityManager();
         this.entityManager.persist(task);
     }
     
-    @Transactional
     public void remove(Task task) {
-        if (this.entityManager == null) this.entityManager = entityManager();
         if (this.entityManager.contains(task)) {
             this.entityManager.remove(task);
         } else {
@@ -56,45 +50,35 @@ public class TaskRepository {
         }
     }
     
-    @Transactional
     public void flush() {
-        if (this.entityManager == null) this.entityManager = entityManager();
         this.entityManager.flush();
     }
     
-    @Transactional
     public void clear() {
-        if (this.entityManager == null) this.entityManager = entityManager();
         this.entityManager.clear();
     }
     
-    @Transactional
     public Task merge(Task task) {
-        if (this.entityManager == null) this.entityManager = entityManager();
         Task merged = this.entityManager.merge(task);
         this.entityManager.flush();
         return merged;
     }
-    
-    public final EntityManager entityManager() {
-    	return this.entityManager;
-    }
-    
+        
     public  long countTasks() {
-        return entityManager().createQuery("select count(o) from Task o", Long.class).getSingleResult();
+        return entityManager.createQuery("select count(o) from Task o", Long.class).getSingleResult();
     }
     
     public  List<Task> findAllTasks() {
-        return entityManager().createQuery("select o from Task o", Task.class).getResultList();
+        return entityManager.createQuery("select o from Task o", Task.class).getResultList();
     }
     
     public  Task findTask(Long id) {
         if (id == null) return null;
-        return entityManager().find(Task.class, id);
+        return entityManager.find(Task.class, id);
     }
     
     public  List<Task> findTaskEntries(int firstResult, int maxResults) {
-        return entityManager().createQuery("select o from Task o", Task.class).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
+        return entityManager.createQuery("select o from Task o", Task.class).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
     }
 
 }
@@ -130,89 +114,113 @@ import org.springframework.validation.BindingResult;
 @RequestMapping("/tasks")
 @Controller
 public class TaskController {
-	
+
 	@Autowired
 	TaskRepository repo;
-    
-    @RequestMapping(method = RequestMethod.POST)
-    public String create(@Valid Task task, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
-        if (bindingResult.hasErrors()) {
-            uiModel.addAttribute("task", task);
-            return "tasks/create";
-        }
-        uiModel.asMap().clear();
-        repo.persist(task);
-        return "redirect:/tasks/" + encodeUrlPathSegment(task.getId().toString(), httpServletRequest);
-    }
-    
-    @RequestMapping(params = "form", method = RequestMethod.GET)
-    public String createForm(Model uiModel) {
-        uiModel.addAttribute("task", new Task());
-        return "tasks/create";
-    }
-    
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public String show(@PathVariable("id") Long id, Model uiModel) {
-        uiModel.addAttribute("task", repo.findTask(id));
-        uiModel.addAttribute("itemId", id);
-        return "tasks/show";
-    }
-    
-    @RequestMapping(method = RequestMethod.GET)
-    public String list(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) {
-        if (page != null || size != null) {
-            int sizeNo = size == null ? 10 : size.intValue();
-            uiModel.addAttribute("tasks", repo.findTaskEntries(page == null ? 0 : (page.intValue() - 1) * sizeNo, sizeNo));
-            float nrOfPages = (float) repo.countTasks() / sizeNo;
-            uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages));
-        } else {
-            uiModel.addAttribute("tasks", repo.findAllTasks());
-        }
-        return "tasks/list";
-    }
-    
-    @RequestMapping(method = RequestMethod.PUT)
-    public String update(@Valid Task task, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
-        if (bindingResult.hasErrors()) {
-            uiModel.addAttribute("task", task);
-            return "tasks/update";
-        }
-        uiModel.asMap().clear();
-        repo.merge(task);
-        return "redirect:/tasks/" + encodeUrlPathSegment(task.getId().toString(), httpServletRequest);
-    }
-    
-    @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
-    public String updateForm(@PathVariable("id") Long id, Model uiModel) {
-        uiModel.addAttribute("task", repo.findTask(id));
-        return "tasks/update";
-    }
-    
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public String delete(@PathVariable("id") Long id, @RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) {
-        repo.remove(repo.findTask(id));
-        uiModel.asMap().clear();
-        uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
-        uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
-        return "redirect:/tasks";
-    }
-    
-    @ModelAttribute("tasks")
-    public Collection<Task> populateTasks() {
-        return repo.findAllTasks();
-    }
-    
-    String encodeUrlPathSegment(String pathSegment, HttpServletRequest httpServletRequest) {
-        String enc = httpServletRequest.getCharacterEncoding();
-        if (enc == null) {
-            enc = WebUtils.DEFAULT_CHARACTER_ENCODING;
-        }
-        try {
-            pathSegment = UriUtils.encodePathSegment(pathSegment, enc);
-        }
-        catch (UnsupportedEncodingException uee) {}
-        return pathSegment;
-    }
+
+	@RequestMapping(method = RequestMethod.POST)
+	public String create(@Valid Task task, BindingResult bindingResult,
+			Model uiModel, HttpServletRequest httpServletRequest) {
+
+		if (bindingResult.hasErrors()) {
+			uiModel.addAttribute("task", task);
+			return "tasks/create";
+		}
+
+		System.out.println("HERE 1");
+		uiModel.asMap().clear();
+		System.out.println("HERE 2");
+		task = repo.merge(task);
+		System.out.println("HERE 3");
+
+		return "redirect:/tasks/"
+				+ encodeUrlPathSegment(task.getId().toString(),
+						httpServletRequest);
+
+	}
+
+	@RequestMapping(params = "form", method = RequestMethod.GET)
+	public String createForm(Model uiModel) {
+		uiModel.addAttribute("task", new Task());
+		return "tasks/create";
+	}
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public String show(@PathVariable("id") Long id, Model uiModel) {
+		uiModel.addAttribute("task", repo.findTask(id));
+		uiModel.addAttribute("itemId", id);
+		return "tasks/show";
+	}
+
+	@RequestMapping(method = RequestMethod.GET)
+	public String list(
+			@RequestParam(value = "page", required = false) Integer page,
+			@RequestParam(value = "size", required = false) Integer size,
+			Model uiModel) {
+		if (page != null || size != null) {
+			int sizeNo = size == null ? 10 : size.intValue();
+			uiModel.addAttribute("tasks", repo.findTaskEntries(page == null ? 0
+					: (page.intValue() - 1) * sizeNo, sizeNo));
+			float nrOfPages = (float) repo.countTasks() / sizeNo;
+			uiModel.addAttribute(
+					"maxPages",
+					(int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
+							: nrOfPages));
+		} else {
+			uiModel.addAttribute("tasks", repo.findAllTasks());
+		}
+		return "tasks/list";
+	}
+
+	@RequestMapping(method = RequestMethod.PUT)
+	public String update(@Valid Task task, BindingResult bindingResult,
+			Model uiModel, HttpServletRequest httpServletRequest) {
+		if (bindingResult.hasErrors()) {
+			uiModel.addAttribute("task", task);
+			return "tasks/update";
+		}
+		uiModel.asMap().clear();
+		repo.merge(task);
+		return "redirect:/tasks/"
+				+ encodeUrlPathSegment(task.getId().toString(),
+						httpServletRequest);
+	}
+
+	@RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
+	public String updateForm(@PathVariable("id") Long id, Model uiModel) {
+		uiModel.addAttribute("task", repo.findTask(id));
+		return "tasks/update";
+	}
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+	public String delete(@PathVariable("id") Long id,
+			@RequestParam(value = "page", required = false) Integer page,
+			@RequestParam(value = "size", required = false) Integer size,
+			Model uiModel) {
+		repo.remove(repo.findTask(id));
+		uiModel.asMap().clear();
+		uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
+		uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
+		return "redirect:/tasks";
+	}
+
+	@ModelAttribute("tasks")
+	public Collection<Task> populateTasks() {
+		return repo.findAllTasks();
+	}
+
+	String encodeUrlPathSegment(String pathSegment,
+			HttpServletRequest httpServletRequest) {
+		String enc = httpServletRequest.getCharacterEncoding();
+		if (enc == null) {
+			enc = WebUtils.DEFAULT_CHARACTER_ENCODING;
+		}
+		try {
+			pathSegment = UriUtils.encodePathSegment(pathSegment, enc);
+		} catch (UnsupportedEncodingException uee) {
+		}
+		return pathSegment;
+	}
 }
 
 }}}
@@ -224,14 +232,14 @@ package org.cdisource.springapp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Configurable;
 
+@Configurable
 @Entity
 public class Task {
 
@@ -239,9 +247,6 @@ public class Task {
     private String title;
 
     private Boolean done;
-    
-    @PersistenceContext
-    transient EntityManager entityManager;
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -297,7 +302,7 @@ public class Task {
 }}}
 
 
-At this point the webapp runs.
+At this point the webapp runs. You can create tasks and list them.
 
 I also wrote a simplified unit test for the TaskRepository:
 
@@ -410,13 +415,11 @@ The next step is to CDIify the TaskRespository as follows:
 package org.cdisource.springapp;
 
 import java.util.List;
-
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-@Singleton @Startup 
+@Stateless
 public class TaskRepository {
 	
     @PersistenceContext
@@ -424,12 +427,10 @@ public class TaskRepository {
 
     
     public void persist(Task task) {
-        if (this.entityManager == null) this.entityManager = entityManager();
         this.entityManager.persist(task);
     }
     
     public void remove(Task task) {
-        if (this.entityManager == null) this.entityManager = entityManager();
         if (this.entityManager.contains(task)) {
             this.entityManager.remove(task);
         } else {
@@ -439,48 +440,42 @@ public class TaskRepository {
     }
     
     public void flush() {
-        if (this.entityManager == null) this.entityManager = entityManager();
         this.entityManager.flush();
     }
     
     public void clear() {
-        if (this.entityManager == null) this.entityManager = entityManager();
         this.entityManager.clear();
     }
     
     public Task merge(Task task) {
-        if (this.entityManager == null) this.entityManager = entityManager();
         Task merged = this.entityManager.merge(task);
         this.entityManager.flush();
         return merged;
     }
-    
-    public final EntityManager entityManager() {
-    	return this.entityManager;
-    }
-    
+        
     public  long countTasks() {
-        return entityManager().createQuery("select count(o) from Task o", Long.class).getSingleResult();
+        return entityManager.createQuery("select count(o) from Task o", Long.class).getSingleResult();
     }
     
     public  List<Task> findAllTasks() {
-        return entityManager().createQuery("select o from Task o", Task.class).getResultList();
+        return entityManager.createQuery("select o from Task o", Task.class).getResultList();
     }
     
     public  Task findTask(Long id) {
         if (id == null) return null;
-        return entityManager().find(Task.class, id);
+        return entityManager.find(Task.class, id);
     }
     
     public  List<Task> findTaskEntries(int firstResult, int maxResults) {
-        return entityManager().createQuery("select o from Task o", Task.class).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
+        return entityManager.createQuery("select o from Task o", Task.class).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
     }
 
 }
 
 }}}
 
-Notice the removal of the Spring annotations and the addition of the CDI annotations.
+Notice the removal of the Spring annotations and the addition of the CDI annotation.
+There is only three lines of code difference.
 
 Then to make this bean recognizable by Spring I added the following:
 
@@ -566,7 +561,92 @@ public class BeanContainerImpl extends AbstractBeanContainer {
 
 }}}
 
-I had some troubles getting the unit test to work. The app does work. 
+I thought I had the webapp working at this point, but then realized that I was deploying old classes. I had to go back and rework things a few times to get things going. 
+At this point, the webapp almost works.
+
+I change the persistence.xml as follows:
+
+{{{
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+<persistence-unit name="persistenceUnit" >
+		<!--  transaction-type="RESOURCE_LOCAL" Took this out. We are managing this in CDI not local.-->
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <jta-data-source>jdbc/basic</jta-data-source>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="create"/>
+            <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy"/>
+            <property name="hibernate.connection.charSet" value="UTF-8"/>
+        </properties>
+    </persistence-unit>
+</persistence>
+
+}}}
+
+
+I then had to disable Spring transaction support/JPA support in the web.xml and in the applicationContext.xml.
+
+First in the web.xml as follows:
+
+*web.xml*
+{{{
+    <!-- Commented this out to get it to work with CDI
+    <filter>
+        <filter-name>Spring OpenEntityManagerInViewFilter</filter-name>
+        <filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class>
+    </filter>
+     -->
+    <filter-mapping>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter-mapping>
+        <filter-name>HttpMethodFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <!-- Commented this out to get it to work with CDI
+    <filter-mapping>
+        <filter-name>Spring OpenEntityManagerInViewFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    -->
+}}} 
+
+*applicationContext.xml*
+{{{
+    <context:spring-configured/>
+    <context:component-scan base-package="org.cdisource.springapp">
+        <context:exclude-filter expression="org.springframework.stereotype.Controller" type="annotation"/>
+    </context:component-scan>
+
+
+    <!-- 
+    
+    Spring is no longer managing the transactions.
+
+    <bean class="org.springframework.orm.jpa.JpaTransactionManager" id="transactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+    
+    <tx:annotation-driven mode="aspectj" transaction-manager="transactionManager"/>
+     
+    <jee:jndi-lookup id="dataSource" jndi-name="jdbc/basic"/>
+    <bean class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean" id="entityManagerFactory">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    
+         -->
+    
+    
+    <bean class="org.cdisource.springapp.TaskRepositoryFactoryBean" name="taskRespository"/>
+
+}}}
+
+I had some troubles getting the unit test to work. The web app does work. 
+
 The unit test is as follows:
 
 {{{
@@ -609,4 +689,3 @@ public class TaskRepositoryTest {
 }
 
 }}}
-
