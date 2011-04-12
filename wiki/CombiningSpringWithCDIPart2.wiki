@@ -1,9 +1,17 @@
 #summary Strategy for combining Spring and CDI
 
+<p>
+I added support for discovering all the beans in CDI and registering them all in Spring as bean definitions.
+</p>
 
+<p>
+This is a continuations of the last post CombiningSpringWithCDIPart.
+</p>
+
+<p>
 The last step we added a FactoryBean that was tied to the TaskRepository.
 The next step is to make this generic.
-
+</p>
 *CdiFactoryBean*
 {{{
 package org.cdisource.springintegration;
