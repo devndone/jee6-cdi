@@ -164,3 +164,30 @@ public class CdiBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 }
 
 }}}
+
+
+The heart of the class functionality is here:
+
+{{{
+		DefaultListableBeanFactory factory = (DefaultListableBeanFactory) beanFactory;
+		
+		Set<Bean<?>> beans = beanManager().getBeans(Object.class);
+		for (Bean bean : beans) {
+			BeanDefinitionBuilder definition = BeanDefinitionBuilder
+                                .rootBeanDefinition(CdiFactoryBean.class)
+                                .addPropertyValue("beanClass", 
+                                bean.getBeanClass()).setLazyInit(true);
+			Named named = (Named) bean.getBeanClass().getAnnotation(Named.class);
+			String name = named != null ? named.value() : bean.getBeanClass().getSimpleName() + "FactoryBean";
+			factory.registerBeanDefinition(name, definition.getBeanDefinition());
+		}
+
+}}}
+
+<p>
+We iterate through the beans from CDI, create a Spring definition that uses CdiFactoryBean from the last step.
+</p>
+
+<p>
+We register the CdiFactoryBean. We use the name from the @Named attribute if possible. If not we generate a name.
+</p>
