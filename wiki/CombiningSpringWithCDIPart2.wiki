@@ -5,7 +5,7 @@ I added support for discovering all the beans in CDI and registering them all in
 </p>
 
 <p>
-This is a continuations of the last post CombiningSpringWithCDIPart.
+This is a continuations of the last post CombiningSpringWithCDI.
 </p>
 
 <p>
