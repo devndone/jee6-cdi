@@ -72,3 +72,95 @@ public class CdiFactoryBean implements FactoryBean<Object> {
 }
 
 }}}
+
+Then you can register this in the applicationContext as follows:
+
+*applicationContext.xml*
+{{{
+
+     <bean class="org.cdisource.springintegration.CdiFactoryBean" name="taskRespository" >
+     	<property name="beanClass" value="org.cdisource.springapp.TaskRepository"/>
+     </bean>
+
+}}}
+
+<p>
+Of course, this is a bit of a pain. Do you really want to register every CDI bean in your system so it is available for Spring? Imagine a system with 25 CDI beans or 250 CDI beans. Imagine what the Spring XML file will look like. Yuck.
+</p>
+
+<p>
+We need a way to map CDI beans into the spring applicationContext.
+</p>
+
+The next step is bulk import a bunch of beans from CDI into Spring as follows:
+
+{{{
+
+package org.cdisource.springintegration;
+
+import java.lang.annotation.Annotation;
+import java.util.Set;
+
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Named;
+import javax.naming.InitialContext;
+
+import org.cdisource.beancontainer.BeanContainerInitializationException;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+
+public class CdiBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+
+	@Override
+	public void postProcessBeanFactory(
+			ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		
+		DefaultListableBeanFactory factory = (DefaultListableBeanFactory) beanFactory;
+		
+		Set<Bean<?>> beans = beanManager().getBeans(Object.class);
+		for (Bean bean : beans) {
+			BeanDefinitionBuilder definition = BeanDefinitionBuilder.rootBeanDefinition(CdiFactoryBean.class).addPropertyValue("beanClass", bean.getBeanClass()).setLazyInit(true);
+			Named named = (Named) bean.getBeanClass().getAnnotation(Named.class);
+			String name = named != null ? named.value() : bean.getBeanClass().getSimpleName() + "FactoryBean";
+			factory.registerBeanDefinition(name, definition.getBeanDefinition());
+		}
+	}
+
+	
+	private final String BEAN_MANAGER_LOCATION = "java:comp/BeanManager";
+	private BeanManager beanManager;
+
+	private BeanManager beanManager() {
+		if (beanManager == null) {
+			Object bean = null;
+
+			try {
+				InitialContext ic = new InitialContext();
+				bean = ic.lookup(BEAN_MANAGER_LOCATION);
+			} catch (Exception e) {
+				throw new BeanContainerInitializationException(
+						"Unable to lookup BeanManager instance in JNDI", e);
+			}
+			if (bean == null) {
+				throw new BeanContainerInitializationException(
+						"Null value returned when looking up the BeanManager from JNDI");
+			}
+			if (bean instanceof BeanManager) {
+				this.beanManager = (BeanManager) bean;
+			} else {
+				String msg = "Looked up JNDI Bean is not a BeanManager instance, bean type is "
+						+ bean.getClass().getName();
+				throw new BeanContainerInitializationException(msg);
+			}
+		}
+		return this.beanManager;
+
+	}
+
+}
+
+}}}
