@@ -183,4 +183,6 @@ public class CdiBeanThatHasSpringLookupInjection {
 
 }}}
 
-Using SpringLookup never uses types.
+Using @SpringLookup never uses types. The best implementation to use Spring integration at this point in time is Candi 4.0.17 (a couple of weeks ago it was Weld as this @Spring and @SpringLookup did not work in Resin Candi 4.0.16).
+
+We may still be running into concreted type issues with Weld even with @SpringLookup. We may have to create a proxy object to implement interfaces on the fly. It would be best if Weld just supported this.
