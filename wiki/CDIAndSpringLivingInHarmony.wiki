@@ -1,0 +1,39 @@
+#summary CDI and Spring living in harmony
+
+= Introduction =
+
+<p>
+Spring is very popular. CDI is very new. Although CDI is the standard for DI and Interception (light weight AOP), it is not a ubiquitous and Spring. 
+</p>
+
+<p>
+Part of CDI success will be probably be indicative on how well it can play and integrate with Spring.
+</p>
+
+<p>
+Realizing this, we took a Roo generated application, and fooled around with it until we were able to inject CDI beans into Spring objects. This effort is called the Spring CDI Bridge.
+</p>
+
+<p>
+This basically allows you to inject CDI managed beans into Spring. We also had to go the other direction. We need the ability to inject Spring beans into CDI. This effort is called the CDI Spring Extension.
+</p>
+
+<p>
+The golden ticket, is to be able to inject Spring beans into CDI beans that are then injected into Spring beans ad infinitum. This is tricky due to the different lifecycles and typing systems involved in Spring and CDI. We have achieved this as well.
+</p>
+
+
+== Bridging from the CDI World into Spring ==
+
+In order to bridge from the CDI world into the Spring world, we created a [http://static.springsource.org/spring/docs/3.0.x/api/org/springframework/beans/factory/config/BeanFactoryPostProcessor.html BeanFactoryPostProcessor].
+This CdiBeanFactoryPostProcessor looks the CDI [http://docs.jboss.org/cdi/api/latest/javax/enterprise/inject/spi/BeanManager.html BeanManager] in JNDI and uses it to find beans in CDI and map them as Spring bean definitions as follows:
+
+*applicationContext.xml example configuring a CdiBeanFactoryPostProcessor*
+{{{
+	<bean class="org.cdisource.springintegration.CdiBeanFactoryPostProcessor" />
+}}}
+
+<p>
+If you do not want to configure a BeanFactoryPostProcessor, you can also use CdiFactoryBean's to individually create bridges to CDI. CdiFactoryBean is similar to [http://static.springsource.org/spring/docs/3.0.x/api/org/springframework/jndi/JndiObjectFactoryBean.html JndiObjectFactoryBean]. In fact the CdiBeanFactoryPostProcessor configures bean definitions that are really CdiFactoryBean configured to look up a class in CDI.
+</p>.
+
