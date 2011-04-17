@@ -6,10 +6,14 @@ f = file(sys.argv[1])
 lines = f.readlines()
 
 pagebreak = True
-
-if len (sys.argv) == 3:
+if len (sys.argv) >= 3:
     if sys.argv[2]=="False":pagebreak = False
     else: pagebreak = True
+
+blog = False
+if len (sys.argv) >= 4:
+    if sys.argv[3]=="False":blog = False
+    else: blog  = True
     
 
 #Looks for a signature file in the local dir
@@ -58,7 +62,10 @@ for line in lines:
 
     if line[0:3] == "{{{":
         inCode=1
-        print "\n<pre class='java'>"
+        if not blog:
+            print "\n<pre class='java'>"
+        else:
+            print "\n<pre class='brush: java'>"
         continue
     if line[0:3] == "}}}":
         inCode=0
