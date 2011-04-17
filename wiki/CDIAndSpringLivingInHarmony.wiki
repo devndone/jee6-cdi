@@ -3,8 +3,18 @@
 = Introduction =
 
 <p>
-Spring is very popular. CDI is very new. Although CDI is the standard for DI and Interception (light weight AOP), it is not a ubiquitous and Spring. 
+Update: The CDI to Spring bridge works with CANDI, OpenWebBeans and
+Weld. The Spring to CDI extention works with CANDI and Weld.
+The Spring to CDI extention partially works with OpenWebBeans (just
+the @SpringLookup).
 </p>
+
+<p>
+Spring is very popular. CDI is very new. Although CDI is the standard
+for DI and Interception (light weight AOP), it is not as ubiquitous
+and Spring. 
+</p>
+
 
 <p>
 Part of CDI success will be probably be indicative on how well it can play and integrate with Spring.
@@ -12,9 +22,6 @@ Part of CDI success will be probably be indicative on how well it can play and i
 
 <p>
 Realizing this, we took a Roo generated application, and fooled around with it until we were able to inject CDI beans into Spring objects. This effort is called the Spring CDI Bridge.
-</p>
-
-<p>
 This basically allows you to inject CDI managed beans into Spring. We also had to go the other direction. We need the ability to inject Spring beans into CDI. This effort is called the CDI Spring Extension.
 </p>
 
@@ -50,7 +57,7 @@ You can find CdiBeanFactoryPostProcessor at  [https://github.com/CDISource/cdiso
 
 == Bridging from the Spring World into CDI ==
 
-We can also bridge from the Spring world into CDI. To do this we created two annotations: Spring and SpringLookup. SpringLookup is the simpler of the two. It works in all three open source CDI implementations [http://www.caucho.com/resin/candi/ Resin Candi], [http://seamframework.org/Weld JBoss Weld], and [Apache OpenWebBeans http://openwebbeans.apache.org/owb/index.html]. The Spring annotation is more complex (has more advanced features), and only works in [http://www.caucho.com/resin/candi/ Resin Candi], and [http://seamframework.org/Weld JBoss Weld].
+We can also bridge from the Spring world into CDI. To do this we created two annotations: @Spring and @SpringLookup. @SpringLookup is the simpler of the two. It works in all three open source CDI implementations [http://www.caucho.com/resin/candi/ Resin Candi], [http://seamframework.org/Weld JBoss Weld], and [Apache OpenWebBeans http://openwebbeans.apache.org/owb/index.html]. The @Spring annotation is more complex (has more advanced features), and only works in [http://www.caucho.com/resin/candi/ Resin Candi], and [http://seamframework.org/Weld JBoss Weld].
 
 (We plan on filing bug reports against OpenWebBeans and trying to work with that team to improve OpenWebBeans so that the Spring annotation can work there as well.)
 
@@ -120,7 +127,15 @@ The form
 
 }}}
 
-The above form will look up the type in the Spring application context by type instead of by name. This works in Weld as long as FooSpringBean2 is a concrete class. In Resin Candi, FooSpringBean2 can be an interface or a concrete type. In order to write proper extensions, we believe that Weld should allow interfaces so that concrete types can be defined in Spring and injected into CDI correctly. Thus you could have a concreted implementation in Spring as follows:
+<p>
+The above form will look up the type in the Spring application context
+by type instead of by name. FooSpringBean2 can be an interface or a
+concrete type. 
+</p>
+
+<p>
+Thus you could have a concreted implementation in Spring as follows:
+</p>
 
 {{{
 	<bean name="fooBar3"  class="org.cdisource.springintegration.FooSpringBean2Impl"/>
@@ -137,25 +152,14 @@ The form
 
 }}}
 
-This is form will look up bean in the application context uses the name and the type. Spring throws an exemption if the types don't match. Again, this fails if the type is an interface if you are using Weld. 
+<p>
+This is form will look up bean in the application context uses the name and the type. Spring throws an exemption if the types don't
+match. 
+</p>
 
-Here is the exact weld exception when FooSpringBean2 is an interface: 
-
-{{{
-Exception 0 :
-org.jboss.weld.exceptions.DefinitionException: WELD-001508 Cannot create an InjectionTarget from public abstract interface class org.cdisource.springintegration.FooSpringBean2 as it is an interface
-	at org.jboss.weld.manager.SimpleInjectionTarget.<init>(SimpleInjectionTarget.java:71)
-	at org.jboss.weld.manager.BeanManagerImpl.createInjectionTarget(BeanManagerImpl.java:1051)
-	at org.cdisource.springintegration.SpringIntegrationExtention$SpringBean.<init>(SpringIntegrationExtention.java:93)
-	at org.cdisource.springintegration.SpringIntegrationExtention.processInjectionTarget(SpringIntegrationExtention.java:48)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
-	at java.lang.reflect.Method.invoke(Method.java:597)
-}}}
-
-We developing this injection, using Spring annotation was the ideal. Then we realized since the implementations did not all support looking up objects by interface types (Weld) and registering beans using a @Named literal that we would need something that just always worked. This is where the SpringLookup came into play. In our minds it is not ideal, the implementations should support the features in the Spring annotation. SpringLookup works in all three CDI containers. You use it as follows:
-
+<p>
+We developing this injection, using @Spring annotation was the ideal. Then we realized since the implementations did not all support looking up objects by interface types (Weld) and registering beans using a @Named literal that we would need something that just always worked. This is where the @SpringLookup came into play. In our minds it is not ideal, the implementations should support the features in the @Spring annotation. @SpringLookup works in all three CDI containers. You use it as follows:
+</p>
 
 {{{
 package org.cdisource.springintegration;
@@ -183,6 +187,7 @@ public class CdiBeanThatHasSpringLookupInjection {
 
 }}}
 
-Using @SpringLookup never uses types. The best implementation to use Spring integration at this point in time is Candi 4.0.17 (a couple of weeks ago it was Weld as this @Spring and @SpringLookup did not work in Resin Candi 4.0.16).
+Using @SpringLookup never uses types and it always required. @Spring and @SpringLookup work with Candi 4.0.17 and Weld.
 
-We may still be running into concreted type issues with Weld even with @SpringLookup. We may have to create a proxy object to implement interfaces on the fly. It would be best if Weld just supported this.
+
+
