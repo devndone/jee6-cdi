@@ -3,15 +3,12 @@
 = Introduction =
 
 <p>
-Update: The CDI to Spring bridge works with CANDI, OpenWebBeans and
-Weld. The Spring to CDI extention works with CANDI and Weld.
-The Spring to CDI extention partially works with OpenWebBeans (just
-the @SpringLookup).
+Update: The CDI to Spring bridge works with CANDI, OpenWebBeans and Weld. The Spring to CDI extention works with CANDI and Weld. 
+The Spring to CDI extention partially works with OpenWebBeans (just the @SpringLookup).
 </p>
 
 <p>
-Spring is very popular. CDI is very new. Although CDI is the standard
-for DI and Interception (light weight AOP), it is not as ubiquitous
+Spring is very popular. CDI is very new. Although CDI is the standard for DI and Interception (light weight AOP), it is not as ubiquitous
 and Spring. 
 </p>
 
@@ -128,9 +125,8 @@ The form
 }}}
 
 <p>
-The above form will look up the type in the Spring application context
-by type instead of by name. FooSpringBean2 can be an interface or a
-concrete type. 
+The above form will look up the type in the Spring application context by type instead of by name. 
+FooSpringBean2 can be an interface or a concrete type. 
 </p>
 
 <p>
@@ -158,9 +154,9 @@ match.
 </p>
 
 <p>
-We developing this injection, using @Spring annotation was the ideal.
-Then we realized since the implementations supported all of these
-features (OpenWebBeans at this point). This is where the @SpringLookup came into play. In our minds it is not ideal, the implementations should support the features in the @Spring annotation. @SpringLookup works in all three CDI containers. You use it as follows:
+When developing this injection, using @Spring annotation was the ideal. Then we realized since the implementations did not support all of these
+features (OpenWebBeans at this point). This is where the @SpringLookup came into play. In our minds it is not ideal, the implementations 
+should support the features in the @Spring annotation. @SpringLookup works in all three CDI containers. You use it as follows:
 </p>
 
 {{{
@@ -193,57 +189,44 @@ public class CdiBeanThatHasSpringLookupInjection {
 Using @SpringLookup never uses types and it always required. @Spring and @SpringLookup work with Candi 4.0.17 and Weld.
 </p>
 
+
+==Background==
 <p>
-*Background:*
+
 The SpringBridge (CDI to Spring) always worked on all containers. It worked right out of the bat. I created something similar for Presto a
 precursor to Crank. It would ask Hibernate for all of its managed beans and then registers a bunch of DAO, Controllers and Services on
-your behalf for CRUD. 
-The SpringBridge works the same way except instead of asking Hibernate
-for entities, it asks CDI for managed beans. That part was easy. I had
-done it before (more or less) and am familiar with Spring after
-writing two large frameworks that sit on top of Spring (Spring is
-my home court).
+your behalf for CRUD. The SpringBridge works the same way except instead of asking Hibernate for entities, it asks CDI for managed beans. 
+That part was easy. I had done it before (more or less) and am familiar with Spring after writing two large frameworks that sit on top of 
+Spring (Spring is my home court).
 </p>
 
 <p>
-CDI is not my home court (yet). Here I needed a lot of help. The Weld
-reference guide to CDI was a big help. You can see the Extention uses
-the lessons quite extensively (you may even see a bit of copy and
-paste in there). Also working with Andy Gibson and Rob Williams has
-greatly expanded my CDI knowledge. I am more of a CDI enthusiast than
-a CDI expert.
+CDI is not my home court (yet). Here I needed a lot of help. The Weld reference guide to CDI was a big help. You can see the Extention uses
+the lessons quite extensively (you may even see a bit of copy and paste in there). Also working with Andy Gibson and Rob Williams has
+greatly expanded my CDI knowledge. I am more of a CDI enthusiast than a CDI expert.
 </p>
 
 <p>
-Early version of the Spring Extention (Spring to CDI) did not work at
-all. I have friends on the Resin Candi core engineering team who
-pointed me in the right direction. They whiteboarded a solution for
-me.
-They helped direct me what to do and then patched Resin Candi 
-so what I did would actually work with Resin 4.0.17.
+Early version of the Spring Extention (Spring to CDI) did not work at all. We have friends on the Resin Candi core engineering team who
+pointed us in the right direction. They whiteboarded a solution for us. They helped direct us what to do and then patched Resin Candi 
+so what we did would actually work with Resin 4.0.17. This would not exist without their help.
 </p>
 
 <p>
-Initially, it only worked with Weld not Resin Candi 4.0.16. Then after
-Resin Candi 4.0.17, it worked better on Candi then Weld.
-Then I had to rework it so it worked the same on Weld and Candi.
-Eseentially, I had to remove uneeded features so it would work with
-Weld.
-Since the feature were uneeded, it was not a big deal (see Occam razor).
+Initially, it only worked with Weld not Resin Candi 4.0.16. Then after Resin Candi 4.0.17, it worked better on Candi then Weld.
+Then we had to rework it so it worked the same on Weld and Candi. Eseentially, we had to remove uneeded features so it would work with
+Weld. Since the feature were uneeded, it was not a big deal (see Occam razor).
 </p>
 
 <p>
-As I write this, Mark Struberg and I are on IRC chat #openwebbeans at ircfreenode.
-Mark is woking on the OpenWebBeans project.
-He has forgotten more about CDI than I know and works from half way
-around the world from me in Austria.
-He is going to see what is what with OpenWebBeans and @Spring
-annotation.
-Perhaps Spring Integration will work with OpenWebBeans really soon.
+As I write this, Mark Struberg and I are on IRC chat #openwebbeans at ircfreenode. Mark is woking on the OpenWebBeans project.
+He has forgotten more about CDI than I know and works from half way around the world from me in Austria.
+He is going to see what is what with OpenWebBeans and @Spring annotation.
+Perhaps @Spring Integration will work with OpenWebBeans really soon.
 </p>
 
 <p>
-I guess what I am trying to say is, I could not have done this without
-a lot of help from a lot of people. Whatever bugs you find are mine,
-whatever coolness you find is what I built on top of the shoulders of giants.
+I guess what I am trying to say is, we could not have done this without a lot of help from a lot of people. Whatever bugs you find are mine,
+whatever coolness you find is what we built on top of the shoulders of giants. We are seeking code reviews and feature requests. 
+What should Spring to CDI integration look like? This is our vision. What is yours?
 </p>
