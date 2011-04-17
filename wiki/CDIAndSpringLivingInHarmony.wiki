@@ -242,3 +242,8 @@ annotation.
 Perhaps Spring Integration will work with OpenWebBeans really soon.
 </p>
 
+<p>
+I guess what I am trying to say is, I could not have done this without
+a lot of help from a lot of people. Whatever bugs you find are mine,
+whatever coolness you find is what I built on top of the shoulders of giants.
+</p>
