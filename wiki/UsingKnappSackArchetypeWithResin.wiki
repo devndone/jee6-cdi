@@ -85,9 +85,9 @@ Add this to the pom.xml (or you could drop the jar into $resin_home/webapp_jars:
 JBoss ships with hsqldb, Resin does not.
 
 
-http://bugs.caucho.com/view.php?id=4513
-http://bugs.caucho.com/view.php?id=4514
-http://bugs.caucho.com/view.php?id=4515
+ * http://bugs.caucho.com/view.php?id=4513
+ * http://bugs.caucho.com/view.php?id=4514
+ * http://bugs.caucho.com/view.php?id=4515
 
 
 To get past 
@@ -144,3 +144,41 @@ Then I ran into some EclipseLink issues:
 
 }}}
 
+
+{{{
+
+@Named("courseHome")
+@ConversationScoped
+public class CourseHome implements Serializable {
+
+	public void init(boolean beginConversation) {
+		if (id == null) {
+			ViewUtil.redirect("home.jsf");
+		}
+
+		if (beginConversation && conversation.isTransient()) {
+			conversation.begin();
+		}
+	}
+
+	/**
+           Added this
+	 */
+	public void init() {
+		this.init(false);
+	}
+
+}}}
+
+I changed *courseView.html* as follows;
+
+{{{
+	<ui:define name="content">
+		<f:metadata>
+			<f:viewParam name="courseId" value="#{courseHome.id}" />
+			<f:event type="preRenderView" listener="#{courseHome.init}" />
+		</f:metadata>
+		<h:form>
+
+
+}}}
