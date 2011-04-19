@@ -145,6 +145,8 @@ Then I ran into some EclipseLink issues:
 }}}
 
 
+Fix for
+*http://bugs.caucho.com/view.php?id=4515*
 {{{
 
 @Named("courseHome")
