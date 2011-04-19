@@ -1,4 +1,3 @@
-
 I wrote my own Resin Maven plugin which is at:
 
 {{{
@@ -84,4 +83,64 @@ Add this to the pom.xml (or you could drop the jar into $resin_home/webapp_jars:
 }}}
 
 JBoss ships with hsqldb, Resin does not.
+
+
+http://bugs.caucho.com/view.php?id=4513
+http://bugs.caucho.com/view.php?id=4514
+http://bugs.caucho.com/view.php?id=4515
+
+
+To get past 
+http://bugs.caucho.com/view.php?id=4513
+I did this 
+
+{{{
+
+
+@Local
+public interface SchoolDao {
+     //public <T extends BaseEntity> T save(T entity); //was something like this
+	
+     //changed to something like this
+    public BaseEntity save(BaseEntity entity);
+    public void refresh(BaseEntity entity);
+
+
+//
+public class SchoolJpaDao implements SchoolDao {
+
+        ...
+	@Override
+	public BaseEntity save(BaseEntity entity) {
+		return entityManager.merge(entity);
+	}
+
+	@Override
+	public void refresh(BaseEntity entity) {
+		if (entityManager.contains(entity)) {
+			entityManager.refresh(entity);
+		}
+	}
+}}}
+
+
+Then I ran into some EclipseLink issues:
+
+*persistence.xml*
+{{{
+			<!-- Properties for EclipseLink (default provider for GlassFish) 
+			<property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
+			<property name="eclipselink.logging.level" value="FINE" />
+                          Got rid of this
+			-->
+
+                        <!-- Added this -->
+			<property name="eclipselink.target-database" value="HSQL" />
+			<property name="eclipselink.ddl-generation" value="create-tables" />
+			<property name="eclipselink.ddl-generation.output-mode"
+				value="database" />				
+			<property name="eclipselink.weaving" value="false" />
+			<property name="eclipselink.logging.level" value="FINEST" />
+
+}}}
 
