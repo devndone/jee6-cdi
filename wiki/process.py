@@ -179,6 +179,7 @@ for line in lines:
 
     if inUL:
         sys.stdout.write("</li>")
-   #print ""
+    if respectLineBreaks: 
+        print ""
 
 print "There are %d code listings in this article" % cl
