@@ -14,6 +14,11 @@ blog = False
 if len (sys.argv) >= 4:
     if sys.argv[3]=="False":blog = False
     else: blog  = True
+
+respectLineBreaks = True
+if len (sys.argv) >= 5:
+    if sys.argv[4]=="False":respectLineBreaks = False
+    else: respectLineBreaks  = True
     
 
 #Looks for a signature file in the local dir
@@ -174,6 +179,6 @@ for line in lines:
 
     if inUL:
         sys.stdout.write("</li>")
-    print ""
+   #print ""
 
 print "There are %d code listings in this article" % cl
