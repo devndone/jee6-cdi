@@ -27,6 +27,10 @@ or Guice, you will find CDI easy to use and easy to learn. If you are new to AOP
 then CDI is an easy on ramp for picking up AOP quickly, as it uses a small subset of
 what AOP provides. CDI based AOP is simpler to use and learn.
 
+One can argue that CDI only implements a small part of AOP that is
+method interception. And while that is a small part of what AOP has to
+offer, it is also the part that most developers use. 
+
 CDI can be used standalone and can be embedded into any application.
 
 [https://jee6-cdi.googlecode.com/svn/tutorial/cdi-di-example Source code for this tutorial], 
@@ -57,7 +61,9 @@ where in the code you are suppose to be.
 
 If these tutorials are well recieved and we get enough feedback through our google group
 and comments section of the wiki then we will add a comprehensive tutorial on 
-CDI Extentions.
+CDI Extentions. The first two articles in this series were very well
+recieved so there appears to be a lot of interest in the CDI standard.
+Thanks for reading and thanks for your comments and particiapation so far.
 
 The more positive and/or constructive feedback we get the more encouraged we will be to add more.
 
@@ -69,16 +75,18 @@ The more positive and/or constructive feedback we get the more encouraged we wil
 
 For some, AOP seems like voodoo magic. For others, AOP seems like a cureall. 
 For now, let's just say that AOP is a tool that you want in your developer tool box. 
-It can make seemingly impossible things easy. When we talk about AOP in CDI,
+It can make seemingly impossible things easy. Aagin, when we talk about AOP in CDI,
 we are really talking about interception which is a small but very useful part of AOP.
 For brevity, I am going to refer to interception as AOP.
 
 
 The first time that I used AOP was with Spring's transaction management support. 
 I did not realize I was using AOP. I just knew Spring could apply EJB-style 
-declarative transaction management to POJOs. It was probably Ðthree to six months 
+declarative transaction management to POJOs. It was probably three to six months 
 before I realized that I was using was Spring's AOP support. The Spring framework 
-truly brought AOP out of the esoteric closet into the main stream light of day.
+truly brought AOP out of the esoteric closet into the main stream
+light of day. CDI brings these concepts into the JSR standards where
+other Java standards can build on top of CDI.
 
 You can think of AOP as a way to apply services (called cross-cutting concerns) 
 to objects. AOP encompasses more than this, but this is where it gets used 
@@ -140,7 +148,10 @@ changed the way we checked to see if a user was logged in.
 What we want to do instead is to use CDI to create a decorated version of the 
 *`AutomateTellerMachineImpl`* bean. 
 The decorated version would add the additional behavior to the *`AutomateTellerMachineImpl`* object without 
-changing the actual implementation of the *`AutomateTellerMachineImpl`*. 
+changing the actual implementation of
+the *`AutomateTellerMachineImpl`*.  In AOP speak, this concept is
+called a cross-cutting concern. A cross-cutting concern is a concern that crosses the boundry
+of many objects.
 
 CDI does this by creating what is called an AOP proxy. An AOP proxy is like a dynamic decorator. 
 Underneath the covers CDI can generate a class at runtime (the AOP proxy) that 
@@ -150,7 +161,7 @@ method interceptors. The method interceptors provide the additional behavior and
 are similar to *`ServletFilter`*s but for methods instead of requests.
 
 
-==asdf==
+==Diagrams of CDI AOP support==
 
 Thus before we added CDI AOP, our atm example was like Figure 1.
 
@@ -247,7 +258,7 @@ public class SecurityService {
                 currentToken.set(token);
         }
         
-        public void clearSecuirtyToken(){
+        public static void clearSecuirtyToken(){
                 currentToken.set(null);
         }
         
@@ -274,6 +285,10 @@ public class SecurityService {
 
 
 }}}
+
+The SecurityService will throw a SecurityViolationException if a user
+is not allowed to access a resource. SecurityViolationException is
+just a simple exception for this example.
 
 ====SecurityViolationException====
 {{{
@@ -352,21 +367,40 @@ The * checkSecurity* method of * SecurityAdvice* is the method that implements t
 
 Notice that the *SecurityService* gets injected into the *SecurityAdvice* and the *checkSecurity* method uses the *SecurityService* to see if the user is logged in and the user has the rights to execute the method. 
 
-An instance of *ProceedingJoinPoint*, namely *joinPoint*, is passed as an argument to *checkSecurity*. The  *ProceedingJoinPoint* has information about the method that is being called and provides control that determines if the method on the advised object's methods gets invoked (*AutomatedTellerMachineImpl.withdraw* and *AutomatedTellerMachineImpl.deposit*). If *joinPoint.proceed()* is not called then the wrapped method of the advised object (*withdraw* or *deposit*) is not called. (The proceed method causes the actual decorated method to be invoked or the next interceptor in the chain.)
+An instance of *InvocationContext*, namely *joinPoint*, is passed as
+an argument to *checkSecurity*. The  *InvocationContext* has
+information about the method that is being called and provides control
+that determines if the method on the advised object's methods gets
+invoked (e.g., *AutomatedTellerMachineImpl.withdraw* and *AutomatedTellerMachineImpl.deposit*). If *joinPoint.proceed()* is not called then the wrapped method of the advised object (*withdraw* or *deposit*) is not called. (The proceed method causes the actual decorated method to be invoked or the next interceptor in the chain.)
 
 In Spring, to apply an Advice like *SecurityAdvice* to an advised object, you need a pointcut. 
 A pointcut is like a filter that picks the objects and methods that get decorated. 
 In CDI, you just mark the class or methods of the class that you want decorated.
 There is no complex pointcut language. You could implement one as a CDI extention, but
-it does not come with it by default.
+it does not come with CDI by default. CDI uses the most common way
+developer apply interceptors, i.e., with annotations.
 
 
 CDI scans each class in each jar (and other classpath locations) that has a META-INF/beans.xml.
 
 The *SecurityAdvice* get installed in the CDI beans.xml.
 
+==== META-INF/beans.xml ====
+{{{
+<beans xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
+    <!-- <alternatives> <class>org.cdi.advocacy.JsonRestAtmTransport</class> 
+        </alternatives> -->
 
-==== Secure ====
+    <interceptors>
+        <class>org.cdi.advocacy.security.SecurityAdvice</class>
+    </interceptors>
+</beans>
+}}}
+
+==== Secure annotation ====
 {{{
 package org.cdi.advocacy.security;
 
