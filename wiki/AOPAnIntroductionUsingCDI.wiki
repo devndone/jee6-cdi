@@ -8,7 +8,7 @@
 
 
 = Introduction =
-
+<p>
 This article discusses CDI based AOP in a tutorial format. 
 
 [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
@@ -17,6 +17,9 @@ from the popularity of DI and AOP that Java needs to address DI and AOP so that
 it can build other standards on top of it. DI and AOP are the foundation of many 
 Java frameworks.
 
+</p>
+
+<p>
 CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by 
 [http://www.caucho.com/resin/ Caucho's Resin], IBM's !WebSphere, 
 [http://glassfish.java.net/ Oracle's Glassfish], 
@@ -26,60 +29,74 @@ simplifies and sanitizes the API for DI and AOP. If you have worked with Spring
 or Guice, you will find CDI easy to use and easy to learn. If you are new to AOP, 
 then CDI is an easy on ramp for picking up AOP quickly, as it uses a small subset of
 what AOP provides. CDI based AOP is simpler to use and learn.
+</p>
 
+<p>
 One can argue that CDI only implements a small part of AOP that is
 method interception. And while that is a small part of what AOP has to
 offer, it is also the part that most developers use. 
+</p>
 
+<p>
 CDI can be used standalone and can be embedded into any application.
+</p>
 
-[https://jee6-cdi.googlecode.com/svn/tutorial/cdi-di-example Source code for this tutorial], 
+
+<p>
+[http://jee6-cdi.googlecode.com/svn/tutorial/cdi-aop-example Source code for this tutorial], 
 and [MavenAOPTutorialInstructions instructions] for use.
-
 It is no accident that this tutorial follows many of the same examples in the 
 [http://java.dzone.com/articles/introduction-spring-aop Spring 2.5 AOP tutorial]
 written three years ago.
+</p>
 
+<p>
 It will be interesting to compare and contrast the examples in this tutorial 
 with the one written three years ago for Spring based AOP.
+</p>
 
 = Design goals of this tutorial =
+<p>
 This tutorial is meant to be a description and explanation of AOP in CDI 
 without the clutter of EJB 3.1 or JSF. 
-
 There are already plenty of tutorials that cover EJB 3.1 and JSF (and CDI).
+</p>
 
+<p>
 We believe that CDI has merit on its own outside of the EJB and JSF space. This 
 tutorial only covers CDI. Repeat there is no JSF 2 or EJB 3.1 in this tutorial. 
 There are plenty of articles and tutorials that cover using CDI as part of a larger 
 [http://download.oracle.com/javaee/6/tutorial/doc/gjbnr.html JEE 6 application]. 
 This tutorial is not that. This tutorial series is CDI and only CDI.
+</p>
 
+<p>
 This tutorial only has full, complete code examples with source code you
 can download and try out on your own. There are no code snippets where you can't figure out
 where in the code you are suppose to be.
+</p>
 
-If these tutorials are well recieved and we get enough feedback through our google group
-and comments section of the wiki then we will add a comprehensive tutorial on 
-CDI Extentions. The first two articles in this series were very well
-recieved so there appears to be a lot of interest in the CDI standard.
+<p>
+So far these tutorials have been well recieved and we got a lot of
+feedback.  There appears to be a lot of interest in the CDI standard.
 Thanks for reading and thanks for your comments and particiapation so far.
+</p>
 
-The more positive and/or constructive feedback we get the more encouraged we will be to add more.
 
 <wiki:toc max_depth="5" />
 
 
 
 = AOP Basics =
-
+<p>
 For some, AOP seems like voodoo magic. For others, AOP seems like a cureall. 
 For now, let's just say that AOP is a tool that you want in your developer tool box. 
 It can make seemingly impossible things easy. Aagin, when we talk about AOP in CDI,
 we are really talking about interception which is a small but very useful part of AOP.
 For brevity, I am going to refer to interception as AOP.
+</p>
 
-
+<p>
 The first time that I used AOP was with Spring's transaction management support. 
 I did not realize I was using AOP. I just knew Spring could apply EJB-style 
 declarative transaction management to POJOs. It was probably three to six months 
@@ -87,36 +104,69 @@ before I realized that I was using was Spring's AOP support. The Spring framewor
 truly brought AOP out of the esoteric closet into the main stream
 light of day. CDI brings these concepts into the JSR standards where
 other Java standards can build on top of CDI.
+</p>
 
+<p>
 You can think of AOP as a way to apply services (called cross-cutting concerns) 
 to objects. AOP encompasses more than this, but this is where it gets used 
 mostly in the main stream.
+</p>
 
+<p>
 I've using AOP to apply caching services, transaction management, 
 resource management, etc. to any number of objects in an application. 
-It is not a panacea, but it certainly fits a lot of otherwise difficult use cases.
+I am currently working with a team of folks on the CDI implementation
+for JSR-107 JCache.
+AOP is not a panacea, but it certainly fits a lot of otherwise difficult use cases.
+</p>
 
+<p>
 You can think of AOP as a dynamic decorator design pattern. The decorator 
 pattern allows additional behavior to be added to an existing class by wrapping
 the original class and duplicating its interface and then delegating to the original. 
 See this article [http://en.wikipedia.org/wiki/Decorator_pattern decorator pattern] 
 for more detail about the decorator design pattern. 
+</p>
 
 =Sample application revisited=
 
+<p>
 For this introduction to AOP, let's take a simple example, let's apply security 
 services to our Automated Teller Machine example from the first 
 [DependencyInjectionAnIntroductoryTutorial Dependency Injection example from 
 the first tutorial] in this series.
+</p>
 
+<p>
 Let's say when a user logs into a system that a *`SecurityToken`* is created that 
 carries the user's credentials and before methods on objects get invoked, we 
-want to check to see if the user has credentials to invoke these methods.
+want to check to see if the user has credentials to invoke these
+methods. For review, let's look at the AutomatedTellerMachine interface.
+</p>
 
+====Code Listing: `AutomatedTellerMachine` interface====
+
+{{{
+package org.cdi.advocacy;
+
+import java.math.BigDecimal;
+
+public interface AutomatedTellerMachine {
+
+	public abstract void deposit(BigDecimal bd);
+
+	public abstract void withdraw(BigDecimal bd);
+
+}
+}}}
+
+
+<p>
 In a web application, you could write a *`ServletFilter`*, that stored this 
 *`SecurityToken`* in HttpSession and then on every request retrieved the token 
 from Session and put it into a *`ThreadLocal`* variable where it could be accessed 
 from a *`SecurityService`* that you could implement.
+</p>
 
 Perhaps the objects that needed the *`SecurityService`* could access it as follows:
 
@@ -139,12 +189,15 @@ Perhaps the objects that needed the *`SecurityService`* could access it as follo
 	}
 }}}
 
+<p>
 In our ATM example, the above might work out well, but imagine a system with 
 thousands of classes that needed security. Now imagine, the way we check to see 
-if a user is logged is changed. If we put this code into every method that needed 
+if a user is "logged in" changed. If we put this code into every method that needed 
 security, then we could possibly have to change this a thousand times if we 
 changed the way we checked to see if a user was logged in.
+</p>
 
+<p>
 What we want to do instead is to use CDI to create a decorated version of the 
 *`AutomateTellerMachineImpl`* bean. 
 The decorated version would add the additional behavior to the *`AutomateTellerMachineImpl`* object without 
@@ -152,14 +205,16 @@ changing the actual implementation of
 the *`AutomateTellerMachineImpl`*.  In AOP speak, this concept is
 called a cross-cutting concern. A cross-cutting concern is a concern that crosses the boundry
 of many objects.
+</p>
 
+<p>
 CDI does this by creating what is called an AOP proxy. An AOP proxy is like a dynamic decorator. 
 Underneath the covers CDI can generate a class at runtime (the AOP proxy) that 
 has the same interface as our *`AutomatedTellerMachine`*. The AOP proxy wraps our 
 existing atm object and provides additional behavior by delegating to a list of 
 method interceptors. The method interceptors provide the additional behavior and 
 are similar to *`ServletFilter`*s but for methods instead of requests.
-
+</p>
 
 ==Diagrams of CDI AOP support==
 
@@ -174,15 +229,24 @@ After we added AOP support, we now get an AOP proxy that applies the *securityAd
 
 http://jee6-cdi.googlecode.com/svn/wiki/images/afterAOP.png
 
+
+<p>
 You can see that the AOP proxy implements the AutomatedTellerMachine interface. When the client object looks up the atm and starts invoking methods instead of executing the methods directly, it executes the method on the proxy, which then delegates the call to a series of method interceptor called advice, which eventually invoke the actual atm instance (now called atmTarget).
+</p>
 
+<p>
 Let's actually look at the code for this example.
-
-For this example, we will use a simplified *SecurityToken* that gets stored into a *ThreadLocal* variable, but one could imagine one that was populated with data from a database or an LDAP server or some other source of authentication and authorization. 
+</p>
+<p>
+For this example, we will use a simplified *SecurityToken* that gets
+stored into a *ThreadLocal* variable, but one could imagine one that
+was populated with data from a database or an LDAP server or some
+other source of authentication and authorization. 
+</p>
 
 Here is the *SecurityToken*, which gets stored into a *ThreadLocal* variable, for this example:
 
-====SecurityToken====
+====SecurityToken.java Gets stored in ThreadLocal====
 {{{
 
 package org.cdi.advocacy.security;
@@ -244,7 +308,7 @@ public class SecurityToken {
 
 The * SecurityService* stores the *SecurityToken* into the *ThreadLocal* variable, and then delegates to it to see if the current user has access to perform the current operation on the current object as follows:
 
-====SecurityService====
+====SecurityService.java Service====
 {{{
 
 package org.cdi.advocacy.security;
@@ -286,11 +350,13 @@ public class SecurityService {
 
 }}}
 
+<p>
 The SecurityService will throw a SecurityViolationException if a user
 is not allowed to access a resource. SecurityViolationException is
 just a simple exception for this example.
+</p>
 
-====SecurityViolationException====
+====SecurityViolationException.java Exception====
 {{{
 
 package com.arcmind.springquickstart.security;
@@ -310,10 +376,17 @@ public class SecurityViolationException extends RuntimeException {
 
 }}}
 
+<p>
+To remove the security code out of the AutomatedTellerMachineImpl
+class and any other class that needs security, we will write an Aspect
+in CDI to intercept calls and perform security checks before the
+method call. 
+To do this we will create a method interceptor (known is AOP speak as an advice) and intercept method calls on the atm object.
+</p>
 
-To remove the security code out of the AutomatedTellerMachineImpl class and any other class that needs security, we will write an Aspect to intercept calls and perform security checks before the method call. To do this we will create a method interceptor (known is AOP speak as an advice) and intercept method calls on the atm object.
-
+<p>
 Here is the SecurityAdvice class which will intercept calls on the AutomatedTellerMachineImpl class.
+</p>
 
 ====SecurityAdvice====
 {{{
@@ -363,22 +436,50 @@ public class SecurityAdvice {
 
 }}}
 
-The * checkSecurity* method of * SecurityAdvice* is the method that implements the advice. You can think of advice as the decoration that we want to apply to other objects. The objects getting the decoration are called advised objects. 
+<p>
+Notice that we annotate the SecuirtyAdvice class with an @Secure
+annotation. The @Secure annotation is an @InterceptorBinding. We use
+it to denote both the interceptor and the classes it intercepts. More
+on this later.
+</p>
 
+<p>
+Notice that we use @Inject to inject the securityManager. Also we mark
+the method that implements that around advice with and @AroundInvoke
+annotation. This essentially says this is the method that does the
+dynamic decoration.
+</p>
+
+<p>
+Thus, the * checkSecurity* method of * SecurityAdvice* is the method that implements the advice. You can think of advice as the decoration that we want to apply to other objects. The objects getting the decoration are called advised objects. 
+</p>
+
+<p>
 Notice that the *SecurityService* gets injected into the *SecurityAdvice* and the *checkSecurity* method uses the *SecurityService* to see if the user is logged in and the user has the rights to execute the method. 
+</p>
 
+<p>
 An instance of *InvocationContext*, namely *joinPoint*, is passed as
 an argument to *checkSecurity*. The  *InvocationContext* has
 information about the method that is being called and provides control
 that determines if the method on the advised object's methods gets
-invoked (e.g., *AutomatedTellerMachineImpl.withdraw* and *AutomatedTellerMachineImpl.deposit*). If *joinPoint.proceed()* is not called then the wrapped method of the advised object (*withdraw* or *deposit*) is not called. (The proceed method causes the actual decorated method to be invoked or the next interceptor in the chain.)
+invoked (e.g., *AutomatedTellerMachineImpl.withdraw*
+and *AutomatedTellerMachineImpl.deposit*). If *joinPoint.proceed()* is
+not called then the wrapped method of the advised object (*withdraw*
+or *deposit*) is not called. (The proceed method causes the actual
+decorated method to be invoked or the next interceptor in the chain to
+get invoked.)
+</p>
 
+<p>
 In Spring, to apply an Advice like *SecurityAdvice* to an advised object, you need a pointcut. 
 A pointcut is like a filter that picks the objects and methods that get decorated. 
-In CDI, you just mark the class or methods of the class that you want decorated.
+In CDI, you just mark the class or methods of the class that you want
+decorated with an interceptor binding.
 There is no complex pointcut language. You could implement one as a CDI extention, but
 it does not come with CDI by default. CDI uses the most common way
 developer apply interceptors, i.e., with annotations.
+</p>
 
 
 CDI scans each class in each jar (and other classpath locations) that has a META-INF/beans.xml.
@@ -400,7 +501,15 @@ http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 </beans>
 }}}
 
-==== Secure annotation ====
+<p>
+You can install interceptors in the order you want them called.
+</p>
+
+<p>In order to associate a interceptor with the classes and methods it
+decorates, you have to define an InterceptorBinding annotation. An
+example of such a binding is defined below in the @Secure annotation.</p>
+
+==== Secure.java annotation ====
 {{{
 package org.cdi.advocacy.security;
 
@@ -412,12 +521,30 @@ import javax.interceptor.InterceptorBinding;
 
 
 @InterceptorBinding 
-@Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
+@Retention(RUNTIME) @Target({TYPE, METHOD})
 public @interface Secure {
 
 }
 
 }}}
+
+<p>Notice that we annotated the @Secure annotation with the
+@InterceptorBinding annotation. </p>
+
+<p>
+InterceptorBindings follow a lot of
+the same rules as Qualifiers as discussed in the first two
+articles in this series.
+InterceptorBindings  are like
+qaulifiers for injection in that they can have members which can
+further qualify the injection. You can also disable InterceptorBinding
+annotation members from qualifying an interception by using the
+@NonBinding just like you can in Qualifiers.</p>
+
+<p>To finish our example, we need to annotate our
+AutomatedTellerMachine with the same @Secure annotation; thus,
+associating the AutomatedTellerMachine with our SecurityAdvice.
+</p>
 
 ==== AutomatedTellerMachine class using @Secure ====
 {{{
@@ -450,14 +577,12 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }
 }}}
 
-{{{
-
-}}}
-
-Let's complete our example by reviewing the AtmMain main method that looks up the atm out of the Spring *applicatoinContext*.
-
+<p>
+Let's complete our example by reviewing the AtmMain main method that looks up the atm out of CDI's *beanContainer*.
+</p>
+<p>
 Let's review *AtmMain* as follows:
-
+</p>
 ==== AtmMain.java ====
 {{{
 package org.cdi.advocacy;
@@ -504,53 +629,52 @@ Before we added AOP support when we looked up the atm, we looked up the object d
 
 
 == Conclusion ==
-AOP is neither a cure all or voodoo magic, but a powerful tool that needs to be in your bag of tricks. The Spring framework has brought AOP to the main stream masses and Spring 2.5 has simplified using AOP.
+<p>
+AOP is neither a cure all or voodoo magic, but a powerful tool that
+needs to be in your bag of tricks. The Spring framework has brought
+AOP to the main stream masses and Spring 2.5 has simplified using AOP.
+CDI brings AOP and DI into the standard's bodies where it can get further
+mainstreamed, refined and become part of future Java standards like
+JCache, Java EE 6 and Java EE 7.
+</p>
 
-You can use Spring AOP to apply services (called cross-cutting concerns) to objects. AOP need not seem a foreign concept as it is merely a more flexible version of the decorator design pattern. With AOP you can add additional behavior to an existing class without writing a lot of wrapper code. This can be a real time saver when you have a use case where you need to apply a cross cutting concern to a slew of classes.
+<p>
+You can use Spring CDI to apply services (called cross-cutting
+concerns) to objects using AOP's interception model. AOP need not seem
+a foreign concept as it is merely a more flexible version of the
+decorator design pattern. With AOP you can add additional behavior to an existing class without writing a lot of wrapper code. This can be a real time saver when you have a use case where you need to apply a cross cutting concern to a slew of classes.
+</p>
 
-====Code Listing: `AutomatedTellerMachine` interface====
-
-{{{
-package org.cdi.advocacy;
-
-import java.math.BigDecimal;
-
-public interface AutomatedTellerMachine {
-
-	public abstract void deposit(BigDecimal bd);
-
-	public abstract void withdraw(BigDecimal bd);
-
-}
-}}}
-
-
-
-= Conclusion =
-
-
-
+<p>
 [http://jcp.org/aboutJava/communityprocess/final/jsr299/index.html CDI] is the 
 Java standard for dependency injection and interception (AOP). 
 It is evident from the popularity of DI and AOP that Java needs to address DI 
 and AOP so that it can build other standards on top of it. 
 DI and AOP are the foundation of many Java frameworks.
-I hope you share my vision of CDI as a basis for other JSRs, Java frameworks and standards.
+I hope you share my excitement of CDI as a basis for other JSRs, Java
+frameworks and standards.
+</p>
 
+<p>
 CDI is a foundational aspect of Java EE 6. It is or will be shortly supported by 
 Caucho's Resin, IBM's !WebSphere, Oracle's Glassfish, Red Hat's JBoss and many 
 more application servers. CDI is similar to core Spring and Guice frameworks. 
 However CDI is a general purpose framework that can be used outside of JEE 6.
+</p>
 
-
-CDI simplifies and sanitizes the API for DI and AOP. ...
-
-CDI is a rethink on how to do dependency injection and AOP (interception really).
+<p>
+CDI simplifies and sanitizes the API for DI and AOP. I find that
+working with CDI based AOP is easier and covers the most common use
+cases. CDI is a rethink on how to do dependency injection and AOP (interception really).
 It simplifies it. It reduces it. It gets rid of legacy, outdated ideas.
 
+</p>
+
+<p>
 CDI is to Spring and Guice what JPA is to Hibernate, and Toplink. CDI will co-exist with Spring and Guice.
 There are plugins to make them interoperate nicely. There is more integration option
 on the way.
+</p>
 
 This is just a brief taste. There is more to come.
 
@@ -570,9 +694,11 @@ This is just a brief taste. There is more to come.
  
 
  = About the Author =
- This article was written with CDI advocacy in mind by [https://profiles.google.com/RichardHightower/about Rick Hightower]
+<p> This article was written with CDI advocacy in mind by [https://profiles.google.com/RichardHightower/about Rick Hightower]
  with some collaboration from others.
- 
+ </p>
+
+<p>
  Rick Hightower has worked as a CTO, Director of Development and a Developer for the last 20 years.
  He has been involved with J2EE since its inception. He worked at an EJB container company in 1999.
  He has been working with Java since 1996, and writing code professionally since 1990.
@@ -581,4 +707,4 @@ This is just a brief taste. There is more to come.
  Although not a fan of [http://java.sys-con.com/node/216307 EJB 3], 
  Rick is a big fan of the potential of CDI and 
  thinks that EJB 3.1 has come a lot closer to the mark.
-
+</p>
