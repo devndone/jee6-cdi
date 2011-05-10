@@ -1,0 +1,14 @@
+<projectDescription>
+  <name>cdi-aop-tutorial</name>
+  <comment>Source code for CDI AOP tutorial. 
+	See: http://code.google.com/p/jee6-cdi/wiki/AOPIntroductoryTutorial. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>
