@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>org.cdiadvocate</groupId>
-            <artifactId>cdiadvocate-resin-impl</artifactId>
+            <artifactId>cdiadvocate-weld-impl</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -25,9 +25,7 @@
             <artifactId>validation-api</artifactId>
             <version>1.0.0.GA</version>
         </dependency>
-        <!-- <dependency> <groupId>org.cidadvocate</groupId> <artifactId>cdiadvocate-weld-impl</artifactId> 
-            <version>1.0-SNAPSHOT</version> </dependency> -->
-    </dependencies>
+     </dependencies>
 
     <repositories>
         <repository>

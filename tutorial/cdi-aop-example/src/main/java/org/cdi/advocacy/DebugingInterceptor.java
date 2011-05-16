@@ -15,6 +15,9 @@ public class DebugingInterceptor {
 
     @AroundInvoke 
     public Object log(InvocationContext invocationContext) throws Exception {
+    	
+    	System.out.println("In DebugingInterceptor");
+
         PrintStream out = System.out;
         out.println("debug ");
 
