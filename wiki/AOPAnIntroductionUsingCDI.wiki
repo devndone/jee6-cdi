@@ -409,7 +409,9 @@ public class SecurityAdvice {
         private SecurityService securityManager;
 
         @AroundInvoke
-        public void checkSecurity(InvocationContext joinPoint) throws Throwable {
+        public Object checkSecurity(InvocationContext joinPoint) throws Exception {
+        	
+        	System.out.println("In SecurityAdvice");
                 
             /* If the user is not logged in, don't let them use this method */
             if(!securityManager.isLoggedIn()){            
@@ -430,7 +432,7 @@ public class SecurityAdvice {
                 throw new SecurityViolationException();
             }
         
-            joinPoint.proceed();
+            return joinPoint.proceed();
         }
 }
 
@@ -456,6 +458,17 @@ Thus, the * checkSecurity* method of * SecurityAdvice* is the method that implem
 
 <p>
 Notice that the *SecurityService* gets injected into the *SecurityAdvice* and the *checkSecurity* method uses the *SecurityService* to see if the user is logged in and the user has the rights to execute the method. 
+</p>
+
+<p> *For the astute reader":
+If you read the Spring version of this article, you would have noticed
+that the SecurityAdvice returns a void. Well, can CDI support this?
+According to the 1.0 specification, it does. The 1.0 specification
+shows an example of an interceptor that returns a void (9.5.1). However, this
+failed to work in Weld and OpenWebBeans. Only Resin Candi allows the
+void return type for interceptors. The original version of the article
+had the void return type, but I took it out because it did not work in
+Weld or OpenWebBeans.
 </p>
 
 <p>
@@ -578,7 +591,14 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }}}
 
 <p>
-Let's complete our example by reviewing the AtmMain main method that looks up the atm out of CDI's *beanContainer*.
+You have the option of use @Secure on the methods or at the class
+level. In this example, we annotated the class itself, which then
+applies the interceptor to every method.
+</p>
+
+<p>
+Let's complete our example by reviewing the AtmMain main method that
+looks up the atm out of CDI's *beanContainer*.
 </p>
 <p>
 Let's review *AtmMain* as follows:
@@ -627,6 +647,160 @@ public class AtmMain {
 
 Before we added AOP support when we looked up the atm, we looked up the object directly as shown in figure 1, now that we applied AOP when we look up the object we get what is in figure 2. When we look up the atm in the application context, we get the AOP proxy that applies the decoration (advice, method interceptor) to the atm target by wrapping the target and delegating to it after it invokes the series of method interceptors.
 
+==Victroy lap==
+The last code listing works just like you think. If you use
+simulateLogin, atm.deposit does not throw a SecurityException. If you use
+simulateNoAccess, it does throw a SecurityException. Now let's weave
+in a few more "Aspects" to the mix to drive some points home and to
+show how interception works with multiple interceptors.
+
+I will go quicker this time. 
+
+==== LoggingInterceptor ====
+{{{
+package org.cdi.advocacy;
+
+import java.util.Arrays;
+import java.util.logging.Logger;
+
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
+
+
+@Logable @Interceptor
+public class LoggingInterceptor {
+
+    @AroundInvoke 
+    public Object log(InvocationContext ctx) throws Exception {
+    	System.out.println("In LoggingInterceptor");
+
+        Logger logger = Logger.getLogger(ctx.getTarget().getClass().getName());
+        logger.info("before call to " + ctx.getMethod() + " with args " + Arrays.toString(ctx.getParameters()));
+        Object returnMe = ctx.proceed();
+        logger.info("after call to " + ctx.getMethod() + " returned " + returnMe);
+        return returnMe;
+    }
+}
+
+}}}
+
+Now we need to define the Logable interceptor binding annotation as
+follows:
+
+{{{
+package org.cdi.advocacy;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+import javax.interceptor.InterceptorBinding;
+
+
+@InterceptorBinding 
+@Retention(RUNTIME) @Target({TYPE, METHOD})
+public @interface Logable {
+
+}
+
+}}}
+
+<p>
+Now to use it we just mark the methods where we want this logging.
+</p>
+
+==== AutomatedTellerMachineImpl.java using Logable ====
+{{{
+package org.cdi.advocacy;
+
+...
+
+@Secure
+public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
+
+...
+
+    @Logable
+    public void deposit(BigDecimal bd) {
+        System.out.println("deposit called");
+        transport.communicateWithBank(null);
+
+    }
+
+    public void withdraw(BigDecimal bd) {
+        System.out.println("withdraw called");
+
+        transport.communicateWithBank(null);
+
+    }
+
+}
+
+}}}
+
+Notice that we use the @Secure at the class level which will apply the
+security interceptor to every mehtod in the
+AutomatedTellerMachineImpl.
+But, we use @Logable only on the deposit method.
+
+Now you have to add this interceptor to the beans.xml:
+
+====META-INF/beans.xml====
+{{{
+<beans 
+...
+    <interceptors>
+        <class>org.cdi.advocacy.LoggingInterceptor</class>
+       <class>org.cdi.advocacy.security.SecurityAdvice</class>
+    </interceptors>
+</beans>
+}}}
+
+When we run this again, we get something like this in our console
+output: 
+
+{{{
+May 15, 2011 6:46:22 PM org.cdi.advocacy.LoggingInterceptor log
+INFO: before call to public void org.cdi.advocacy.AutomatedTellerMachineImpl.deposit(java.math.BigDecimal) with args [1.00]
+May 15, 2011 6:46:22 PM org.cdi.advocacy.LoggingInterceptor log
+INFO: after call to public void org.cdi.advocacy.AutomatedTellerMachineImpl.deposit(java.math.BigDecimal) returned null
+}}}
+
+Notice that the order of interceptors in the beans.xml file determines
+the order of execution in the code. (I added a println to each
+interceptor just to show the ordering.) When we run this, we get the
+following output.
+
+====Output:====
+
+{{{
+In LoggingInterceptor
+In SecurityAdvice
+}}}
+
+If we switch the order in the beans.xml file, we will get a different
+order in the console output.
+
+====META-INF/beans.xml====
+{{{
+<beans 
+...
+    <interceptors>
+      <class>org.cdi.advocacy.security.SecurityAdvice</class>
+        <class>org.cdi.advocacy.LoggingInterceptor</class>
+    </interceptors>
+</beans>
+}}}
+
+
+{{{
+In SecurityAdvice
+In LoggingInterceptor
+}}}
+
+This is important as many interceptors can be applied. You have one
+place to set the order.
 
 == Conclusion ==
 <p>
@@ -642,7 +816,9 @@ JCache, Java EE 6 and Java EE 7.
 You can use Spring CDI to apply services (called cross-cutting
 concerns) to objects using AOP's interception model. AOP need not seem
 a foreign concept as it is merely a more flexible version of the
-decorator design pattern. With AOP you can add additional behavior to an existing class without writing a lot of wrapper code. This can be a real time saver when you have a use case where you need to apply a cross cutting concern to a slew of classes.
+decorator design pattern. With AOP you can add additional behavior to
+an existing class without writing a lot of wrapper code. 
+This can be a real time saver when you have a use case where you need to apply a cross cutting concern to a slew of classes.
 </p>
 
 <p>
