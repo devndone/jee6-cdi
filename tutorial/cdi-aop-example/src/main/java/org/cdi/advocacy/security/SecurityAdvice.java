@@ -17,7 +17,9 @@ public class SecurityAdvice {
         private SecurityService securityManager;
 
         @AroundInvoke
-        public void checkSecurity(InvocationContext joinPoint) throws Throwable {
+        public Object checkSecurity(InvocationContext joinPoint) throws Exception {
+        	
+        	System.out.println("In SecurityAdvice");
                 
             /* If the user is not logged in, don't let them use this method */
             if(!securityManager.isLoggedIn()){            
@@ -38,6 +40,6 @@ public class SecurityAdvice {
                 throw new SecurityViolationException();
             }
         
-            joinPoint.proceed();
+            return joinPoint.proceed();
         }
 }

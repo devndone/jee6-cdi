@@ -13,6 +13,7 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
     @Json
     private ATMTransport transport;
 
+    @Logable @Debugable   
     public void deposit(BigDecimal bd) {
         System.out.println("deposit called");
         transport.communicateWithBank(null);

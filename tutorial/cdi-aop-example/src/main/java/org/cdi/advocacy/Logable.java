@@ -8,7 +8,7 @@ import javax.interceptor.InterceptorBinding;
 
 
 @InterceptorBinding 
-@Retention(RUNTIME) @Target({TYPE, METHOD, FIELD, PARAMETER})
+@Retention(RUNTIME) @Target({TYPE, METHOD})
 public @interface Logable {
 
 }
