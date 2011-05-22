@@ -79,7 +79,7 @@ where in the code you are suppose to be.
 <p>
 So far these tutorials have been well recieved and we got a lot of
 feedback.  There appears to be a lot of interest in the CDI standard.
-Thanks for reading and thanks for your comments and particiapation so far.
+Thanks for reading and thanks for your comments and participation so far.
 </p>
 
 
@@ -90,7 +90,7 @@ Thanks for reading and thanks for your comments and particiapation so far.
 = AOP Basics =
 <p>
 For some, AOP seems like voodoo magic. For others, AOP seems like a cureall. 
-For now, let's just say that AOP is a tool that you want in your developer tool box. 
+For now, let's just say that AOP is a tool that you want in your developer toolbox. 
 It can make seemingly impossible things easy. Aagin, when we talk about AOP in CDI,
 we are really talking about interception which is a small but very useful part of AOP.
 For brevity, I am going to refer to interception as AOP.
@@ -116,7 +116,7 @@ mostly in the main stream.
 I've using AOP to apply caching services, transaction management, 
 resource management, etc. to any number of objects in an application. 
 I am currently working with a team of folks on the CDI implementation
-for JSR-107 JCache.
+for the revived JSR-107 JCache.
 AOP is not a panacea, but it certainly fits a lot of otherwise difficult use cases.
 </p>
 
@@ -125,7 +125,8 @@ You can think of AOP as a dynamic decorator design pattern. The decorator
 pattern allows additional behavior to be added to an existing class by wrapping
 the original class and duplicating its interface and then delegating to the original. 
 See this article [http://en.wikipedia.org/wiki/Decorator_pattern decorator pattern] 
-for more detail about the decorator design pattern. 
+for more detail about the decorator design pattern. (Notice in addition to supporting 
+AOP style interception CDI also supports actual decorators, which are not covered in this article.)
 </p>
 
 =Sample application revisited=
@@ -141,7 +142,7 @@ the first tutorial] in this series.
 Let's say when a user logs into a system that a *`SecurityToken`* is created that 
 carries the user's credentials and before methods on objects get invoked, we 
 want to check to see if the user has credentials to invoke these
-methods. For review, let's look at the AutomatedTellerMachine interface.
+methods. For review, let's look at the *`AutomatedTellerMachine`* interface.
 </p>
 
 ====Code Listing: `AutomatedTellerMachine` interface====
@@ -163,7 +164,7 @@ public interface AutomatedTellerMachine {
 
 <p>
 In a web application, you could write a *`ServletFilter`*, that stored this 
-*`SecurityToken`* in HttpSession and then on every request retrieved the token 
+*`SecurityToken`* in *`HttpSession`* and then on every request retrieved the token 
 from Session and put it into a *`ThreadLocal`* variable where it could be accessed 
 from a *`SecurityService`* that you could implement.
 </p>
@@ -223,7 +224,7 @@ Thus before we added CDI AOP, our atm example was like Figure 1.
 ====Figure 1: Before AOP advice====
 http://jee6-cdi.googlecode.com/svn/wiki/images/beforeAOP.png
 
-After we added AOP support, we now get an AOP proxy that applies the *securityAdvice* to the *atm* as show in figure 2.
+After we added AOP support, we now get an AOP proxy that applies the *`securityAdvice`* to the *`atm`* as show in figure 2.
 
 ==== Figure 2: After AOP advice ====
 
@@ -231,20 +232,24 @@ http://jee6-cdi.googlecode.com/svn/wiki/images/afterAOP.png
 
 
 <p>
-You can see that the AOP proxy implements the AutomatedTellerMachine interface. When the client object looks up the atm and starts invoking methods instead of executing the methods directly, it executes the method on the proxy, which then delegates the call to a series of method interceptor called advice, which eventually invoke the actual atm instance (now called atmTarget).
+You can see that the AOP proxy implements the *`AutomatedTellerMachine`* interface. 
+When the client object looks up the atm and starts invoking methods instead of 
+executing the methods directly, it executes the method on the proxy, which then 
+delegates the call to a series of method interceptor called advice, 
+which eventually invoke the actual atm instance (now called atmTarget).
 </p>
 
 <p>
 Let's actually look at the code for this example.
 </p>
 <p>
-For this example, we will use a simplified *SecurityToken* that gets
-stored into a *ThreadLocal* variable, but one could imagine one that
+For this example, we will use a simplified *`SecurityToken`* that gets
+stored into a *`ThreadLocal`* variable, but one could imagine one that
 was populated with data from a database or an LDAP server or some
 other source of authentication and authorization. 
 </p>
 
-Here is the *SecurityToken*, which gets stored into a *ThreadLocal* variable, for this example:
+Here is the *`SecurityToken`*, which gets stored into a *`ThreadLocal`* variable, for this example:
 
 ====SecurityToken.java Gets stored in ThreadLocal====
 {{{
@@ -306,7 +311,9 @@ public class SecurityToken {
 }
 }}}
 
-The * SecurityService* stores the *SecurityToken* into the *ThreadLocal* variable, and then delegates to it to see if the current user has access to perform the current operation on the current object as follows:
+The *`SecurityService`* stores the *`SecurityToken`* into the *`ThreadLocal`* variable, 
+and then delegates to it to see if the current user has access to perform the 
+current operation on the current object as follows:
 
 ====SecurityService.java Service====
 {{{
@@ -351,8 +358,8 @@ public class SecurityService {
 }}}
 
 <p>
-The SecurityService will throw a SecurityViolationException if a user
-is not allowed to access a resource. SecurityViolationException is
+The *`SecurityService`* will throw a *`SecurityViolationException`* if a user
+is not allowed to access a resource. *`SecurityViolationException`* is
 just a simple exception for this example.
 </p>
 
@@ -377,7 +384,7 @@ public class SecurityViolationException extends RuntimeException {
 }}}
 
 <p>
-To remove the security code out of the AutomatedTellerMachineImpl
+To remove the security code out of the *`AutomatedTellerMachineImpl`*
 class and any other class that needs security, we will write an Aspect
 in CDI to intercept calls and perform security checks before the
 method call. 
@@ -385,7 +392,8 @@ To do this we will create a method interceptor (known is AOP speak as an advice)
 </p>
 
 <p>
-Here is the SecurityAdvice class which will intercept calls on the AutomatedTellerMachineImpl class.
+Here is the *`SecurityAdvice`* class which will intercept calls on the 
+*`AutomatedTellerMachineImpl`* class.
 </p>
 
 ====SecurityAdvice====
@@ -439,65 +447,60 @@ public class SecurityAdvice {
 }}}
 
 <p>
-Notice that we annotate the SecuirtyAdvice class with an @Secure
-annotation. The @Secure annotation is an @InterceptorBinding. We use
+Notice that we annotate the *`SecuirtyAdvice`* class with an @*`Secure`*
+annotation. The @*`Secure`* annotation is an @*`InterceptorBinding`*. We use
 it to denote both the interceptor and the classes it intercepts. More
 on this later.
 </p>
 
 <p>
-Notice that we use @Inject to inject the securityManager. Also we mark
-the method that implements that around advice with and @AroundInvoke
+Notice that we use @Inject to inject the *`securityManager`*. Also we mark
+the method that implements that around advice with and @*`AroundInvoke`*
 annotation. This essentially says this is the method that does the
 dynamic decoration.
 </p>
 
 <p>
-Thus, the * checkSecurity* method of * SecurityAdvice* is the method that implements the advice. You can think of advice as the decoration that we want to apply to other objects. The objects getting the decoration are called advised objects. 
+Thus, the *`checkSecurity`* method of *`SecurityAdvice`* is the method that 
+implements the advice. You can think of advice as the decoration that we want 
+to apply to other objects. The objects getting the decoration are called advised objects. 
 </p>
 
 <p>
-Notice that the *SecurityService* gets injected into the *SecurityAdvice* and the *checkSecurity* method uses the *SecurityService* to see if the user is logged in and the user has the rights to execute the method. 
-</p>
-
-<p> *For the astute reader":
-If you read the Spring version of this article, you would have noticed
-that the SecurityAdvice returns a void. Well, can CDI support this?
-According to the 1.0 specification, it does. The 1.0 specification
-shows an example of an interceptor that returns a void (9.5.1). However, this
-failed to work in Weld and OpenWebBeans. Only Resin Candi allows the
-void return type for interceptors. The original version of the article
-had the void return type, but I took it out because it did not work in
-Weld or OpenWebBeans.
+Notice that the *`SecurityService`* gets injected into the *`SecurityAdvice`* 
+and the *`checkSecurity`* method uses the *`SecurityService`** to see if the 
+user is logged in and the user has the rights to execute the method. 
 </p>
 
 <p>
-An instance of *InvocationContext*, namely *joinPoint*, is passed as
-an argument to *checkSecurity*. The  *InvocationContext* has
+An instance of *`InvocationContext`*, namely *`joinPoint`*, is passed as
+an argument to *`checkSecurity`*. The *`InvocationContext`* has
 information about the method that is being called and provides control
 that determines if the method on the advised object's methods gets
-invoked (e.g., *AutomatedTellerMachineImpl.withdraw*
-and *AutomatedTellerMachineImpl.deposit*). If *joinPoint.proceed()* is
-not called then the wrapped method of the advised object (*withdraw*
-or *deposit*) is not called. (The proceed method causes the actual
+invoked (e.g., *`AutomatedTellerMachineImpl.withdraw`*
+and *`AutomatedTellerMachineImpl.deposit`*). If *`joinPoint.proceed()`* is
+not called then the wrapped method of the advised object (*`withdraw`*
+or *`deposit`*) is not called. (The proceed method causes the actual
 decorated method to be invoked or the next interceptor in the chain to
 get invoked.)
 </p>
 
 <p>
-In Spring, to apply an Advice like *SecurityAdvice* to an advised object, you need a pointcut. 
+In Spring, to apply an Advice like *`SecurityAdvice`* to an advised object, you need a pointcut. 
 A pointcut is like a filter that picks the objects and methods that get decorated. 
 In CDI, you just mark the class or methods of the class that you want
-decorated with an interceptor binding.
+decorated with an interceptor binding annotation.
 There is no complex pointcut language. You could implement one as a CDI extention, but
 it does not come with CDI by default. CDI uses the most common way
 developer apply interceptors, i.e., with annotations.
 </p>
 
-
+<p>
 CDI scans each class in each jar (and other classpath locations) that has a META-INF/beans.xml.
 
-The *SecurityAdvice* get installed in the CDI beans.xml.
+The *`SecurityAdvice`* get installed in the CDI beans.xml.
+
+</p>
 
 ==== META-INF/beans.xml ====
 {{{
@@ -505,8 +508,6 @@ The *SecurityAdvice* get installed in the CDI beans.xml.
     xsi:schemaLocation="
 http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
-    <!-- <alternatives> <class>org.cdi.advocacy.JsonRestAtmTransport</class> 
-        </alternatives> -->
 
     <interceptors>
         <class>org.cdi.advocacy.security.SecurityAdvice</class>
@@ -519,8 +520,8 @@ You can install interceptors in the order you want them called.
 </p>
 
 <p>In order to associate a interceptor with the classes and methods it
-decorates, you have to define an InterceptorBinding annotation. An
-example of such a binding is defined below in the @Secure annotation.</p>
+decorates, you have to define an *`InterceptorBinding`* annotation. An
+example of such a binding is defined below in the @*`Secure`* annotation.</p>
 
 ==== Secure.java annotation ====
 {{{
@@ -542,21 +543,21 @@ public @interface Secure {
 }}}
 
 <p>Notice that we annotated the @Secure annotation with the
-@InterceptorBinding annotation. </p>
+@*`InterceptorBinding`* annotation. </p>
 
 <p>
-InterceptorBindings follow a lot of
-the same rules as Qualifiers as discussed in the first two
+*`InterceptorBindings`* follow a lot of
+the same rules as *`Qualifiers`* as discussed in the first two
 articles in this series.
-InterceptorBindings  are like
+*`InterceptorBindings`*  are like
 qaulifiers for injection in that they can have members which can
-further qualify the injection. You can also disable InterceptorBinding
+further qualify the injection. You can also disable *`InterceptorBinding`*
 annotation members from qualifying an interception by using the
-@NonBinding just like you can in Qualifiers.</p>
+@*`NonBinding`* just like you can in *`Qualifiers`*.</p>
 
 <p>To finish our example, we need to annotate our
-AutomatedTellerMachine with the same @Secure annotation; thus,
-associating the AutomatedTellerMachine with our SecurityAdvice.
+*`AutomatedTellerMachine`* with the same @*`Secure`* annotation; thus,
+associating the *`AutomatedTellerMachine`* with our *`SecurityAdvice`*.
 </p>
 
 ==== AutomatedTellerMachine class using @Secure ====
@@ -591,13 +592,13 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 }}}
 
 <p>
-You have the option of use @Secure on the methods or at the class
+You have the option of use @*`Secure`* on the methods or at the class
 level. In this example, we annotated the class itself, which then
 applies the interceptor to every method.
 </p>
 
 <p>
-Let's complete our example by reviewing the AtmMain main method that
+Let's complete our example by reviewing the *`AtmMain`* main method that
 looks up the atm out of CDI's *beanContainer*.
 </p>
 <p>
@@ -645,16 +646,27 @@ public class AtmMain {
 
 }}}
 
-Before we added AOP support when we looked up the atm, we looked up the object directly as shown in figure 1, now that we applied AOP when we look up the object we get what is in figure 2. When we look up the atm in the application context, we get the AOP proxy that applies the decoration (advice, method interceptor) to the atm target by wrapping the target and delegating to it after it invokes the series of method interceptors.
+<p>
+Before we added AOP support when we looked up the atm, we looked up the object 
+directly as shown in figure 1, now that we applied AOP when we look up the object 
+we get what is in figure 2. When we look up the atm in the application context, 
+we get the AOP proxy that applies the decoration (advice, method interceptor) to 
+the atm target by wrapping the target and delegating to it after it invokes the 
+series of method interceptors.
+</p>
 
 ==Victroy lap==
+<p>
 The last code listing works just like you think. If you use
-simulateLogin, atm.deposit does not throw a SecurityException. If you use
-simulateNoAccess, it does throw a SecurityException. Now let's weave
+*`simulateLogin`*, *`atm.deposit`* does not throw a *`SecurityException`*. If you use
+*`simulateNoAccess`*, it does throw a *`SecurityException`*. Now let's weave
 in a few more "Aspects" to the mix to drive some points home and to
 show how interception works with multiple interceptors.
+</p>
 
+<p>
 I will go quicker this time. 
+</p>
 
 ==== LoggingInterceptor ====
 {{{
@@ -739,20 +751,23 @@ public class AutomatedTellerMachineImpl implements AutomatedTellerMachine {
 
 }}}
 
-Notice that we use the @Secure at the class level which will apply the
+<p>
+Notice that we use the @*`Secure`* at the class level which will applies the
 security interceptor to every mehtod in the
-AutomatedTellerMachineImpl.
-But, we use @Logable only on the deposit method.
-
+*`AutomatedTellerMachineImpl`*.
+But, we use @*`Logable`* only on the *`deposit`* method which applies it, you guessed it,
+only on the *`deposit`* method.
+</p>
+<p>
 Now you have to add this interceptor to the beans.xml:
-
+</p>
 ====META-INF/beans.xml====
 {{{
 <beans 
 ...
     <interceptors>
         <class>org.cdi.advocacy.LoggingInterceptor</class>
-       <class>org.cdi.advocacy.security.SecurityAdvice</class>
+        <class>org.cdi.advocacy.security.SecurityAdvice</class>
     </interceptors>
 </beans>
 }}}
@@ -788,7 +803,7 @@ order in the console output.
 ...
     <interceptors>
       <class>org.cdi.advocacy.security.SecurityAdvice</class>
-        <class>org.cdi.advocacy.LoggingInterceptor</class>
+      <class>org.cdi.advocacy.LoggingInterceptor</class>
     </interceptors>
 </beans>
 }}}
