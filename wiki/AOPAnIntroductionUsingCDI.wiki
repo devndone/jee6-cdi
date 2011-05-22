@@ -821,7 +821,7 @@ place to set the order.
 <p>
 AOP is neither a cure all or voodoo magic, but a powerful tool that
 needs to be in your bag of tricks. The Spring framework has brought
-AOP to the main stream masses and Spring 2.5 has simplified using AOP.
+AOP to the main stream masses and Spring 2.5/3.x has simplified using AOP.
 CDI brings AOP and DI into the standard's bodies where it can get further
 mainstreamed, refined and become part of future Java standards like
 JCache, Java EE 6 and Java EE 7.
@@ -833,7 +833,8 @@ concerns) to objects using AOP's interception model. AOP need not seem
 a foreign concept as it is merely a more flexible version of the
 decorator design pattern. With AOP you can add additional behavior to
 an existing class without writing a lot of wrapper code. 
-This can be a real time saver when you have a use case where you need to apply a cross cutting concern to a slew of classes.
+This can be a real time saver when you have a use case where you need to apply 
+a cross cutting concern to a slew of classes.
 </p>
 
 <p>
@@ -858,13 +859,11 @@ CDI simplifies and sanitizes the API for DI and AOP. I find that
 working with CDI based AOP is easier and covers the most common use
 cases. CDI is a rethink on how to do dependency injection and AOP (interception really).
 It simplifies it. It reduces it. It gets rid of legacy, outdated ideas.
-
 </p>
 
 <p>
 CDI is to Spring and Guice what JPA is to Hibernate, and Toplink. CDI will co-exist with Spring and Guice.
-There are plugins to make them interoperate nicely. There is more integration option
-on the way.
+There are plugins to make them interoperate nicely (more on these shortly).
 </p>
 
 This is just a brief taste. There is more to come.
