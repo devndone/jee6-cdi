@@ -1,0 +1,735 @@
+
+
+== Introduction ==
+
+<p>
+Java EE 6 provides an easy-to-use, standards based, convention-over-configuration, 
+enterprise component model. 
+</p>
+
+<p>
+Java EE 6 also provides a new dependeny injection, annotation processing and 
+interception system which is better than classic Spring. Some developers who 
+currently use Spring will want to migrate to Java EE 6. This is an easy 
+proposition for greenfield applications. Not all developers who want to migrate 
+will be able to do it in one pass. Some developers will need to combine Spring
+and CDI. Other developer's may want to combine Java EE 6 and CDI with Spring 
+based modules and libraries. The first article focuses on using CDI beans in a 
+Spring.application context. The second article focuses using Spring managed beans
+in CDI.
+</p>
+
+
+<p>
+EJB 3.1 and CDI is a productive convention over configuration model.
+A lot of people will use EJB 3.1 and CDI because it is the standard. 
+Even if you decide to adopt EJB 3.1 and CDI, you still may need to 
+integrate with 3rd party libraries that use Spring or Spring modules.  
+Thus, Spring integration might be a semi-permanent part of your architecture.
+Before we go into Spring / CDI integration let's cover a little bit why CDI is 
+a good option, and why I think you should use it as your primary DI/interception
+framework.
+</p>
+
+
+== Problems with Spring and Improvements to Java EE ==
+<p>
+Spring was born before annotations in the age of XML. Many projects end up with 
+very large XML files that are difficult to maintain. Spring 2.5 through Spring 3
+added annotations but their use is not as widespread or as well understood as 
+Spring's XML configuration. The Spring annotations are added on top of the 
+existing Spring DI system in what some could argue a non-type safe injection.
+</p>
+
+<p>
+Guice created a DI system based on strongly typed annotations. Guice is a well 
+designed strongly typed DI system.
+</p>
+
+<p>
+Java EE 6, based on ideas from Guice and Spring, improves further and creates an
+easier to use, general purpose, strongly typed DI system called Contexts and 
+Dependency Injection (CDI). CDI clears up issues with interceptors in Java EE 5 
+as well.
+</p>
+
+<p>
+One of the major advantages of Java EE 6 over Spring is there is less 
+configuration and less moving parts. Java EE 6 usability surpasses Spring 3 and 
+its testability comparable to Spring 3's.
+</p>
+
+<p>
+Spring is a collection of good ideas and trendy techniques some of which have gone out of style.
+A big part of Spring 3 was pruning some of these evolutionary dead ends out of the code base.
+However, many people who use Spring use later versions of Spring but in a style of Spring so to speak
+from cira 2004, i.e., XML. 
+</p>
+
+<p>
+It is not enough for a team to say they use Spring. What do they use from Spring? 
+Which parts do they use? Do they use custom classloaders? Do they use classpath 
+scanning? Do they use AspectJ weaving? Do they use a combination of approaches? 
+Do they write there own aspects? If so do they use traditional Spring AOP or 
+AspectJ AOP? This makes integrating Spring with CDI a bit complicated as it 
+is hard to tell exactly what a person means when they say they use Spring. 
+</p>
+
+<p>
+The complexity and the maintainability of configuring Spring is complicated 
+because of its build-your-own container approach to enterprise development.
+</p>
+
+<p>
+Roo, a utility from SpringSource to generate best-practice Spring 2.5 and Spring
+3.0 application, on the other hand relies heavily on AspectJ and annotations 
+although AspectJ is not widely adopted and there is little AspectJ expertise in 
+the industry. There is the Spring reality (XML) and the Spring vision of the
+future (Annotations, Roo and AspectJ). Any integration of Spring and CDI would 
+need to take this into account.
+</p>
+
+<img src="http://www.indeed.com/trendgraph/jobgraph.png?q=AspectJ%2C+Spring+Java&foo=.png"/>
+
+<p>
+From the graph above, you might come to the conclusion that Spring's vision via 
+Roo with regards to domain objects, annotations and AspectJ is different from 
+Spring's user base, which it appears is primarily using XML. For those Spring 
+users who are still using XML, before switching to Spring's new vision, they may
+want to first check out standards like Java EE 6, CDI and EJB 3.1 which provide
+a very productive convention over configuration environment. 
+</p>
+
+<p>
+Spring's annotation support for injection is not strongly typed like CDI and 
+Guice. It's annotations rely heavily on names to lookup other objects for many 
+cases. It is an extension of the existing Spring IOC container which was written
+before annotations existed and before classpath scanning for annotations was the 
+norm. Integrating CDI and Spring would need to bridge these gaps. 
+</p>
+
+== Integrating Spring and Java EE ==
+<p>
+Due to the improved useabiltty (type safe injection and convention over 
+configuration) of CDI, a key part of Java EE 6 and the fact that it is the 
+standard. It is very likely that many development shops will adopt Java EE 6 
+and CDI in some form. Thus, the focus of this two part article series.
+</p>
+
+<p>
+Since Spring is more than just an DI container. It is a set of utility classes 
+and modules. Java EE 6 scope is in a similar but different focus. While CDI 
+scope is even more focused. Even if you decide to use CDI and Java EE 6, it is 
+likely they you might need a capability that is part of the Spring ecosystem. 
+Therefore, you will likely need to integrate CDI and Spring. 
+Again referring to the first graph, traditional Spring is in wide use, however, 
+Java EE use is even greater. Compare to the following graph.
+</p>
+
+<img src="http://www.indeed.com/trendgraph/jobgraph.png?q=J2EE+or+%22Java+EE%22+or+JEE%2C+Spring+Java&foo.png"/>
+
+<p>
+Again although Spring use is wide, it is not as wide as Java EE.
+</p>
+
+<p>
+For some application, you can replace Spring with Java EE 6 and CDI all the way. 
+This will give you much simpler configuration. Then there are others who need 
+one of the many modules at SpringSource which all not so strangely rely on Spring. 
+Then there are third party frameworks that also use Spring. Even if you are a 
+Java EE shop, it is very likely that you will need to integrate with Spring at 
+some level. Then there are those who can't afford to switch over whole hog to a new
+framework, and must do it piecemeal.
+</p>
+
+<p>
+Currently, for example, there is no CDI enabled Model 2 style framework like 
+Spring MVC. Not all developers agree with the JSF framework approach. Therefore, 
+there may be a need and desire to integrate Spring MVC on the front end while 
+using Java EE 6 and CDI for the backend.
+</p>
+
+<p>
+For other application you may want to start to use Java EE 6 and CDI for some new use cases 
+while keeping Spring for other use cases as you start to adopt the more 
+productive CDI and Java EE features into your development stack. This would be a
+gradual migration. 
+</p>
+
+<p>
+Let's briefly cover how one might integrate Spring and CDI in the same application. 
+We will take two applications, one a Java EE 6 application and the other a 
+modified project that Roo generated (I stripped out the domain objects and 
+the AspectJ mixins).
+</p>
+
+== Java EE 6 and Spring 3 with annotations more similar than not ==
+
+<p>
+Spring due to project pitchfork closely aligns to the style of Java EE 5 in many respects.
+</p>
+
+<p>
+For an example of this let's compare some database access objects written using 
+Spring and EJB. Look at the EJB 3.1 and CDI version of a database access object.
+</p>
+
+
+=== TaskRepository class ===
+
+{{{
+...
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+@Stateless                                         // <1>
+public class TaskRepository {
+	
+    @PersistenceContext                            // <2>
+    private EntityManager entityManager;
+
+    
+    public void persist(Task task) {
+        this.entityManager.persist(task);
+    }
+...
+}}}
+<1> Identify this class as an EJB that has transaction support
+<2> Inject the persistence context from JPA into the EJB
+
+<p>
+Now without blinking, look at the Spring version of the same database access object using Spring.
+</p>
+
+==== TaskRepository class ====
+{{{
+...
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+@Repository                                      // <1>
+@Transactional                                   // <2>
+public class TaskRepository {
+	
+    @PersistenceContext
+    private EntityManager entityManager;         // <3>
+
+    
+    public void persist(Task task) {
+        this.entityManager.persist(task);
+    }
+...
+}}}
+<1> Identify this class as Spring bean (must be registered with Spring)
+<2> Mark all of the methods as transactional
+<3> Inject the persistence context from JPA into the Spring bean
+
+<p>
+The annotations are somewhat functionally equivalent. At first blush, there is 
+no real difference between these. However one of the key differences is the way 
+the EntityManager, which is stateful, is handled and the underlying design of 
+EJBs and Spring. In the EJB world, the entityManager is injected before this 
+EJB is used, and the container worries about the underlying thread and 
+transaction isolation. In the Spring world, the entityManager is a proxy object 
+to an entityManager that must be looked up on every method call to the 
+entityManager (sometimes in map associated with a thread local varaible, 
+sometimes as a JTA transaction resource depending on your configuration). 
+The EJB 3 approach is more efficient and consistent in addition to being the standard.
+</p>
+
+<p>
+Also, in the Spring version, you would need a few extra applicationContext.xml 
+files and a few entries in a web.xml file. Here is the applicationContext.xml 
+file to use the Spring version of the database access object.
+</p>
+
+
+=== applicationContext.xml ===
+{{{
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd         
+	         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd         
+	         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+	<context:property-placeholder location="classpath*:META-INF/spring/*.properties" />
+	<context:component-scan base-package="org.cdisource.springapp">                <!-- <1> -->
+		<context:exclude-filter expression="org.springframework.stereotype.Controller"
+			type="annotation" />
+	</context:component-scan>
+
+	<!-- <2> -->
+	<bean class="org.springframework.orm.jpa.JpaTransactionManager"               
+		id="transactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+
+	<!-- <3> -->
+	<tx:annotation-driven mode="aspectj"                                          
+		transaction-manager="transactionManager" />
+
+	<!-- <4> -->
+	<jee:jndi-lookup id="dataSource" jndi-name="jdbc/basic" />                    
+ 
+        <!-- <5> -->
+	<bean                                                                           
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		id="entityManagerFactory">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+</beans>
+}}}
+
+<1> Look for @Repository, and @Service stereotypes and add them to the application context.
+<2> Configure transaction manager for JPA
+<3> Create an annotation driven transaction support using AspectJ
+<4> Lookup a JNDI datasource
+<5> Configure the EntityManagerFactory
+
+<p>
+In the Spring version you have to essentially configure your own container. 
+You have many options. Do you want to use a custom Spring classloader? Do you 
+want to use Spring AOP/AspectJ code weaving? etc. Every shop uses some subset of 
+what is available in the Spring universe for solving even basic issues like 
+transaction demarcation of database access object methods. There are many ways 
+to solve the same problem. This is good but can be bad as well. It means if you 
+are hiring someone off the street to do development with knowledge of Spring 
+that it is unlikely that you will find two people using Spring the same way. 
+Are they using the new annotations? Are they using the AspectJ integration?
+In the last three consulting engagements I was on where folks used Spring, 
+they were all using Spring XML from 2004. There may just be too many options.
+</p>
+
+<p>
+To inject the `TaskRepository` bean into a Spring MVC controller we could use 
+@AutoWire (just like before).
+</p>
+
+==== Injecting a `TaskRepository` into a `TaskController` using Spring. ====
+{{{
+package org.cdisource.springapp.web;
+
+...
+import org.cdisource.springapp.TaskRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+...
+
+@RequestMapping("/tasks")
+@Controller
+public class TaskController {
+
+	@Autowired		// <1>
+	private TaskRepository repo;
+	...
+}}}
+<1> Injecting a `TaskRepository` into a Spring MVC controller using Spring.
+
+
+This is similar to injecting a CDI bean into a JSF backing bean as shown below.
+
+
+==== Injecting a `TaskRepository` into a `TaskController` using CDI. ====
+{{{
+
+package org.cdisource.springapp.task;
+
+import java.io.Serializable;
+import javax.inject.Inject;
+import javax.inject.Named;
+...
+
+@Named("taskHome")
+@ConversationScoped
+public class TaskHome implements Serializable {
+        ...
+	
+	@Inject
+	private TaskRepository repo;  // <1>
+
+        ...
+}}}
+<1> Injecting a `TaskRepository` into a JavaServer Faces (JSF) Backing bean using CDI.
+
+<p>
+For simple cases like these @Inject from CDI and  Spring's @Autowired are fairly 
+similar. The real difference in this example is that one uses Spring MVC and 
+one uses JavaServer Faces. The reality is that not all people use JavaServer Faces, 
+and Java EE 6 supports non JavaServer Faces applications using JavaServer Pages 
+(JSP) and Servlets. If you are building an application using JSP and Servlets 
+then Spring MVC is a popular option. In addition, Spring is a popular option for 
+integration with many other web frameworks like Tapestry, Wicket, Struts and more. 
+</p>
+
+<p>
+The question in many developer's mind is can I use CDI with Spring
+MVC, Tapestry, Wicket, Struts and more? The answer is yes. You don't
+have to wait. If you are already using Spring, then integrating CDI is
+quite easy with all of these frameworks and we will show you how to do
+it in this article. (Note there is also a CDI plugin for Struts 2.)
+</p>
+
+== Working CDI into the mix ==
+
+<p>
+One easy way to work CDI into the mix is to use a Java EE 6 container
+and use the EJB and CDI support with JPA. It is an understatement to
+say that EJB, CDI and JPA work well together. You see JPA is part of
+EJB. JPA defines the way modern entity beans are written. If you are
+like me, you may cringe at the name EJB. Well, EJB is not EJB of yore.
+EJB + CDI + JPA is a powerful combination of POJO productivity. The
+past sins of EJB have been fixed with EJB 3.1, CDI and JPA. Let's look
+at how easy it is to integrate a true EJB into a Spring application
+using CDI.
+</p>
+
+<p>
+In order to bridge the `TaskRepository` into Spring you could use a
+`org.springframework.beans.factory.FactoryBean`. A `FactoryBean` is
+used to bridge from Spring into other object systems. One famous
+`FactoryBean` that ships with the Spring framework is the
+`JndiObjectFactoryBean`. The `JndiObjectFactoryBean` uses JNDI to
+lookup a bean and map it into Spring's application context, thus
+bridging the gap between JNDI and Spring. Let's create a factory bean
+that get's a `TaskRepository` object from CDI and maps it as an
+injectable bean in the Spring world.
+</p>
+
+
+
+==== TaskRepositoryFactoryBean ====
+{{{
+package org.cdisource.springapp;
+
+import javax.enterprise.inject.spi.BeanManager; // <2>
+
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.cdisource.beancontainer.BeanContainer; // <3>
+import org.cdisource.beancontainer.BeanContainerImpl; // <3>
+
+public class TaskRepositoryFactoryBean implements FactoryBean<TaskRepository>, InitializingBean  { // <1>
+
+	private BeanContainer beanContainer; // <3>
+	private BeanManager beanManager; // <2>
+	
+	public void setBeanManager(BeanManager beanManager) {
+		this.beanManager = beanManager;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		// <3>
+		beanContainer = new BeanContainerImpl(beanManager);
+	}
+
+	@Override
+	public TaskRepository getObject() throws Exception {
+		// <4>
+		return beanContainer.getBeanByType(TaskRepository.class);
+	}
+
+	@Override
+	public Class<?> getObjectType() {
+		return TaskRepository.class;
+	}
+
+	@Override
+	public boolean isSingleton() {
+		return true;
+	}
+
+
+}
+}}}
+<1> `TaskRepositoryFactoryBean` is both a `FactoryBean` and an `InitializingBean` which means in Spring parlance a bean that can create a bean and a bean that will be notified after all of its members have been injected. 
+<2> The `BeanManager` is the main interface from CDI used to lookup beans.
+<3> Since the `BeanManager` is a bit difficult to use (very low level), a bumper crop of support open source support APIs including Weld Solder and CDISource have cropped up. The `BeanContainer` is from the CDISource project (both listed in the reference section of the article).
+<4> In the `getObject` method of the FactoryBean we look up the `TaskRepository` in CDI. Spring calls this method to lookup the bean for injection. The `getObject` method is from the FactoryBean interface.
+
+Since you may or may not ever use CDISource or Weld Solder, let's briefly cover how one would look up a bean in plain CDI by showing you what the `getBeanByType` method looks like.
+
+
+==== getBeanByType possible implementation, (with removed NPE checks for brevity) ====
+
+{{{
+
+	@Override
+	public <T> T getBeanByType(Class<T> type, Annotation... qualifiers) {
+		BeanManager beanManager = ...
+		Set<Bean<?>> beans = beanManager.getBeans(type, qualifiers);
+		if (beans.isEmpty()) {
+			throw new RuntimeException("Could not locate a bean of type "
+					+ type.getName());
+		}
+		Bean<?> bean = beanManager.resolve(beans);
+		CreationalContext<?> context = beanManager
+				.createCreationalContext(bean);
+		@SuppressWarnings("unchecked")
+		T result = (T) beanManager.getReference(bean, bean.getBeanClass(),
+				context);
+		return result;
+	}
+}}}
+
+<p>
+When you use CDI in a Java EE application, you never have to work at
+this level of the CDI code. However, when you are trying to get Spring
+to play nice with CDI, it makes sense. (You can download and use this
+example, see the resources section below).
+</p>
+
+<p>
+This technique would not just work for EJB, it would work for any CDI
+managed bean you wanted to inject inside of Spring application
+context.
+</p>
+
+<p>
+Now that we have integrated CDI with Spring, we can rip out all of the
+"configure your own container" stuff out of the application context
+and let the Java EE 6 container do what is was built to do as follows:
+</p>
+
+==== simplified application context.xml after letting EJB CDI do its thing ====
+
+{{{
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:jee="http://www.springframework.org/schema/jee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">   
+
+    <bean class="org.cdisource.springapp.TaskRepositoryFactoryBean" name="taskRespository"> <!-- <1> -->
+		<property name="beanManager"><jee:jndi-lookup jndi-name="java:comp/BeanManager"/></property> <!-- <2> -->
+    </bean>
+</beans>
+}}}
+
+<1> Configure our `TaskRepositoryFactoryBean`.
+<2> Use JNDI to lookup the `BeanManager`.
+
+<p>
+Ok. That is more like it. We went from forty lines of XML to 10. In
+most people's book that is a good. The code for the Spring controller
+would be the same. As you can see, Java EE 6 is much easier to
+configure. 
+</p>
+
+
+== Working CDI into the mix ==
+
+<p>
+Now one problem we have with this approach is that every time you want
+to introduce a new CDI bean into Spring, you need to create a new
+`FactoryBean`. It would be better to have a generic CDI `FactoryBean`.
+One attempt would look like this: </p>
+
+
+=== CdiFactoryBean, generic way to inject beans into Spring ===
+{{{
+package org.cdisource.springintegration;
+
+
+import javax.enterprise.inject.spi.BeanManager;
+
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.cdisource.beancontainer.BeanContainer;
+import org.cdisource.beancontainer.BeanContainerImpl;
+
+public class CdiFactoryBean implements FactoryBean<Object>, InitializingBean {
+
+	private boolean singleton = true;
+	private BeanManager beanManager; // <1>
+	private Class<?> beanClass; // <2>
+	private BeanContainer beanContainer; // <3>
+	
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		beanContainer = new BeanContainerImpl(beanManager);
+	}
+
+	public void setBeanClass(Class<?> beanClass) {
+		this.beanClass = beanClass;
+	}
+
+	@Override
+	public Object getObject() throws Exception {
+		return beanContainer.getBeanByType(beanClass);
+	}
+
+	@Override
+	public Class<?> getObjectType() {
+		return beanClass;
+	}
+
+	@Override
+	public boolean isSingleton() {
+		return singleton;
+	}
+
+	public void setSingleton(boolean singleton) {
+		this.singleton = singleton;
+	}
+
+	public void setBeanManager(BeanManager beanManager) {
+		this.beanManager = beanManager;
+	}
+
+}
+}}}
+<1> The `beanManager` is injected via JNDI.
+<2> The `beanClass` is the type that we are creating.
+<3> The `beanContainer` is the utility class we spoke of earlier to simplfy the CDI `BeanManager` access.
+
+Now when we are configuring the application context we do the following:
+
+==== simplified application context.xml after letting EJB CDI do its thing ====
+{{{
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:jee="http://www.springframework.org/schema/jee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">   
+
+     <bean class="org.cdisource.springintegration.CdiFactoryBean" name="taskRespository" >
+     	<property name="beanClass" value="org.cdisource.springapp.TaskRepository"/> <!-- <1> -->
+	<property name="beanManager"><jee:jndi-lookup jndi-name="java:comp/BeanManager"/></property>
+     </bean>
+
+</beans>
+}}}
+
+<p>
+<1> We just have one extra property called beanClass, which tells Spring which class our FactoryBean is creating. Now we have a generic way to bridge
+the Spring and CDI worlds. But, now we would have to add a new entry every time we want to create the bridge to the CDI world for a new bean.
+If you have one CDI bean to map to Spring, no problem. If you have 40 or more, well who wants to write that much XML.
+If only there was some way to look up all of the beans in CDI and
+automatically map them into Spring. Well there is. </p>
+
+<p>
+Spring provides an extension mechanism to add beans directly into an
+application context. We could scan all of the CDI beans, and map them
+into Spring using a Spring `BeanFactoryPostProcessor`. To do this we
+will need to programmatically create Spring bean definition based on
+CDI bean objects as follows:
+</p>
+
+==== Bridging the gap from CDI beans into the Spring world, every bean using a BeanFactoryPostProcessor and CDI beanManager ====
+{{{
+package org.cdisource.springintegration;
+
+import java.util.Set;
+
+import javax.enterprise.inject.spi.Bean;
+import javax.inject.Named;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+
+
+public class CdiBeanFactoryPostProcessor implements BeanFactoryPostProcessor { // <1>
+	
+	...
+	private BeanManagerLocationUtil beanManagerLocationUtil = new BeanManagerLocationUtil();
+
+
+	@Override
+	public void postProcessBeanFactory(
+			ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		
+		DefaultListableBeanFactory factory = (DefaultListableBeanFactory) beanFactory; 
+		
+		Set<Bean<?>> beans = beanManagerLocationUtil.beanManager().getBeans(Object.class); // <2>
+		for (Bean<?> bean : beans) {
+			
+			if (bean.getName()!=null && bean.getName().equals("Spring Injection")){
+				continue;
+			}
+			// <3>		
+			BeanDefinitionBuilder definition = BeanDefinitionBuilder.rootBeanDefinition(CdiFactoryBean.class)
+						.addPropertyValue("beanClass", bean.getBeanClass()) // <4>
+						.addPropertyValue("beanManager", beanManagerLocationUtil.beanManager()) // <5>
+						.setLazyInit(true);
+			String name = generateName(bean); // <6>
+			factory.registerBeanDefinition(name, definition.getBeanDefinition());
+		}
+	}
+
+	private String generateName(Bean<?> bean) {
+  		... // <7>
+	}
+
+}
+
+}}}
+
+<1> `CdiBeanFactoryPostProcessor` is a `BeanFactoryPostProcessor` which is to say that it is a Spring extension designed to work with bean definitions from Spring after Spring initializes the application context and before it starts creating actual beans.
+<2> `beanManagerLocationUtil` is a helper object used to look up the CDI `beanManager` (typically in JNDI).
+<3> For every CDI bean (`javax.enterprise.inject.spi.Bean`) create a Spring `BeanDefinition`. Note we are defining a bunch of CdiFactoryBean.class bean definition entries.
+<4> Use the CDI bean's class (`javax.enterprise.inject.spi.Bean.beanClass`) property to populate the CdiFactoryBean beanClass.
+<5> Use the beanManagerLocationUtil.beanManager() to populate the CdiFactoryBean.beanManager.
+<6> We generate a nice unique bean name based on the bean definition to make things easier to debug.
+<7> The nice unique bean name is based on the beanClass long or short name. 
+
+The application context is even simpler now. 
+
+
+==== simplified application context.xml ====
+{{{
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:jee="http://www.springframework.org/schema/jee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">   
+
+          <bean class="org.cdisource.springintegration.CdiBeanFactoryPostProcessor"/>
+
+</beans>
+}}}
+
+Now all CDI beans are in the Spring application context.
+
+
+
+== Conclusion ==
+<p>
+Spring was built to solve problems with J2EE. Spring borrowed ideas
+from J2EE and other projects and made them easier to use and more
+testable. Spring was a great stop gap for many architects and
+developers. Java EE 5 and Java EE 6 learned from the examples of
+Spring, Guice and other like projects. Spring learned from the
+examples of Java EE 5 & 6 and Guice. Now Java EE 6 has a CDI DI
+mechanism that rivals Spring's except it is even easier to use and it
+is type safe (less error prone). That said, Spring is still a thriving
+community and has tons of ideas and energy and new modules and
+projects. </p>
+
+<p>
+In addition many other useful projects also use Spring. The task going
+forward for Java EE 6 is how do you combine the ease of use of CDI
+with the utility of Spring, and the answer is CDI/Spring integration.
+</p>
+
+<p>
+This article covered the first part of CDI/Spring integration which is
+how do you map CDI beans into Spring. The next article will cover the
+second part, which is how do you map Spring beans into CDI. In the
+next article we cover building a custom extension to map Spring beans
+into CDI.
+</p>
