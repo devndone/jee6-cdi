@@ -613,8 +613,8 @@ Now when we are configuring the application context we do the following:
 </beans>
 }}}
 
-<p>
-<1> We just have one extra property called beanClass, which tells Spring which class our FactoryBean is creating. Now we have a generic way to bridge
+
+<1> <p> We just have one extra property called beanClass, which tells Spring which class our FactoryBean is creating. Now we have a generic way to bridge
 the Spring and CDI worlds. But, now we would have to add a new entry every time we want to create the bridge to the CDI world for a new bean.
 If you have one CDI bean to map to Spring, no problem. If you have 40 or more, well who wants to write that much XML.
 If only there was some way to look up all of the beans in CDI and
