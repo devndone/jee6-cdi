@@ -628,7 +628,7 @@ will need to programmatically create Spring bean definition based on
 CDI bean objects as follows:
 </p>
 
-==== Bridging the gap from CDI beans into the Spring world, every bean using a BeanFactoryPostProcessorCdiBeanFactoryPostProcessor is a BeanFactoryPostProcessor which is to say that it is a Spring extension designed  and CDI beanManager ====
+==== Bridging the gap from CDI beans into the Spring world, every bean using a BeanFactoryPostProcessor ====
 {{{
 package org.cdisource.springintegration;
 
@@ -683,7 +683,6 @@ public class CdiBeanFactoryPostProcessor implements BeanFactoryPostProcessor { /
 which is to say that it is a Spring extension designed to work with
 bean definitions from Spring after Spring initializes the application
 context and before it starts creating actual beans. </p>
-
 <2> `beanManagerLocationUtil` is a helper object used to look up the CDI `beanManager` (typically in JNDI).
 <3> For every CDI bean (`javax.enterprise.inject.spi.Bean`) create a Spring `BeanDefinition`. Note we are defining a bunch of CdiFactoryBean.class bean definition entries.
 <4> Use the CDI bean's class (`javax.enterprise.inject.spi.Bean.beanClass`) property to populate the CdiFactoryBean beanClass.
